@@ -1,15 +1,18 @@
 version: "3"
 services:
-  vscode-rust:
-    image: vscode-rust
+  vscode-go:
+    image: vscode-go
     build:
       context: ./dev
-      dockerfile: debian.Dockerfile
+      dockerfile: alpine.Dockerfile
+      args:
+        - USER=code
     cap_add:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ../:/home/rust/src:cached
+      - /var/snap/lxd/common/lxd/unix.socket:/var/lib/lxd/unix.socket
+      - ../:/workspace:cached
     command: /bin/sh -c "while sleep 1000; do :; done"

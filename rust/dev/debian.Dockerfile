@@ -63,7 +63,7 @@ RUN echo "Building libpq" && \
   cd ../../bin/pg_config && make && make install && \
   rm -r /tmp/*
 ENV RUSTUP_HOME=/opt/rust/rustup \
-  PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/usr/local/musl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PATH=/${HOME}/.cargo/bin:/opt/rust/cargo/bin:/usr/local/musl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN curl https://sh.rustup.rs -sSf | \
   env CARGO_HOME=/opt/rust/cargo \
   sh -s -- -y --default-toolchain $TOOLCHAIN --profile default --no-modify-path && \
@@ -87,10 +87,14 @@ RUN env CARGO_HOME=/opt/rust/cargo rustup component add rust-src rustfmt rls cli
 RUN env CARGO_HOME=/opt/rust/cargo cargo install -j$(nproc) -f cargo-audit cargo-deb cargo-watch cargo-cache cargo-tree && \
   env CARGO_HOME=/opt/rust/cargo cargo install -j$(nproc) -f mdbook-graphviz tojson petname systemfd && \
   rm -rf /opt/rust/cargo/registry/
-USER rust
-RUN mkdir -p /home/rust/libs /home/rust/src /home/rust/.cargo && \
-  ln -s /opt/rust/cargo/config /home/rust/.cargo/config
-WORKDIR /home/rust/src
+ARG USER=rust
+ENV USER $USER
+ENV HOME=/home/${USER}
+ENV LANG=en_US.UTF-8
+USER ${USER}
+RUN mkdir -p /${HOME}/libs /${HOME}/src /${HOME}/.cargo && \
+  ln -s /opt/rust/cargo/config /${HOME}/.cargo/config
+WORKDIR /${HOME}/src
 RUN export DEBIAN_FRONTEND=noninteractive; \
   sudo apt-get update && \
   sudo apt-get install -y apt-utils && \
@@ -102,3 +106,4 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
   sudo apt-get autoremove -y && \
   sudo apt-get clean -y && \
   sudo rm -rf "/tmp/*"
+RUN echo 'if [ -e /var/run/docker.sock ]; then sudo chown "$(id -u):$(id -g)" /var/run/docker.sock; fi' >> "/${HOME}/.bashrc"

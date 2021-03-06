@@ -1,35 +1,30 @@
 {
     
-    // "name": "my-app-rs",
+    // "name": "my-app-go",
     // "runArgs": [
     //     "--cap-add", "SYS_PTRACE",
     //     "--security-opt","seccomp=unconfined",
-    //     "--name","my-app-rs"
+    //     "--name","my-app-go"
     // ],
     // "build": {
-    //     "dockerfile": "./dev/debian.Dockerfile"
+    //     "dockerfile": "./dev/alpine.Dockerfile"
     // },
     "dockerComposeFile": [
         "docker-compose.yml"
     ],
-    "service": "vscode-rust",
+    "service": "vscode-go",
     "shutdownAction": "stopCompose",
-    "workspaceFolder": "/home/rust/src",
+    "workspaceFolder": "/workspace",
     "settings": {
         "files.eol": "\n",
         "terminal.integrated.shell.linux": "/bin/bash",
-        "files.watcherExclude": {
-            "**/target/**": true
-        },
-        "rust-analyzer.trace.extension": true,
-        "rust-analyzer.cargo.loadOutDirsFromCheck": true,
-        "rust-analyzer.updates.channel": "nightly",
-        "rust-analyzer.updates.askBeforeDownload": false,
+        "go.useGoProxyToCheckForToolUpdates": false,
+        "go.gopath": "/go",
+        "go.useLanguageServer": true,
         "editor.formatOnSave": true,
     },
     "extensions": [
-        // "rust-lang.rust",
-        "matklad.rust-analyzer",
+        "golang.Go"
         "bungcip.better-toml",
         "mutantdino.resourcemonitor",
         "TabNine.tabnine-vscode",
