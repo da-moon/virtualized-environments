@@ -1,0 +1,21 @@
+version: "3"
+services:
+  consul-replicate:
+    image: fjolsvin/consul-replicate
+    build:
+      context: ./
+      dockerfile: consul-replicate.Dockerfile
+      args:
+        - USER=operator
+  minikube:
+    image: fjolsvin/minikube
+    build:
+      context: ./
+      dockerfile: minikube.Dockerfile
+      args:
+        - USER=operator
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 2375
+      - 8443

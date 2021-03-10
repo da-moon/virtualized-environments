@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:1.0-experimental
 FROM debian:buster
 EXPOSE 22
 USER root

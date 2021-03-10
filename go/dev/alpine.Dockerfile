@@ -1,4 +1,5 @@
-FROM golang:alpine AS go-pkg-builder
+# syntax = docker/dockerfile:1.0-experimental
+FROM golang:alpine AS builder
 ARG STATIC_CHECK="2020.1.6"
 ENV STATIC_CHECK $STATIC_CHECK
 RUN apk add --no-cache git
@@ -49,7 +50,7 @@ ARG USER=code
 ENV USER $USER
 ENV HOME=/home/${USER}
 ENV LANG=en_US.UTF-8
-COPY --from=go-pkg-builder /go/bin/ /usr/local/bin/
+COPY --from=builder /go/bin/ /usr/local/bin/
 # Setting Go Env
 RUN go env -w GO111MODULE=on && \
   go env -w "CGO_ENABLED=0" && \

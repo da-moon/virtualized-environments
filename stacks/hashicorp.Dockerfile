@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:1.0-experimental
 FROM golang:alpine as builder
 USER root
 ENV TERM xterm 

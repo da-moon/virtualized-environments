@@ -1,8 +1,7 @@
+# syntax = docker/dockerfile:1.0-experimental
 # eg. build command
-# docker build \
-#  -t fjolsvin/consul-replicate . --file consul-replicate.Dockerfile
-
-FROM golang:alpine AS go-pkg-builder
+# docker build -t fjolsvin/consul-replicate --file consul-replicate.Dockerfile .
+FROM golang:alpine AS builder
 RUN apk add --no-cache git
 RUN go env -w GO111MODULE=off && \
   go env -w "CGO_ENABLED=0" && \
@@ -24,10 +23,10 @@ RUN TERM=xterm \
   go build -o "/go/bin/consul-replicate" && \
     strip "/go/bin/consul-replicate" && \
     upx "/go/bin/consul-replicate"
-# RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc_passwd
-# FROM scratch
-# COPY --from=go-pkg-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-# COPY --from=go-pkg-builder /etc_passwd /etc/passwd
-# COPY --from=go-pkg-builder --chown=65534:0 "/go/bin/consul-replicate" /entrypoint
-# USER nobody
-# ENTRYPOINT ["/entrypoint"]
+RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc_passwd
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc_passwd /etc/passwd
+COPY --from=builder --chown=65534:0 "/go/bin/consul-replicate" /entrypoint
+USER nobody
+ENTRYPOINT ["/entrypoint"]
