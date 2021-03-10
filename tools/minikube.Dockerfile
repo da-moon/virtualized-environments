@@ -18,13 +18,13 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositorie
     ca-certificates python2 wget  \
     autoconf findutils pkgconf libtool g++ automake linux-headers git
 
-WORKDIR "/go/src/github.com/kubernetes"
+WORKDIR "/go/src/k8s.io"
 RUN git clone \
       --depth 1 \
       --branch "v${MINIKUBE_VERSION}" \
       "https://github.com/kubernetes/minikube.git" \
-      "/go/src/github.com/kubernetes/minikube"
-WORKDIR "/go/src/github.com/kubernetes/minikube"
+      "/go/src/k8s.io/minikube"
+WORKDIR "/go/src/k8s.io/minikube"
 RUN make && \
     strip "out/minikube" && \
     upx "out/minikube" && \
