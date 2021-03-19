@@ -103,7 +103,7 @@ ENV IMAGE_SPECIFIC_PACKAGES="\
   bat glow \
   ripgrep ripgrep-bash-completion \
   imagemagick-static libx11-static libxrandr-dev \
-  tokei exa starship nushell just neofetch hyperfine asciinema \
+  tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
   docker docker-compose \
   "
 RUN set -ex && \
@@ -160,6 +160,7 @@ ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
 RUN mkdir -p "${HOME}/.local/bin" && \
   echo 'PATH="${PATH}:${HOME}/.local/bin"' | tee -a ~/.bashrc > /dev/null && \
+  echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null && \
   mkdir -p "${POETRY_HOME}/bin" && \ 
   echo '[ -r ${POETRY_HOME}/env ] && . ${HOME}/.poetry/env' | tee -a ~/.bashrc > /dev/null && \
   curl -fsSL \
