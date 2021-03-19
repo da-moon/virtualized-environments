@@ -123,10 +123,13 @@ RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 #
 ARG USER=operator
 ENV USER $USER
+ARG UID="1000"
+ENV UID $UID
+
 SHELL ["bash","-c"]
 RUN getent group sudo > /dev/null || sudo addgroup sudo
 RUN getent passwd "${USER}" > /dev/null && userdel --remove "${USER}" -f || true
-RUN useradd --user-group --create-home --shell /bin/bash --uid 1000 "${USER}"
+RUN useradd --user-group --create-home --shell /bin/bash --uid "$UID" "${USER}"
 RUN sed -i \
   -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' \
   -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' \
@@ -169,9 +172,8 @@ RUN mkdir -p "${HOME}/.local/bin" && \
 #   :::::: I N S T A L L I N G   P I P   P A C K A G E S : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────────────────────────
 #
-RUN python3 -m pip install detect-secrets pex dephell[full]
-RUN detect-secrets --version && \
-  dephell --version && \
+RUN python3 -m pip install pex dephell[full]
+RUN dephell --version && \
   pex --version
 #
 # ────────────────────────────────────────────────────────────────────────────────────────── I ──────────
