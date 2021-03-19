@@ -191,8 +191,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
 #
 RUN cargo install -j`nproc` pyoxidizer && \
-  strip /usr/local/cargo/bin/pyoxidizer && \
-  upx /usr/local/cargo/bin/pyoxidizer && \
+  strip ${HOME}/.cargo/bin/pyoxidizer && \
+  upx ${HOME}/.cargo/bin/pyoxidizer && \
   pyoxidizer --version
 #
 # ──────────────────────────────────────────────────────────────────────────────── I ──────────
