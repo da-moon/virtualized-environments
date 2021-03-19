@@ -156,26 +156,6 @@ RUN  sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
   echo 'PATH="${PATH}:${HOME}/.local/bin"' | tee -a ~/.bashrc > /dev/null && \
   echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a ~/.bashrc > /dev/null && \
   echo '[ -r ${HOME}/.poetry/env ] && . ${HOME}/.poetry/env' | tee -a ~/.bashrc > /dev/null
-#
-# ──────────────────────────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: I N S T A L L I N G   P Y T H O N   P O E T R Y : :  :   :    :     :        :          :
-# ──────────────────────────────────────────────────────────────────────────────────────────────────
-#
-ENV PATH="${PATH}:${HOME}/.poetry/bin"
-RUN mkdir -p "${HOME}/.local/bin" && \
-  mkdir -p "${HOME}/.poetry/bin" && \ 
-  curl -fsSL \
-  https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 && \
-  poetry --version
-#
-# ────────────────────────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: I N S T A L L I N G   P I P   P A C K A G E S : :  :   :    :     :        :          :
-# ────────────────────────────────────────────────────────────────────────────────────────────────
-#
-RUN python3 -m pip install pex dephell[full]
-RUN dephell --version && \
-  pex --version
-#
 # ────────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   R U S T   T O O L C H A I N : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -205,4 +185,26 @@ RUN nu -c 'config set path $nu.path' && \
   nu -c 'config set env  $nu.env' && \
   nu -c 'config set prompt "starship prompt"' && \
   sudo usermod --shell /usr/bin/nu "${USER}"
+# #
+# # ──────────────────────────────────────────────────────────────────────────────────────── I ──────────
+# #   :::::: I N S T A L L I N G   P Y T H O N   P O E T R Y : :  :   :    :     :        :          :
+# # ──────────────────────────────────────────────────────────────────────────────────────────────────
+# #
+# ENV POETRY_HOME="${WORKDIR}/vendor/poetry"
+# ENV PATH="${PATH}:${POETRY_HOME}/bin"
+# RUN mkdir -p "${HOME}/.local/bin" && \
+#   mkdir -p "${POETRY_HOME}/bin" && \ 
+#   curl -fsSL \
+#   https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 && \
+#   poetry --version
+# #
+# # ────────────────────────────────────────────────────────────────────────────────────── I ──────────
+# #   :::::: I N S T A L L I N G   P I P   P A C K A G E S : :  :   :    :     :        :          :
+# # ────────────────────────────────────────────────────────────────────────────────────────────────
+# #
+
+# RUN python3 -m pip install pex dephell[full]
+# RUN dephell --version && \
+#   pex --version
+# #
 
