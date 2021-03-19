@@ -1,0 +1,22 @@
+version: "3"
+services:
+  operator:
+    build:
+      context: ./dev
+      dockerfile: alpine.Dockerfile
+      args:
+        - USER=operator
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../:/workspace:cached
+    command:
+      - /bin/sh
+      - -cex
+      - >
+        sudo chown "`id -u`:`id -g`" /workspace -R &&
+        make -C /workspace clean &&
+        while sleep 1000; do :; done
