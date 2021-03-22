@@ -7,22 +7,10 @@ services:
       dockerfile: consul-replicate.Dockerfile
       args:
         - USER=operator
-  minikube:
-    image: fjolsvin/minikube
+  consul-replicate:
+    image: fjolsvin/consul-replicate
     build:
       context: ./
-      dockerfile: minikube.Dockerfile
+      dockerfile: consul-replicate.Dockerfile
       args:
         - USER=operator
-    # cap_add:
-    #   - SYS_PTRACE
-    # security_opt:
-    #   - seccomp:unconfined
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      # - 2375
-      - 8443
-    command: /bin/sh -c "while sleep 1000; do :; done"
-
