@@ -6,8 +6,10 @@ services:
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/gitpod-base
     build:
-      context: ./gitpod/base
+      context: ./base
       dockerfile: Dockerfile
       args:
         - USER=gitpod
         - UID=33333
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

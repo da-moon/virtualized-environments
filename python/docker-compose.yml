@@ -1,22 +1,28 @@
 version: "3"
 services:
+  base:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose build base
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/python-base
+    build:
+      context: ./base
+      dockerfile: alpine.Dockerfile
+      args:
+        - PYTHON_VERSION=3.9.2
   operator:
     build:
       context: ./dev
       dockerfile: alpine.Dockerfile
       args:
         - USER=operator
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - seccomp:unconfined
+        - UID=1000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../:/workspace:cached
+    depends_on:
+      - base
     command:
       - /bin/sh
       - -cex
-      - >
-        sudo chown "`id -u`:`id -g`" /workspace -R &&
-        make -C /workspace clean &&
-        while sleep 1000; do :; done
+      - while sleep 1000; do :; done

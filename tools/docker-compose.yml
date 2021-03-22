@@ -25,3 +25,4 @@ services:
       # - 2375
       - 8443
     command: /bin/sh -c "while sleep 1000; do :; done"
+

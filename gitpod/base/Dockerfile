@@ -6,18 +6,32 @@
 FROM debian:buster
 USER root
 COPY install-packages /usr/bin
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 #
 # ────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: B A S E   P A C K A G E S : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────
 #
-RUN chmod +x /usr/bin/install-packages && \
-  yes | unminimize \
-  && install-packages \
+ARG SCRIPTS_BASE_URL="https://raw.githubusercontent.com/da-moon/provisioner-scripts/master/bash"
+RUN set -ex; \
+  apt-get update && \
+  apt-get install -yq curl
+RUN set -ex; \
+  [ -r /usr/local/bin/install-packages ] || \
+      curl -fssL \
+      -o /usr/local/bin/install-packages \
+      ${SCRIPTS_BASE_URL}/util/install-packages && \
+      chmod +x /usr/local/bin/install-packages
+RUN set -ex; \
+  chmod +x /usr/bin/install-packages && \
+  install-packages \
   git \
   zip \
   unzip \
+  rsync \
+  openssh-server \
+  openssl \
+  perl \
   bash-completion \
   build-essential \
   bash-completion \
@@ -42,9 +56,60 @@ RUN chmod +x /usr/bin/install-packages && \
   wget \
   ca-certificates \
   gnupg2 \
-  ssl-cert
-RUN locale-gen en_US.UTF-8
+  ssl-cert \
+  # X11
+  libx11-xcb-dev \
+  libasound2 \
+  openssh-server \
+  xauth
+RUN set -ex; \
+  locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
+#
+# ────────────────────────────────────────────────────────── I ──────────
+#   :::::: S S H   S E T U P : :  :   :    :     :        :          :
+# ────────────────────────────────────────────────────────────────────
+#
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*PasswordAuthentication.*/d" /etc/ssh/sshd_config && \
+  echo "PasswordAuthentication yes" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*PermitRootLogin.*/d" /etc/ssh/sshd_config && \
+  echo "PermitRootLogin no" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*UsePAM.*/d" /etc/ssh/sshd_config && \
+  echo "UsePAM no" | tee -a /etc/ssh/sshd_config
+RUN [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*PubkeyAuthentication.*/d" /etc/ssh/sshd_config && \
+  echo "PubkeyAuthentication yes" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*ForwardX11.*/d" /etc/ssh/ssh_config && \
+  echo "ForwardX11 yes" | tee -a /etc/ssh/ssh_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*ForwardX11Trusted.*/d" /etc/ssh/ssh_config && \
+  echo "ForwardX11Trusted yes" | tee -a /etc/ssh/ssh_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*PasswordAuthentication.*/d" /etc/ssh/sshd_config && \
+  echo "PasswordAuthentication yes" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*X11UseLocalhost.*/d" /etc/ssh/sshd_config && \
+  echo "X11UseLocalhost no" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*X11Forwarding.*/d" /etc/ssh/sshd_config && \
+  echo "X11Forwarding yes" | tee -a /etc/ssh/sshd_config
+RUN set -ex && \
+  [ -r /etc/ssh/sshd_config ] && \
+  sed -i "/.*X11DisplayOffset.*/d" /etc/ssh/sshd_config && \
+  echo "X11DisplayOffset 10" | tee -a /etc/ssh/sshd_config
+
 #
 # ──────────────────────────────────────────────────────────── I ──────────
 #   :::::: U S E R   S E T U P : :  :   :    :     :        :          :
@@ -54,41 +119,48 @@ ARG USER=${USER}
 ENV USER $USER
 ARG UID="33333"
 ENV UID $UID
-RUN useradd \
+ENV SHELL="/bin/bash"
+# [ NOTE ] => https://askubuntu.com/a/1269947
+  # --groups sudo \
+RUN set -ex && \
+  useradd \
   --no-log-init \
   --create-home \
   --home-dir "/home/${USER}" \ 
-  --groups sudo \
   --uid "${UID}" \
-  --shell /bin/bash \
-  --password "${USER}" \
-  "${USER}" && \
-  sed -i \
-  -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' \
-  /etc/sudoers
-ENV HOME="/home/$USER"
-WORKDIR $HOME
-RUN { echo && echo "PS1='\[\e]0;\u \w\a\]\[\033[01;32m\]\u\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \\\$ '" ; } >> .bashrc
-USER "${USER}"
-RUN sudo echo "Running 'sudo' for ${USER}: success" && \
-  mkdir -p "${HOME}/.bashrc.d" && \
-  (echo; echo "for i in \$(ls \$HOME/.bashrc.d/*); do source \$i; done"; echo) | tee -a "${HOME}/.bashrc" > /dev/null
+  --shell "${SHELL}" \
+  --password \
+    "$(perl -e 'print crypt($ARGV[0], "password")' '${USER}' 2>/dev/null)" \
+  "${USER}"
+# RUN sed -i \
+#   -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' \
+#   /etc/sudoers
+# ENV HOME="/home/$USER"
+# WORKDIR $HOME
+# RUN set -ex && \
+#   { echo && echo "PS1='\[\e]0;\u \w\a\]\[\033[01;32m\]\u\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \\\$ '" ; } >> .bashrc
+# USER "${USER}"
+# RUN set -ex && \
+#   sudo echo "Running 'sudo' for ${USER}: success" && \
+#   mkdir -p "${HOME}/.bashrc.d" && \
+#   (echo; echo "for i in \$(ls \$HOME/.bashrc.d/*); do source \$i; done"; echo) | tee -a "${HOME}/.bashrc" > /dev/null
+# #
+# # ──────────────────────────────────────────────────────────────────── I ──────────
+# #   :::::: D O C K E R   I N S T A L L : :  :   :    :     :        :          :
+# # ──────────────────────────────────────────────────────────────────────────────
 
-#
-# ──────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: D O C K E R   I N S T A L L : :  :   :    :     :        :          :
-# ──────────────────────────────────────────────────────────────────────────────
-#
-RUN curl \
-  -fsSL \
-  "https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg" | \
-    sudo apt-key add - && \
-  echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list && \
-  yes | unminimize && \
-  sudo install-packages docker-ce docker-ce-cli containerd.io
-RUN curl \
-  -fsSL \
-  https://api.github.com/repos/docker/compose/releases/latest | jq -r ".assets[]|select(.browser_download_url | contains(\"$(uname -s)\") and contains(\"$(uname -m)\") and contains(\"x86_64\") and (contains(\"sha256\")|not)).browser_download_url" | \
-  xargs -I {} sudo wget --quiet --no-cache -O /usr/local/bin/docker-compose {} && \
-  sudo chmod +x /usr/local/bin/docker-compose
+# #
+# # ──────────────────────────────────────────────────────────────────────── I ──────────
+# #   :::::: I N S T A L L I N G   N G R O K : :  :   :    :     :        :          :
+# # ──────────────────────────────────────────────────────────────────────────────────
+# #
+# RUN set -ex && \
+#   curl -fsSl \
+#   /installer/ngrok-init
+# #
+# # ──────────────────────────────────────────────────────────── I ──────────
+# #   :::::: E N T R Y P O I N T : :  :   :    :     :        :          :
+# # ──────────────────────────────────────────────────────────────────────
+# #
+# # ─── RUNNING SSH ────────────────────────────────────────────────────────────────
+# CMD ["sudo","/usr/sbin/sshd", "-D", "-e"]

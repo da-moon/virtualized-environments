@@ -1,102 +1,38 @@
 # syntax = docker/dockerfile:1.0-experimental
 
 # ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --tag fjolsvin/vscode-python:latest --build-arg USER=operator .
+# docker build --file alpine.Dockerfile --build-arg USER=operator --build-arg UID=1000 --tag fjolsvin/vscode-python:latest .
 # ────────────────────────────────────────────────────────────────────────────────
-FROM alpine:latest
+FROM fjolsvin/python-base:latest
 ENV TERM=xterm
 USER root
-# ────────────────────────────────────────────────────────────────────────────────
-# PATHS
+# [ NOTE ] => base essential packages
 ENV BASE_PACKAGES="\
-  musl \
-  libc6-compat \
-  linux-headers \
-  build-base \
-  bash \
+  curl \
+  perl \
+  wget \
+  util-linux \
   git \
   ca-certificates \
-  libssl1.1 \
-  libffi-dev \
-  tzdata \
-  "
-# python dev tools
-ENV PYTHON_BUILD_PACKAGES="\
-  bzip2-dev \
+  ncurses \
+  bash \
+  bash-completion \
+  sudo \
+  shadow \
+  libcap \
   coreutils \
-  dpkg-dev dpkg \
-  expat-dev \
   findutils \
-  gcc \
-  gdbm-dev \
-  libc-dev \
-  libffi-dev \
-  libnsl-dev \
-  libtirpc-dev \
-  linux-headers \
-  make \
-  ncurses-dev \
-  libressl-dev \
-  pax-utils \
-  readline-dev \
-  sqlite-dev \
-  tcl-dev \
-  tk \
-  tk-dev \
-  util-linux-dev \
-  xz-dev \
-  zlib-dev \
-  git \
+  binutils \
+  gnupg \
+  grep \
+  gawk \
   "
-RUN set -ex ;\
-  apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES} || \
-  (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
-  apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES})
-# ────────────────────────────────────────────────────────────────────────────────
-#
-# ────────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: B U I L D I N G   P Y T H O N : :  :   :    :     :        :          :
-# ────────────────────────────────────────────────────────────────────────────────
-#
-ARG PYTHON_VERSION=3.9.2
-ENV PYTHON_VERSION $PYTHON_VERSION
-ENV PYTHON_PATH=/usr/local/bin/
-ENV PYENV_ROOT="/usr/local/lib/pyenv"
-ENV PATH="${PATH}:/usr/local/lib/python${PYTHON_VERSION}/bin"
-ENV PATH="${PATH}:/usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin:${PATH}"
-ENV CONFIGURE_OPTS="--enable-shared" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
-RUN set -ex ;\
-  git clone --depth 1 https://github.com/pyenv/pyenv /usr/local/lib/pyenv ;\
-  GNU_ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" ;\
-  CONFIGURE_OPTS="${CONFIGURE_OPTS} --build=${GNU_ARCH}" ;\
-  /usr/local/lib/pyenv/bin/pyenv install ${PYTHON_VERSION};
-RUN set -ex ;\ 
-  find /usr/local/lib/pyenv \
-  -mindepth 1 \
-  -name versions \
-  -prune \
-  -o -exec rm -rf {} \; || true ;\
-  find "/usr/local/lib/pyenv/versions/${PYTHON_VERSION}" \
-  -depth \
-  -name '*.pyo' \
-  -o -name '*.pyc' \
-  -o -name 'test' \
-  -o -name 'tests' \
-  -exec rm -rf '{}' + ;\
-  ln -s /usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin/* "${PYTHON_PATH}"
+
 # ────────────────────────────────────────────────────────────────────────────────
 ENV IMAGE_SPECIFIC_PACKAGES="\
-  ca-certificates curl perl wget aria2 util-linux gnupg rng-tools-extra \
-  git build-base make openssl-dev libffi-dev upx \
+  aria2  rng-tools-extra \
+  build-base make openssl-dev libffi-dev upx \
   ncurses ncurses-dev \
-  bash bash-completion \
-  sudo shadow libcap \
-  coreutils findutils binutils grep gawk \
   jq yq yj yq-bash-completion \
   htop bzip2 \
   yarn nodejs \
@@ -111,12 +47,9 @@ RUN set -ex && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
   apk upgrade --no-cache -U -a && \
-  apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES} || \
+  apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
-  apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES}) 
-# [ NOTE ] => set timezone info
-RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
-#
+  apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES}) 
 # ────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: C R E A T I N G   U S E R : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────

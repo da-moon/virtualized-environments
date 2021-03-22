@@ -107,4 +107,3 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
   sudo apt-get clean -y && \
   sudo rm -rf "/tmp/*"
 RUN echo 'if [ -e /var/run/docker.sock ]; then sudo chown "$(id -u):$(id -g)" /var/run/docker.sock; fi' >> "/${HOME}/.bashrc"
-RUN echo 'if [ -e /var/run/docker.sock ]; then sudo chown "$(id -u):$(id -g)" /var/run/docker.sock; fi' | sudo tee -a "/etc/profile"
