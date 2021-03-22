@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -o errtrace
+set -o functrace
+set -o errexit
+set -o nounset
+set -o pipefail
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+if [[ $EUID -ne 0 ]]; then
+   echo >&2 "*** You must run this script as root user." 1>&2
+   exit 1
+fi
+if [ $# = 0 ]; then
+  echo >&2 "*** No packages specified"
+  exit 1
+fi
+export RUNLEVEL=1
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -yq --no-install-recommends $@
+apt-get clean -y
+rm -rf \
+   /var/cache/debconf/* \
+   /var/lib/apt/lists/* \
+   /tmp/* \
+   /var/tmp/*

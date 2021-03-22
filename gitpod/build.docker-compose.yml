@@ -1,0 +1,13 @@
+version: "3"
+services:
+  base:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build base
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/gitpod-base
+    build:
+      context: ./gitpod/base
+      dockerfile: Dockerfile
+      args:
+        - USER=gitpod
+        - UID=33333
