@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.0-experimental
 
 # ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/vscode-python:latest .
+# docker build --file alpine.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/python-base:latest .
 # ────────────────────────────────────────────────────────────────────────────────
 FROM alpine:latest
 ENV TERM=xterm

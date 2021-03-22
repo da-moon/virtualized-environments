@@ -13,3 +13,19 @@ services:
         - UID=33333
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  python:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build python
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/gitpod-python
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+      args:
+        - USER=gitpod
+        - PYTHON_VERSION=3.9.2
+    depends_on:
+      - base
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
