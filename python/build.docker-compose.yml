@@ -1,0 +1,25 @@
+version: "3"
+services:
+  python-base-alpine:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build python-base-alpine
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/python-base-alpine
+    build:
+      context: ./base
+      dockerfile: alpine.Dockerfile
+      args:
+        - PYTHON_VERSION=3.9.2
+  vscode-python-alpine:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build vscode-python-alpine
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/vscode-python-alpine
+    build:
+      context: ./dev
+      dockerfile: alpine.Dockerfile
+      args:
+        - USER=operator
+        - UID=1000
+    depends_on:
+      - python-base-alpine

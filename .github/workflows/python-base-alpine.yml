@@ -1,0 +1,53 @@
+name: "python"
+on:
+  push:
+    branches:
+      - 'master'
+# on:
+#   push:
+#     paths:
+#     - '**.js'
+jobs:
+  build:
+    defaults:
+    run:
+      working-directory: ./python
+    name: "build docker image(s)"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "prune docker"
+        shell: bash
+        run: >
+          docker system prune 
+          --all 
+          --volumes 
+          --force
+      - name: "build and tag the image"
+        shell: bash
+        run: >
+          docker-compose
+          -f build.docker-compose.yml
+          build
+  push:
+    name: "push created docker image(s)"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: "ensure image exists"
+        shell: bash
+        run: |
+          docker images
+          if [[ "$(docker images -q fjolsvin/python-base-alpine:latest 2> /dev/null)" == "" ]]; then
+            echo >&2 "*** 'fjolsvin/python-base-alpine:latest' image not found"
+            exit 1
+          fi
+          if [[ "$(docker images -q fjolsvin/vscode-python-alpine:latest 2> /dev/null)" == "" ]]; then
+            echo >&2 "*** 'fjolsvin/vscode-python-alpine:latest' image not found"
+            exit 1
+          fi
