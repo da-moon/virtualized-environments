@@ -38,6 +38,7 @@ jobs:
   push:
     name: "push created docker image(s)"
     runs-on: ubuntu-18.04
+    needs: build
     steps:
       - name: "ensure image exists"
         shell: bash
