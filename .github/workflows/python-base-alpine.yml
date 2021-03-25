@@ -4,6 +4,8 @@ on:
     paths:
     - 'python/**.Dockerfile'
     - 'python/build.docker-compose.yml'
+  workflow_dispatch:
+
 jobs:
   build:
     defaults:
