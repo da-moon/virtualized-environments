@@ -10,8 +10,8 @@ on:
 jobs:
   build:
     defaults:
-    run:
-      working-directory: ./python
+      run:
+        working-directory: ./python
     name: "build docker image(s)"
     runs-on: ubuntu-18.04
     steps:
