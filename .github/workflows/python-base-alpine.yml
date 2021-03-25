@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-push:
     defaults:
       run:
         working-directory: ./python
-    name: "build docker image(s)"
+    name: "build and push docker image(s)"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
@@ -36,35 +36,13 @@ jobs:
           docker-compose
           -f build.docker-compose.yml
           build
-  push:
-    name: "push created docker image(s)"
-    runs-on: ubuntu-18.04
-    needs: build
-    steps:
-      - name: "Login to Docker Container Repository"
-        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "push fjolsvin/python-base-alpine"
+      - name: "push fjolsvin/python-base-alpine:latest"
         shell: bash
         run: >
           set -ex &&
-          if [[ "$(docker images -q fjolsvin/python-base-alpine:latest 2> /dev/null)" == "" ]]; then
-            echo >&2 "*** 'fjolsvin/python-base-alpine:latest' image not found"
-            exit 1
-          else
-            echo >&2 "*** pushing 'fjolsvin/python-base-alpine:latest' image to docker repository"
-            docker push fjolsvin/python-base-alpine:latest
-          fi
-      - name: "push fjolsvin/vscode-python-alpine"
+          docker push fjolsvin/python-base-alpine:latest
+      - name: "push fjolsvin/vscode-python-alpine:latest"
         shell: bash
         run: >
           set -ex &&
-          if [[ "$(docker images -q fjolsvin/vscode-python-alpine:latest 2> /dev/null)" == "" ]]; then
-            echo >&2 "*** 'fjolsvin/vscode-python-alpine:latest' image not found"
-            exit 1
-          else
-            echo >&2 "*** pushing 'fjolsvin/vscode-python-alpine:latest' image to docker repository"
-            docker push fjolsvin/vscode-python-alpine:latest
-          fi
+          docker push fjolsvin/vscode-python-alpine:latest
