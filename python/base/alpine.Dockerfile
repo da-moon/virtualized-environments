@@ -15,6 +15,7 @@ ARG BASE_PACKAGES="\
   build-base \
   bash \
   git \
+  sudo \
   ca-certificates \
   libssl1.1 \
   libffi-dev \

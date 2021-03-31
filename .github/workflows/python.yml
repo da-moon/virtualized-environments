@@ -1,0 +1,120 @@
+name: "python"
+on:
+  push:
+    paths:
+    - 'python/**/*.Dockerfile'
+    - 'python/**/*.Dockerfile'
+    - 'python/build.docker-compose.yml'
+  workflow_dispatch:
+jobs:
+# ────────────────────────────────────────────────────────────────────────────────
+  python-base-alpine:
+    defaults:
+      run:
+        working-directory: ./python
+    name: "build and push python-base-alpine docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build python-base-alpine
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/python-base-alpine:latest
+# ────────────────────────────────────────────────────────────────────────────────
+  vscode-python-alpine:
+    name: "build and push vscode-python-alpine docker image"
+    runs-on: ubuntu-18.04
+    needs: python-base-alpine
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build vscode-python-alpine
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/vscode-python-alpine:latest
+# ────────────────────────────────────────────────────────────────────────────────
+  python-base-debian:
+    defaults:
+      run:
+        working-directory: ./python
+    name: "build and push python-base-debian docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build python-base-debian
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/python-base-debian:latest
+
+# ────────────────────────────────────────────────────────────────────────────────
+  vscode-python-debian:
+    name: "build and push vscode-python-debian docker image"
+    runs-on: ubuntu-18.04
+    needs: python-base-debian
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build vscode-python-debian
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/vscode-python-debian:latest

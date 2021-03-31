@@ -17,7 +17,6 @@ ENV BASE_PACKAGES="\
   ncurses \
   bash \
   bash-completion \
-  sudo \
   shadow \
   libcap \
   coreutils \

@@ -2,50 +2,49 @@ name: "python"
 on:
   push:
     paths:
-    - 'gitpod/base/Dockerfile'
-    - 'gitpod/python/Dockerfile'
+    - 'gitpod/**/Dockerfile'
     - 'gitpod/build.docker-compose.yml'
   workflow_dispatch:
 jobs:
 # ────────────────────────────────────────────────────────────────────────────────
-  gitpod-python:
+  gitpod-base:
     defaults:
       run:
         working-directory: ./gitpod
-    name: "build and push docker image(s)"
+    name: "build and push gitpod-base docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: "build and tag the gitpod-python image"
+      - name: "build docker image"
         shell: bash
         run: >
           set -ex &&
           docker-compose
           -f build.docker-compose.yml
-          build gitpod-python
+          build gitpod-base
       - name: "Login to Docker Container Repository"
         run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "push fjolsvin/gitpod-python:latest"
+      - name: "push docker image"
         shell: bash
         run: >
           set -ex &&
-          docker push fjolsvin/gitpod-python:latest
+          docker push fjolsvin/gitpod-base:latest
 # ────────────────────────────────────────────────────────────────────────────────
   gitpod-python:
-    name: "build and push docker image(s)"
+    name: "build and push gitpod-python docker image"
     runs-on: ubuntu-18.04
-    needs: gitpod-python
+    needs: gitpod-base
     defaults:
       run:
         working-directory: ./gitpod
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: "build and tag the gitpod-python image"
+      - name: "build docker image"
         shell: bash
         run: >
           set -ex &&
@@ -57,7 +56,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "push fjolsvin/gitpod-python:latest"
+      - name: "push docker image"
         shell: bash
         run: >
           set -ex &&
