@@ -73,8 +73,11 @@ RUN set -ex && \
   $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
   "${USER}"
 RUN sed -i \
-  -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' \
-  /etc/sudoers
+  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
+  -e '/%sudo.*NOPASSWD:ALL/d' \
+  /etc/sudoers && \
+  echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
+  echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 RUN usermod -aG wheel,root,sudo "${USER}"
 USER ${USER}
 SHELL ["bash","-c"]
