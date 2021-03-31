@@ -1,8 +1,8 @@
 version: "3"
 services:
-  base:
+  gitpod-base:
     # ─────────────────────────────────────────────────────────────────
-    # docker-compose -f build.docker-compose.yml build base
+    # docker-compose -f build.docker-compose.yml build gitpod-base
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/gitpod-base
     build:
@@ -13,9 +13,9 @@ services:
         - UID=33333
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-  python:
+  gitpod-python:
     # ─────────────────────────────────────────────────────────────────
-    # docker-compose -f build.docker-compose.yml build python
+    # docker-compose -f build.docker-compose.yml build gitpod-python
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/gitpod-python
     build:

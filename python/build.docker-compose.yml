@@ -10,16 +10,40 @@ services:
       dockerfile: alpine.Dockerfile
       args:
         - PYTHON_VERSION=3.9.2
+  python-base-debian:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build python-base-debian
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/python-base-debian
+    build:
+      context: ./base
+      dockerfile: debian.Dockerfile
+      args:
+        - PYTHON_VERSION=3.9.2
+
   vscode-python-alpine:
     # ─────────────────────────────────────────────────────────────────
     # docker-compose -f build.docker-compose.yml build vscode-python-alpine
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/vscode-python-alpine
     build:
-      context: ./dev
+      context: ./vscode
       dockerfile: alpine.Dockerfile
       args:
-        - USER=operator
+        - USER=code
         - UID=1000
     depends_on:
       - python-base-alpine
+  vscode-python-debian:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build vscode-python-debian
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/vscode-python-debian
+    build:
+      context: ./vscode
+      dockerfile: debian.Dockerfile
+      args:
+        - USER=code
+        - UID=1000
+    depends_on:
+      - python-base-debian

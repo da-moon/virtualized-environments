@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
 
 # ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --build-arg USER=operator --build-arg UID=1000 --tag fjolsvin/vscode-python:latest .
+# docker build --file alpine.Dockerfile --build-arg USER=operator --build-arg UID=1000 --tag fjolsvin/vscode-python-alpine:latest .
 # ────────────────────────────────────────────────────────────────────────────────
-FROM fjolsvin/python-base:latest
+FROM fjolsvin/python-base-alpine:latest
 ENV TERM=xterm
 USER root
 # [ NOTE ] => base essential packages
@@ -40,7 +40,6 @@ ENV IMAGE_SPECIFIC_PACKAGES="\
   ripgrep ripgrep-bash-completion \
   imagemagick-static libx11-static libxrandr-dev \
   tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
-  docker docker-compose \
   "
 RUN set -ex && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
@@ -54,20 +53,27 @@ RUN set -ex && \
 #   :::::: C R E A T I N G   U S E R : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────
 #
-ARG USER=operator
+ARG USER=code
 ENV USER $USER
 ARG UID="1000"
 ENV UID $UID
 
 SHELL ["bash","-c"]
-RUN getent group sudo > /dev/null || sudo addgroup sudo
-RUN getent passwd "${USER}" > /dev/null && userdel --remove "${USER}" -f || true
-RUN useradd --user-group --create-home --shell /bin/bash --uid "$UID" "${USER}"
+RUN set -ex && \
+  useradd \
+  --no-log-init \
+  --create-home \
+  --home-dir "/home/${USER}" \ 
+  --uid "${UID}" \
+  --groups sudo \
+  --shell "${SHELL}" \
+  --password \
+  $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
+  "${USER}"
 RUN sed -i \
-  -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' \
   -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' \
   /etc/sudoers
-RUN usermod -aG wheel,root,sudo,docker "${USER}"
+RUN usermod -aG wheel,root,sudo "${USER}"
 USER ${USER}
 SHELL ["bash","-c"]
 #
@@ -82,7 +88,8 @@ RUN python3 --version
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 #
 ENV HOME="/home/${USER}"
-RUN  sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
+RUN set -ex && \
+  sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
   echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
 # ──────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   P Y T H O N   P O E T R Y : :  :   :    :     :        :          :
@@ -91,7 +98,8 @@ RUN  sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
 ENV POETRY_HOME="${HOME}/.poetry"
 ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
-RUN mkdir -p "${HOME}/.local/bin" && \
+RUN set -ex && \
+  mkdir -p "${HOME}/.local/bin" && \
   echo 'PATH="${PATH}:${HOME}/.local/bin"' | tee -a ~/.bashrc > /dev/null && \
   echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null && \
   mkdir -p "${POETRY_HOME}/bin" && \ 
@@ -105,7 +113,8 @@ RUN mkdir -p "${HOME}/.local/bin" && \
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
 #
 ENV PATH="$PATH:${HOME}/.cargo/bin"
-RUN echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a ~/.bashrc > /dev/null && \
+RUN set -ex && \
+  echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a ~/.bashrc > /dev/null && \
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
   -y \
   --default-host x86_64-unknown-linux-musl \
@@ -117,7 +126,8 @@ RUN echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a ~/.bashrc 
 #   :::::: I N S T A L L I N G   C A R G O   P A C K A G E S : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
 #
-RUN cargo install -j`nproc` pyoxidizer && \
+RUN set -ex && \
+  cargo install -j`nproc` pyoxidizer && \
   strip ${HOME}/.cargo/bin/pyoxidizer && \
   upx ${HOME}/.cargo/bin/pyoxidizer && \
   pyoxidizer --version
@@ -126,7 +136,8 @@ RUN cargo install -j`nproc` pyoxidizer && \
 #   :::::: C O N F I G U R I N G   N U   S H E L L : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────────────────────────
 #
-RUN nu -c 'config set path $nu.path' && \
+RUN set -ex && \
+  nu -c 'config set path $nu.path' && \
   nu -c 'config set env  $nu.env' && \
   nu -c 'config set prompt "starship prompt"' && \
   sudo usermod --shell /usr/bin/nu "${USER}"

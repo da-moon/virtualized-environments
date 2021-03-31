@@ -69,7 +69,7 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  "remoteUser": "operator",
+  "remoteUser": "code",
   "postStartCommand": "sudo chown \"`id -u`:`id -g`\"  ${containerWorkspaceFolder} -R",
   "postAttachCommand": "poetry install",
 }

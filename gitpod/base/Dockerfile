@@ -139,7 +139,7 @@ RUN set -ex && \
 #   :::::: U S E R   S E T U P : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────
 #
-ARG USER=${USER}
+ARG USER=gitpod
 ENV USER $USER
 ARG UID="33333"
 ENV UID $UID

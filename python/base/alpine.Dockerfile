@@ -1,14 +1,14 @@
 # syntax = docker/dockerfile:1.0-experimental
 
 # ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/python-base:latest .
+# docker build --file alpine.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/python-base-alpine:latest .
 # ────────────────────────────────────────────────────────────────────────────────
 FROM alpine:latest
 ENV TERM=xterm
 USER root
 # ────────────────────────────────────────────────────────────────────────────────
 # PATHS
-ENV BASE_PACKAGES="\
+ARG BASE_PACKAGES="\
   musl \
   libc6-compat \
   linux-headers \
@@ -21,7 +21,7 @@ ENV BASE_PACKAGES="\
   tzdata \
   "
 # python dev tools
-ENV PYTHON_BUILD_PACKAGES="\
+ARG PYTHON_BUILD_PACKAGES="\
   bzip2-dev \
   coreutils \
   dpkg-dev dpkg \
@@ -48,7 +48,7 @@ ENV PYTHON_BUILD_PACKAGES="\
   zlib-dev \
   git \
   "
-RUN set -ex ;\
+RUN set -ex && \
   apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES})
@@ -59,23 +59,22 @@ SHELL ["bash","-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 #
 ARG PYTHON_VERSION=3.9.2
-ENV PYTHON_VERSION $PYTHON_VERSION
 ENV PYTHON_PATH=/usr/local/bin/
 ENV PYENV_ROOT="/usr/local/lib/pyenv"
 ENV PATH="${PATH}:/usr/local/lib/python${PYTHON_VERSION}/bin"
 ENV PATH="${PATH}:/usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin:${PATH}"
-ENV CONFIGURE_OPTS="--enable-shared" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
-RUN set -ex ;\
+ARG CONFIGURE_OPTS="--enable-shared" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
+RUN set -ex && \
   git clone --depth 1 https://github.com/pyenv/pyenv /usr/local/lib/pyenv ;\
   GNU_ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" ;\
   CONFIGURE_OPTS="${CONFIGURE_OPTS} --build=${GNU_ARCH}" ;\
   /usr/local/lib/pyenv/bin/pyenv install ${PYTHON_VERSION};
-RUN set -ex ;\ 
+RUN set -ex && \
   find /usr/local/lib/pyenv \
   -mindepth 1 \
   -name versions \
@@ -90,5 +89,7 @@ RUN set -ex ;\
   -exec rm -rf '{}' + ;\
   ln -s /usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin/* "${PYTHON_PATH}"
 # ────────────────────────────────────────────────────────────────────────────────
-RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
-RUN python3 --version
+RUN set -ex && \
+  ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+RUN set -ex && \
+  python3 --version
