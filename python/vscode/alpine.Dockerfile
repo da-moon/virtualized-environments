@@ -15,6 +15,7 @@ ENV BASE_PACKAGES="\
   git \
   ca-certificates \
   ncurses \
+  sudo \
   bash \
   bash-completion \
   shadow \
@@ -59,6 +60,8 @@ ENV UID $UID
 
 SHELL ["bash","-c"]
 RUN set -ex && \
+  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
+RUN set -ex && \
   useradd \
   --no-log-init \
   --create-home \
@@ -90,6 +93,10 @@ ENV HOME="/home/${USER}"
 RUN set -ex && \
   sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
   echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
+RUN wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
+  chmod +x /tmp/vsls-reqs && \
+  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
+  bash /tmp/vsls-reqs
 # ──────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   P Y T H O N   P O E T R Y : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -140,3 +147,6 @@ RUN set -ex && \
   nu -c 'config set env  $nu.env' && \
   nu -c 'config set prompt "starship prompt"' && \
   sudo usermod --shell /usr/bin/nu "${USER}"
+RUN set -ex && \
+  rm -rf \
+     /tmp/*

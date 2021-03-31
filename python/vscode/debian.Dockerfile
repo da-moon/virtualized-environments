@@ -41,6 +41,10 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   "
 RUN set -ex && \
   sudo install-packages ${IMAGE_SPECIFIC_PACKAGES}
+
+RUN wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
+  chmod +x /tmp/vsls-reqs && \
+  bash /tmp/vsls-reqs
 #
 # ──────────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   P Y T H O N   P A C K A G E S : :  :   :    :     :        :          :
