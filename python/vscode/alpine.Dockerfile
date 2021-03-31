@@ -153,5 +153,5 @@ RUN set -ex && \
   nu -c 'config set prompt "starship prompt"' && \
   sudo usermod --shell /usr/bin/nu "${USER}"
 RUN set -ex && \
-  rm -rf \
+  sudo rm -rf \
      /tmp/*

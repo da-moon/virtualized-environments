@@ -97,7 +97,8 @@ USER "$USER"
 ENV POETRY_HOME="${HOME}/.poetry"
 ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
-RUN mkdir -p "${HOME}/.local/bin" && \
+RUN set -ex && \
+  mkdir -p "${HOME}/.local/bin" && \
   mkdir -p "${POETRY_HOME}/bin" && \ 
   echo 'echo >&2 "*** sourced 60-python ***"' | tee -a "$HOME/.bashrc.d/60-python" && \
   echo '[ -r ${POETRY_HOME}/env ] && . ${HOME}/.poetry/env' | tee -a "$HOME/.bashrc.d/60-python" && \
@@ -110,7 +111,8 @@ RUN mkdir -p "${HOME}/.local/bin" && \
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
 #
 ENV PATH="$PATH:${HOME}/.cargo/bin"
-RUN echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a  "$HOME/.bashrc.d/70-rust" > /dev/null && \
+RUN set -ex && \
+  echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a  "$HOME/.bashrc.d/70-rust" > /dev/null && \
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
   -y \
   --default-toolchain nightly \
@@ -121,8 +123,11 @@ RUN echo '[ -r ${HOME}/.cargo/env ] && . ${HOME}/.cargo/env' | tee -a  "$HOME/.b
 #   :::::: I N S T A L L I N G   C A R G O   P A C K A G E S : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────────────────────────────
 #
-RUN cargo install -j`nproc` pyoxidizer && \
+RUN set -ex && \
+  cargo install -j`nproc` pyoxidizer && \
   strip ${HOME}/.cargo/bin/pyoxidizer && \
   upx ${HOME}/.cargo/bin/pyoxidizer && \
   pyoxidizer --version
-RUN sudo rm -rf /tmp/*
+RUN set -ex && \
+  sudo rm -rf /tmp/*
+ENV PIP_USER=false

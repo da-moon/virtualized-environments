@@ -116,8 +116,8 @@ RUN set -ex && \
   pyoxidizer --version
 RUN set -ex && \
   sudo apt-get autoremove -y  && \
-  apt-get clean -y  && \
-  rm -rf \
+  sudo apt-get clean -y  && \
+  sudo rm -rf \
      /var/cache/debconf/* \
      /var/lib/apt/lists/* \
      /tmp/* \
