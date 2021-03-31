@@ -48,7 +48,13 @@ RUN set -ex && \
   apk upgrade --no-cache -U -a && \
   apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
-  apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES}) 
+  apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES})
+RUN set -ex && \
+  wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
+  chmod +x /tmp/vsls-reqs && \
+  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
+  bash /tmp/vsls-reqs && \
+  rm /tmp/vsls-reqs
 # ────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: C R E A T I N G   U S E R : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────
@@ -96,10 +102,6 @@ ENV HOME="/home/${USER}"
 RUN set -ex && \
   sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
   echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
-RUN wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
-  chmod +x /tmp/vsls-reqs && \
-  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
-  bash /tmp/vsls-reqs
 # ──────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   P Y T H O N   P O E T R Y : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────────────────────────────────
