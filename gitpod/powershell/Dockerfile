@@ -6,8 +6,6 @@
 FROM fjolsvin/gitpod-base:latest
 ENV SHELL="/bin/bash"
 ENV DEBIAN_FRONTEND=noninteractive
-ENV RELEASES_URL="https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-ARG CPU_ARCH="amd64"
 #
 # ────────────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: I N S T A L L I N G   D E P E N D E N C I E S : :  :   :    :     :        :          :
@@ -42,8 +40,10 @@ RUN set -ex && \
 #   :::::: I N S T A L L I N G   P O W E R S H E L L : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────────────────────
 #
+ENV RELEASES_URL="https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
+ARG CPU_ARCH="amd64"
 RUN set -ex && \
-  curl -fsSL https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r ".assets[]|\
+  curl -fsSL "${RELEASES_URL}" | jq -r ".assets[]|\
   select(\
   .browser_download_url | (\
   contains(\"$(lsb_release -is | tr '[[:upper:]]' '[[:lower:]]')\") and \
@@ -75,4 +75,5 @@ SHELL [ "/usr/bin/pwsh" ,"-NoLogo","-NoProfile ","-c"]
 RUN Install-module Pester -Scope CurrentUser -Force -MaximumVersion 4.99
 RUN New-Item -ItemType Directory -Path "$(Split-Path -parent $PROFILE.CurrentUserAllHosts)" -Force -ErrorAction Stop
 RUN 'Invoke-Expression (&starship init powershell)' | Out-File $PROFILE.CurrentUserAllHosts -Encoding ascii -Append
+SHELL [ "/bin/bash" , "-c"]
 ENTRYPOINT [ "/usr/bin/pwsh" ]
