@@ -34,7 +34,7 @@ services:
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/gitpod-powershell
     build:
-      context: ./python
+      context: ./powershell
       dockerfile: Dockerfile
     depends_on:
       - gitpod-base
