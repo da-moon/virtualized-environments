@@ -1,0 +1,64 @@
+name: "gitpod-powershell"
+on:
+  push:
+    paths:
+    - 'gitpod/powershell/Dockerfile'
+    - 'gitpod/build.docker-compose.yml'
+    - .github/workflows/gitpod-powershell.yml
+  workflow_dispatch:
+jobs:
+# ────────────────────────────────────────────────────────────────────────────────
+  gitpod-base:
+    defaults:
+      run:
+        working-directory: ./gitpod
+    name: "build and push gitpod-base docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build gitpod-base
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/gitpod-base:latest
+# ────────────────────────────────────────────────────────────────────────────────
+  gitpod-powershell:
+    name: "build and push gitpod-powershell docker image"
+    runs-on: ubuntu-18.04
+    needs: gitpod-base
+    defaults:
+      run:
+        working-directory: ./gitpod
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build gitpod-powershell
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/gitpod-powershell:latest

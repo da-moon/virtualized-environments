@@ -28,4 +28,13 @@ services:
       - gitpod-base
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-
+  gitpod-powershell:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build gitpod-powershell
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/gitpod-powershell
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    depends_on:
+      - gitpod-base

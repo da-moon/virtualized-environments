@@ -1,10 +1,10 @@
-name: "gitpod"
+name: "gitpod-python"
 on:
   push:
     paths:
-    - 'gitpod/**/Dockerfile'
+    - 'gitpod/python/Dockerfile'
     - 'gitpod/build.docker-compose.yml'
-    - .github/workflows/gitpod.yml
+    - .github/workflows/gitpod-python.yml
   workflow_dispatch:
 jobs:
 # ────────────────────────────────────────────────────────────────────────────────
