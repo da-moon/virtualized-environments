@@ -12,7 +12,7 @@ RUN set -ex && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
 
 # ─── BASE GO DEVELOPMENT TOOLS NEEDED FOR VS CODE GO EXTENSION ──────────────────
-ARG GOPLS_VERSION=v0.6.4
+ARG GOPLS_VERSION=v0.6.9
 ARG DELVE_VERSION=v1.5.0
 ARG BASE_GO_DEV_PACKAGES="\
 golang.org/x/tools/gopls@${GOPLS_VERSION} \
