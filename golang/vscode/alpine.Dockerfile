@@ -36,9 +36,9 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   jq yq yj yq-bash-completion \
   htop bzip2 \
   yarn nodejs \
-  bat \
+  docker docker-compose \
   ripgrep ripgrep-bash-completion \
-  tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
+  bat tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
   "
 RUN set -ex && \
     apk add --no-cache glow
@@ -60,6 +60,8 @@ RUN set -ex && \
   sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
   bash /tmp/vsls-reqs && \
   rm /tmp/vsls-reqs
+RUN set -ex && \
+  curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
 # ────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: C R E A T I N G   U S E R : :  :   :    :     :        :          :
 # ────────────────────────────────────────────────────────────────────────────
@@ -88,7 +90,7 @@ RUN sed -i \
   /etc/sudoers && \
   echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
   echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-RUN usermod -aG wheel,root,sudo "${USER}"
+RUN usermod -aG wheel,root,sudo,docker "${USER}"
 USER ${USER}
 SHELL ["bash","-c"]
 COPY --from=fjolsvin/golang-base:latest /go/bin /go/bin
@@ -105,9 +107,7 @@ RUN set -ex && \
   go env -w "GOPRIVATE=github.com/da-moon" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"  && \
   sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
-  sudo chown "$(id -u):$(id -g)" /go -R && \
-  echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
-
+  sudo chown "$(id -u):$(id -g)" /go -R 
 #
 # ──────────────────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: C O N F I G U R I N G   N U   S H E L L : :  :   :    :     :        :          :
@@ -116,7 +116,9 @@ RUN set -ex && \
 RUN set -ex && \
   nu -c 'config set path $nu.path' && \
   nu -c 'config set env  $nu.env' && \
-  nu -c 'config set prompt "starship prompt"'
+  nu -c 'config set prompt "starship prompt"' && \
+  echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
+
 RUN set -ex && \
   sudo rm -rf \
   /tmp/*
