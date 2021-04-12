@@ -1,0 +1,64 @@
+name: "golang-alpine"
+on:
+  push:
+    paths:
+    - 'golang/**/alpine.Dockerfile'
+    - 'golang/build.docker-compose.yml'
+    - .github/workflows/golang-alpine.yml
+  workflow_dispatch:
+jobs:
+# ────────────────────────────────────────────────────────────────────────────────
+  golang-base:
+    defaults:
+      run:
+        working-directory: ./golang
+    name: "build and push golang-base docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build golang-base
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/golang-base:latest
+# ────────────────────────────────────────────────────────────────────────────────
+  vscode-golang-alpine:
+    name: "build and push vscode-golang-alpine docker image"
+    runs-on: ubuntu-18.04
+    needs: golang-base
+    defaults:
+      run:
+        working-directory: ./golang
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker-compose
+          -f build.docker-compose.yml
+          build vscode-golang-alpine
+      - name: "push docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          docker push fjolsvin/vscode-golang-alpine:latest

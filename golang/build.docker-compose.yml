@@ -1,0 +1,30 @@
+version: "3"
+services:
+  golang-base:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build golang-base
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/golang-base
+    build:
+      context: ./base
+      dockerfile: Dockerfile
+      args:
+        - GOPLS_VERSION=v0.6.4
+        - DELVE_VERSION=v1.5.0
+        - GOTESTS_VERSION=v1.5.3
+        - GOMODIFYTAGS_VERSION=v1.13.0
+        - GOPLAY_VERSION=v1.0.0
+  vscode-go-alpine:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build vscode-golang-alpine
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/vscode-golang-alpine
+    build:
+      context: ./vscode
+      dockerfile: alpine.Dockerfile
+      args:
+        - USER=code
+        - UID=1000
+        - GOLANGCI_LINT_VERSION=v1.35.2
+    depends_on:
+      - golang-base
