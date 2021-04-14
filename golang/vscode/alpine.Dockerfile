@@ -33,15 +33,13 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   aria2 rng-tools-extra \
   build-base make openssl-dev libffi-dev upx \
   ncurses ncurses-dev \
-  jq yq yj yq-bash-completion \
-  htop bzip2 \
+  jq htop bzip2 \
   yarn nodejs \
-  docker docker-compose \
   ripgrep ripgrep-bash-completion \
-  bat tokei exa starship just neofetch hyperfine asciinema \
+  bat tokei exa starship just  \
   "
 RUN set -ex && \
-    apk add --no-cache glow
+  apk add --no-cache glow
 RUN set -ex && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
@@ -90,7 +88,7 @@ RUN sed -i \
   /etc/sudoers && \
   echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
   echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-RUN usermod -aG wheel,root,sudo,docker "${USER}"
+RUN usermod -aG wheel,root,sudo "${USER}"
 USER ${USER}
 SHELL ["bash","-c"]
 COPY --from=fjolsvin/golang-base:latest /go/bin /go/bin

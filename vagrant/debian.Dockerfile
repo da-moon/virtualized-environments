@@ -44,3 +44,4 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
    sudo apt-get clean && \
    sudo rm -rf /var/lib/apt/lists/* 
 CMD ["sudo","/usr/sbin/sshd", "-D", "-e"]
+docker-compose -f build.docker-compose.yml build vscode-golang-alpine

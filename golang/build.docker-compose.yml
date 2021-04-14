@@ -14,7 +14,7 @@ services:
         - GOTESTS_VERSION=v1.5.3
         - GOMODIFYTAGS_VERSION=v1.13.0
         - GOPLAY_VERSION=v1.0.0
-  vscode-go-alpine:
+  vscode-golang-alpine:
     # ─────────────────────────────────────────────────────────────────
     # docker-compose -f build.docker-compose.yml build vscode-golang-alpine
     # ─────────────────────────────────────────────────────────────────
