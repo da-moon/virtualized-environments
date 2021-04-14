@@ -38,7 +38,7 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   yarn nodejs \
   docker docker-compose \
   ripgrep ripgrep-bash-completion \
-  bat tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
+  bat tokei exa starship just neofetch hyperfine asciinema \
   "
 RUN set -ex && \
     apk add --no-cache glow
@@ -107,18 +107,8 @@ RUN set -ex && \
   go env -w "GOPRIVATE=github.com/da-moon" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"  && \
   sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
-  sudo chown "$(id -u):$(id -g)" /go -R 
-#
-# ──────────────────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: C O N F I G U R I N G   N U   S H E L L : :  :   :    :     :        :          :
-# ──────────────────────────────────────────────────────────────────────────────────────────
-#
-RUN set -ex && \
-  nu -c 'config set path $nu.path' && \
-  nu -c 'config set env  $nu.env' && \
-  nu -c 'config set prompt "starship prompt"' && \
+  sudo chown "$(id -u):$(id -g)" /go -R && \
   echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
-
 RUN set -ex && \
   sudo rm -rf \
   /tmp/*
