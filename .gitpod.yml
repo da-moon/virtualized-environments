@@ -1,0 +1,23 @@
+image: gitpod/workspace-full
+
+# [ NOTE ] =>
+# - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
+tasks:
+  - command: sudo docker-up
+    name: Docker daemon
+  - command: docker
+  - command: sudo usermod -aG docker gitpod || true
+  - command: newgrp docker
+
+vscode:
+  extensions:
+    - ms-azuretools.vscode-docker@1.8.1:xuHtLS23Q5czFwYH7grcCQ==
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: true
+    addCheck: true
+    addComment: true
