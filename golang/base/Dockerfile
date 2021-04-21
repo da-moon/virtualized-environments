@@ -52,6 +52,7 @@ github.com/eandre/discover/... \
 honnef.co/go/tools/... \
 github.com/hexdigest/gounit/cmd/gounit \
 github.com/vektra/mockery/v2/.../ \
+github.com/stretchr/gorc \
 "
 RUN set -ex && \
   IFS=' ' read -a EXTRA_GO_DEV_PACKAGES <<< "$EXTRA_GO_DEV_PACKAGES" ; \
