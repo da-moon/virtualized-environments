@@ -50,6 +50,8 @@ github.com/palantir/go-compiles \
 github.com/mohae/nocomment/cmd/nocomment  \
 github.com/eandre/discover/... \
 honnef.co/go/tools/... \
+github.com/hexdigest/gounit/cmd/gounit \
+github.com/vektra/mockery/v2/.../ \
 "
 RUN set -ex && \
   IFS=' ' read -a EXTRA_GO_DEV_PACKAGES <<< "$EXTRA_GO_DEV_PACKAGES" ; \
