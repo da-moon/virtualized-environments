@@ -10,7 +10,7 @@ ARG WRK_BUILD_PACKAGES="\
   # zlib-static \
   "
 RUN set -ex && \
-  # echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+  # echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
   # echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
   # echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
   apk upgrade --no-cache -U -a && \

@@ -4,7 +4,7 @@ RUN go env -w GO111MODULE=on && \
   go env -w "CGO_ENABLED=0" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
 
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk upgrade -U -a && \

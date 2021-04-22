@@ -36,13 +36,15 @@ ENV IMAGE_SPECIFIC_PACKAGES="\
   jq yq yj yq-bash-completion \
   htop bzip2 \
   yarn nodejs \
-  bat glow \
+  bat  \
   ripgrep ripgrep-bash-completion \
   imagemagick-static libx11-static libxrandr-dev \
   tokei exa starship nerd-fonts nushell just neofetch hyperfine asciinema \
   "
 RUN set -ex && \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+  apk add --no-cache glow
+RUN set -ex && \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
   apk upgrade --no-cache -U -a && \

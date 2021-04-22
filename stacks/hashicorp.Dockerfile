@@ -5,7 +5,7 @@ ENV TERM xterm
 RUN go env -w GO111MODULE=on && \
   go env -w "CGO_ENABLED=0" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk add --no-cache git upx binutils bash && \
@@ -71,7 +71,7 @@ COPY --from=builder /go/bin/terraform /usr/local/bin/terraform
 ARG USER=code
 ENV USER $USER
 USER root
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk upgrade --no-cache && \

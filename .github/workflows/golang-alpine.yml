@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 jobs:
 # ────────────────────────────────────────────────────────────────────────────────
-  golang-base:
+  golang-base-alpine:
     defaults:
       run:
         working-directory: ./golang
@@ -28,17 +28,19 @@ jobs:
           set -ex &&
           docker-compose
           -f build.docker-compose.yml
-          build golang-base
+          build golang-base-alpine
       - name: "push docker image"
         shell: bash
         run: >
           set -ex &&
-          docker push fjolsvin/golang-base:latest
+          docker-compose
+          -f build.docker-compose.yml
+          push golang-base-alpine
 # ────────────────────────────────────────────────────────────────────────────────
   vscode-golang-alpine:
     name: "build and push vscode-golang-alpine docker image"
     runs-on: ubuntu-18.04
-    needs: golang-base
+    needs: golang-base-alpine
     defaults:
       run:
         working-directory: ./golang
@@ -61,4 +63,6 @@ jobs:
         shell: bash
         run: >
           set -ex &&
-          docker push fjolsvin/vscode-golang-alpine:latest
+          docker-compose
+          -f build.docker-compose.yml
+          push vscode-golang-alpine

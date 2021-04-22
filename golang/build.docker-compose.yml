@@ -1,19 +1,27 @@
 version: "3"
 services:
-  golang-base:
+  golang-base-alpine:
     # ─────────────────────────────────────────────────────────────────
-    # docker-compose -f build.docker-compose.yml build golang-base
+    # docker-compose -f build.docker-compose.yml build golang-base-alpine
     # ─────────────────────────────────────────────────────────────────
-    image: fjolsvin/golang-base
+    image: fjolsvin/golang-base-alpine
     build:
       context: ./base
-      dockerfile: Dockerfile
+      dockerfile: alpine.Dockerfile
       args:
-        - GOPLS_VERSION=v0.6.9
-        - DELVE_VERSION=v1.5.0
-        - GOTESTS_VERSION=v1.5.3
-        - GOMODIFYTAGS_VERSION=v1.13.0
-        - GOPLAY_VERSION=v1.0.0
+        # - GOPLS_VERSION=v0.6.9
+        - GOPLS_VERSION=latest
+        # - DELVE_VERSION=v1.5.0
+        - DELVE_VERSION=latest
+        # - GOTESTS_VERSION=v1.5.3
+        - GOTESTS_VERSION=latest
+        # - GOMODIFYTAGS_VERSION=v1.13.0
+        - GOMODIFYTAGS_VERSION=latest
+        # - GOPLAY_VERSION=v1.0.0
+        - GOPLAY_VERSION=latest
+        # - GOLANGCI_LINT_VERSION=v1.35.2
+        - GOLANGCI_LINT_VERSION=latest
+      
   vscode-golang-alpine:
     # ─────────────────────────────────────────────────────────────────
     # docker-compose -f build.docker-compose.yml build vscode-golang-alpine
@@ -25,6 +33,5 @@ services:
       args:
         - USER=code
         - UID=1000
-        - GOLANGCI_LINT_VERSION=v1.35.2
     depends_on:
-      - golang-base
+      - golang-base-alpine
