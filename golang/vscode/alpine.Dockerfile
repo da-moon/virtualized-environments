@@ -105,7 +105,8 @@ WORKDIR /workspace
 RUN set -ex && \
   sudo chown "$(id -u):$(id -g)" . -R && \
   sudo chown "$(id -u):$(id -g)" "${HOME}" -R && \
-  sudo chown "$(id -u):$(id -g)" /go -R  && \
+  sudo chown "`id -u`:`id -g`" $(go env GOROOT) -R && \
+  sudo chown "$(id -u):$(id -g)" $(go env GOPATH) -R  && \
   echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
 RUN set -ex && \
   sudo rm -rf \
