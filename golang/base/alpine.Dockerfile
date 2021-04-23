@@ -51,6 +51,12 @@ RUN set -ex && \
   go get -v golang.org/x/tools/cmd/... && \
   IFS=' ' read -a GO_PACKAGES <<< "$GO_PACKAGES" && \
   go get -v "${GO_PACKAGES[@]}" ;
+# ────────────────────────────────────────────────────────────────────────────────
+RUN set -ex && \
+  git clone https://github.com/magefile/mage /tmp/mage
+WORKDIR /tmp/mage
+RUN set -ex && \
+  go run bootstrap.go
 # ─── COMPRESS ───────────────────────────────────────────────────────────────────
 RUN set -ex && \
   while read pkg ; do \
