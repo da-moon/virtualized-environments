@@ -1,0 +1,10 @@
+version: "3"
+services:
+  hashicorp:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build hashicorp
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/hashicorp
+    build:
+      context: ./
+      dockerfile: hashicorp.Dockerfile
