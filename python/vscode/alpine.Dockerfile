@@ -51,8 +51,7 @@ RUN set -ex && \
   apk add --no-cache ${BASE_PACKAGES} ${IMAGE_SPECIFIC_PACKAGES})
 # ────────────────────────────────────────────────────────────────────────────────
 RUN set -ex && \
-  wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
-  chmod +x /tmp/vsls-reqs && \
+  for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
   sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
   bash /tmp/vsls-reqs && \
   rm /tmp/vsls-reqs
