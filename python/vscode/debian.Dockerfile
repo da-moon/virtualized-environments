@@ -9,11 +9,10 @@ FROM fjolsvin/python-base-debian:latest
 #
 USER root
 RUN set -ex && \
-  wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && \
+  for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
   chmod +x /tmp/vsls-reqs && \
   bash /tmp/vsls-reqs && \
   rm /tmp/vsls-reqs
-
 ARG USER=code
 ENV USER $USER
 ARG UID="1000"
