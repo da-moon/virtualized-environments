@@ -2,12 +2,12 @@ name: "golang-alpine"
 on:
   push:
     paths:
-    - 'golang/**/alpine.Dockerfile'
-    - 'golang/build.docker-compose.yml'
-    - .github/workflows/golang-alpine.yml
+      - "devcontainer/golang/**/alpine.Dockerfile"
+      - "devcontainer/golang/build.docker-compose.yml"
+      - .github/workflows/golang-alpine.yml
   workflow_dispatch:
 jobs:
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
   golang-base-alpine:
     defaults:
       run:
@@ -36,7 +36,7 @@ jobs:
           docker-compose
           -f build.docker-compose.yml
           push golang-base-alpine
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
   vscode-golang-alpine:
     name: "build and push vscode-golang-alpine docker image"
     runs-on: ubuntu-18.04

@@ -2,9 +2,9 @@ name: "python-debian"
 on:
   push:
     paths:
-    - 'python/**/debian.Dockerfile'
-    - 'python/build.docker-compose.yml'
-    - '.github/workflows/python-debian.yml'
+      - "devcontainer/python/**/debian.Dockerfile"
+      - "devcontainer/python/build.docker-compose.yml"
+      - ".github/workflows/python-debian.yml"
   workflow_dispatch:
 jobs:
   python-base-debian:
@@ -34,7 +34,7 @@ jobs:
           set -ex &&
           docker push fjolsvin/python-base-debian:latest
 
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
   vscode-python-debian:
     name: "build and push vscode-python-debian docker image"
     runs-on: ubuntu-18.04

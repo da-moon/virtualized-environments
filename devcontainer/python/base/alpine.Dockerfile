@@ -1,42 +1,48 @@
-# syntax = docker/dockerfile:1.0-experimental
 
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/python-base-alpine:latest .
-# ────────────────────────────────────────────────────────────────────────────────
 FROM alpine:latest
 ENV TERM=xterm
 USER root
-# ────────────────────────────────────────────────────────────────────────────────
-# PATHS
 ARG BASE_PACKAGES="\
-  musl \
-  libc6-compat \
-  linux-headers \
-  build-base \
-  bash \
+  curl \
+  perl \
+  wget \
+  tree \
+  util-linux \
   git \
-  sudo \
   ca-certificates \
-  libssl1.1 \
-  libffi-dev \
-  tzdata \
+  upx \
+  ncurses \
+  ncurses-dev \
+  sudo=1.9.5p2-r0 \
+  bash \
+  bash-completion \
+  shadow \
+  libcap \
+  coreutils \
+  findutils \
+  binutils \
+  gnupg \
+  grep \
+  gawk \
+  build-base \
+  make \
   "
 # python dev tools
 ARG PYTHON_BUILD_PACKAGES="\
+  musl \
+  libc6-compat \
+  linux-headers \
+  libssl1.1 \
+  libffi-dev \
+  tzdata \
   bzip2-dev \
-  coreutils \
   dpkg-dev dpkg \
   expat-dev \
-  findutils \
   gcc \
   gdbm-dev \
   libc-dev \
-  libffi-dev \
   libnsl-dev \
   libtirpc-dev \
-  linux-headers \
-  make \
-  ncurses-dev \
   libressl-dev \
   pax-utils \
   readline-dev \
@@ -47,18 +53,22 @@ ARG PYTHON_BUILD_PACKAGES="\
   util-linux-dev \
   xz-dev \
   zlib-dev \
-  git \
   "
+
 RUN set -ex && \
   apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --no-cache ${BASE_PACKAGES} ${PYTHON_BUILD_PACKAGES})
-# ────────────────────────────────────────────────────────────────────────────────
 SHELL ["bash","-c"]
-# ────────────────────────────────────────────────────────────────────── I ──────────
-#   :::::: B U I L D I N G   P Y T H O N : :  :   :    :     :        :          :
-# ────────────────────────────────────────────────────────────────────────────────
-#
+RUN set -ex && \
+  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
+RUN set -ex && \
+  sed -i \
+  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
+  -e '/%sudo.*NOPASSWD:ALL/d' \
+  /etc/sudoers && \
+  echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
+  echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 ARG PYTHON_VERSION=3.9.2
 ENV PYTHON_PATH=/usr/local/bin/
 ENV PYENV_ROOT="/usr/local/lib/pyenv"

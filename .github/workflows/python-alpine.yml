@@ -2,12 +2,12 @@ name: "python-alpine"
 on:
   push:
     paths:
-    - 'python/**/alpine.Dockerfile'
-    - 'python/build.docker-compose.yml'
-    - .github/workflows/python-alpine.yml
+      - "devcontainer/python/**/alpine.Dockerfile"
+      - "devcontainer/python/build.docker-compose.yml"
+      - .github/workflows/python-alpine.yml
   workflow_dispatch:
 jobs:
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
   python-base-alpine:
     defaults:
       run:
@@ -34,7 +34,7 @@ jobs:
         run: >
           set -ex &&
           docker push fjolsvin/python-base-alpine:latest
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
   vscode-python-alpine:
     name: "build and push vscode-python-alpine docker image"
     runs-on: ubuntu-18.04
