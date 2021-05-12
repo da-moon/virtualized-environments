@@ -9,7 +9,7 @@ services:
       context: ./base
       dockerfile: debian.Dockerfile
       args:
-        - MDBOOK_VERSION=0.4.5
+        - MDBOOK_VERSION=0.4.8
         - CARGO_ABOUT_VERSION=0.2.3
         - CARGO_DENY_VERSION=0.8.5
         - OPENSSL_VERSION=1.1.1i
@@ -18,17 +18,16 @@ services:
         - TOOLCHAIN=nightly
       cache_from:
         - fjolsvin/rust-base-debian:latest
-
-  # vscode-rust-debian:
-  #   # ─────────────────────────────────────────────────────────────────
-  #   # docker-compose -f build.docker-compose.yml build rust-debian
-  #   # ─────────────────────────────────────────────────────────────────
-  #   image: fjolsvin/rust-debian
-  #   build:
-  #     context: ./vscode
-  #     dockerfile: debian.Dockerfile
-  #     args:
-  #       - USER=code
-  #       - UID=1000
-  #   depends_on:
-  #     - rust-base-debian
+  vscode-rust-debian:
+    # ─────────────────────────────────────────────────────────────────
+    # docker-compose -f build.docker-compose.yml build --build-arg "BUILDKIT_INLINE_CACHE=1" vscode-rust-debian
+    # ─────────────────────────────────────────────────────────────────
+    image: fjolsvin/vscode-rust-debian
+    build:
+      context: ./vscode
+      dockerfile: debian.Dockerfile
+      args:
+        - USER=code
+        - UID=1000
+    depends_on:
+      - rust-base-debian

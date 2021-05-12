@@ -11,22 +11,19 @@ RUN \
     cargo search hello-world
 SHELL ["bash","-c"]
 WORKDIR /workspace
-FROM alpine-base  AS mdbook-downloader
-ARG MDBOOK_VERSION=0.4.5
+FROM alpine-base AS mdbook-downloader
+ARG MDBOOK_VERSION=0.4.8
 ARG URL="https://github.com/rust-lang-nursery/mdBook/releases/download/v${MDBOOK_VERSION}/mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 RUN \
     set -ex && \
     curl -fLO "${URL}"
 RUN \
     set -ex && \
-    tar "xf mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
-RUN \
-    set -ex && \
-    mv mdbook /workspace/ 
+    tar xf "mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 RUN \
     set -ex && \
     rm -f "mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
-FROM alpine-base  AS cargo-about-downloader
+FROM alpine-base AS cargo-about-downloader
 ARG CARGO_ABOUT_VERSION=0.2.3
 ARG URL="https://github.com/EmbarkStudios/cargo-about/releases/download/${CARGO_ABOUT_VERSION}/cargo-about-${CARGO_ABOUT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
 RUN \
@@ -44,7 +41,7 @@ RUN \
     set -ex && \
     rm -rf \
     "cargo-about-${CARGO_ABOUT_VERSION}-x86_64-unknown-linux-musl.tar.gz" "cargo-about-${CARGO_ABOUT_VERSION}-x86_64-unknown-linux-musl"
-FROM alpine-base  AS cargo-deny-downloader
+FROM alpine-base AS cargo-deny-downloader
 ARG CARGO_DENY_VERSION=0.8.5
 ARG URL="https://github.com/EmbarkStudios/cargo-deny/releases/download/${CARGO_DENY_VERSION}/cargo-deny-${CARGO_DENY_VERSION}-x86_64-unknown-linux-musl.tar.gz"
 RUN \
@@ -63,14 +60,6 @@ RUN \
     rm -rf \
     "cargo-deny-${CARGO_DENY_VERSION}-x86_64-unknown-linux-musl" \
     "cargo-deny-${CARGO_DENY_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-FROM alpine-base AS cargo-audit-builder
-RUN \
-    --mount=type=cache,target=/root/.cargo \
-    --mount=type=cache,target=/usr/local/cargo/registry \
-    set -ex && \
-    cargo install cargo-audit && \
-    strip /usr/local/cargo/bin/cargo-audit || true &&  \
-    upx /usr/local/cargo/bin/cargo-audit || true
 FROM alpine-base AS cargo-deb-builder
 RUN \
     --mount=type=cache,target=/root/.cargo \
@@ -135,8 +124,8 @@ RUN \
     ${SCRIPTS_BASE_URL}/docker/install-packages && \
     chmod +x /usr/local/bin/install-packages
 ARG BASE_PACKAGES="\
+    zip \
     unzip \
-    rsync \
     perl \
     bash-completion \
     make \
@@ -144,7 +133,6 @@ ARG BASE_PACKAGES="\
     less \
     locales \
     man-db \
-    sudo \
     time \
     multitail \
     lsof \
@@ -171,20 +159,21 @@ ARG BASE_PACKAGES="\
     sudo \
     xutils-dev \
     "
-
-RUN set -ex; \
+RUN \
+    set -ex; \
     install-packages ${BASE_PACKAGES} && \
     locale-gen en_US.UTF-8 && \
     dpkg-reconfigure locales && \
     ln -s "/usr/bin/g++" "/usr/bin/musl-g++"
-RUN set -ex && \
+SHELL ["bash","-c"]
+RUN \
+    set -ex && \
     sed -i \
     -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
     -e '/%sudo.*NOPASSWD:ALL/d' \
     /etc/sudoers && \
     echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
-    echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
-    getent group rust > /dev/null || groupadd rust
+    echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 ENV PATH="/usr/local/musl/bin:${PATH}"
 FROM debian-base
 ARG OPENSSL_VERSION=1.1.1i
@@ -241,7 +230,7 @@ RUN curl https://sh.rustup.rs -sSf | \
     rustup target add x86_64-unknown-linux-musl
 RUN \
     set -ex && \
-    echo "\n\
+    echo -e "\n\
     [build]\n\
     target = 'x86_64-unknown-linux-musl'\n\
     [target.armv7-unknown-linux-musleabihf]\n\
@@ -253,19 +242,29 @@ ENV LIBZ_SYS_STATIC=1
 ENV TARGET=musl
 RUN \
     set -ex && \
-    rustup component add rust-src rustfmt rls clippy && \
-    rm -rf "${CARGO_HOME}/registry/"
+    rustup component add rust-src rustfmt rls clippy
+# [ NOTE ] => cargo-audit needs openssl
+RUN \
+    set -ex && \
+    cargo install cargo-audit && \
+    strip ${CARGO_HOME}/bin/cargo-audit || true &&  \
+    upx ${CARGO_HOME}/bin/cargo-audit || true
 COPY --from=mdbook-downloader "/workspace/mdbook" "${CARGO_HOME}/bin/"
 COPY --from=cargo-about-downloader "/workspace/cargo-about" "${CARGO_HOME}/bin/"
 COPY --from=cargo-deny-downloader "/workspace/cargo-deny" "${CARGO_HOME}/bin/"
-COPY --from=cargo-audit-builder "/usr/local/cargo/bin/cargo-audit" "${CARGO_HOME}/bin/"
 COPY --from=cargo-deb-builder "/usr/local/cargo/bin/cargo-deb" "${CARGO_HOME}/bin/"
 COPY --from=cargo-watch-builder "/usr/local/cargo/bin/cargo-watch" "${CARGO_HOME}/bin"
 COPY --from=cargo-cache-builder "/usr/local/cargo/bin/cargo-cache" "${CARGO_HOME}/bin"
 COPY --from=cargo-tree-builder "/usr/local/cargo/bin/cargo-tree" "${CARGO_HOME}/bin/"
 COPY --from=just-builder "/usr/local/cargo/bin/just" "${CARGO_HOME}/bin"
-# COPY --from=mdbook-graphviz-builder "/usr/local/cargo/bin/" "${CARGO_HOME}/bin"
+COPY --from=mdbook-graphviz-builder "/usr/local/cargo/bin/mdbook-graphviz" "${CARGO_HOME}/bin"
 RUN \
     set -ex && \
-    chown ":rust" $RUST_HOME -R
+    rm -rf "${CARGO_HOME}/registry/" && \
+    # [ NOTE ] Hacky way to quickly chown recursively
+    # as chgrp -hR or chown -R are super slow 
+    # https://github.com/docker/for-linux/issues/388#issuecomment-685410250
+    apt-get autoremove -y && \
+    apt-get clean -y && \
+    rm -rf "/tmp/*" 
 ENTRYPOINT [ "/bin/bash" ]
