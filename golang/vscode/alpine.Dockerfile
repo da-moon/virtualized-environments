@@ -23,7 +23,6 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   exa \
   starship \
   just \
-  nushell \
   "
 RUN set -ex && \
   apk add --no-cache glow
@@ -97,10 +96,6 @@ RUN set -ex && \
 #   :::::: C O N F I G U R I N G   N U   S H E L L : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────────────────────────
 #
-RUN set -ex && \
-  nu -c 'config set path $nu.path' && \
-  nu -c 'config set env  $nu.env' && \
-  nu -c 'config set prompt "starship prompt"'
 WORKDIR /workspace
 RUN set -ex && \
   sudo chown "$(id -u):$(id -g)" . -R && \
