@@ -1,3 +1,4 @@
+#syntax=docker/dockerfile:1.2
 FROM rust:alpine AS alpine-base 
 USER root
 RUN \

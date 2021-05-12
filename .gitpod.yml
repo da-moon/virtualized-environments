@@ -7,7 +7,9 @@ tasks:
     name: Docker daemon
   - command: docker
   - command: sudo usermod -aG docker gitpod || true
+  - command: suod chown "gitpod:gitpod" /workspace -R || true
   - command: newgrp docker
+  - command: bash /workspace/container-images/scripts/docker-buildx-installer || true
 
 vscode:
   extensions:

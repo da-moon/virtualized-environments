@@ -5,11 +5,6 @@ services:
     # docker-compose -f build.docker-compose.yml build --build-arg "BUILDKIT_INLINE_CACHE=1" rust-base-debian
     # ─────────────────────────────────────────────────────────────────
     image: fjolsvin/rust-base-debian
-    variables:
-      DOCKER_BUILDKIT: 1
-      COMPOSE_DOCKER_CLI_BUILD: 1
-      BUILDKIT_PROGRESS: "plain"
-      DOCKER_DRIVER: overlay2
     build:
       context: ./base
       dockerfile: debian.Dockerfile
