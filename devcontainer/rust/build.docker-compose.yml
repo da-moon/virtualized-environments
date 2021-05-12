@@ -7,7 +7,7 @@ services:
     image: fjolsvin/rust-base-debian
     build:
       context: ./base
-      dockerfile: debian.dockerfile
+      dockerfile: debian.Dockerfile
       args:
         - MDBOOK_VERSION=0.4.5
         - CARGO_ABOUT_VERSION=0.2.3
