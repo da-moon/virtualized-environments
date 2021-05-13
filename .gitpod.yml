@@ -57,6 +57,8 @@ tasks:
         User gitpod
         Port 2222
         ProxyCommand chisel client $(gp url 8080) stdio:%h:%p
+        RemoteCommand cd /workspace && exec bash --login
+        RequestTTY yes
         IdentityFile ~/Documents/ssh-backup/id_rsa
         IdentitiesOnly yes
         StrictHostKeyChecking no
