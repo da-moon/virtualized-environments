@@ -4,9 +4,6 @@ image:
 # [ NOTE ] =>
 # - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
 tasks:
-  # - init: |
-  #     sudo usermod -aG docker gitpod
-  #     exit 0
   - name: "ssh public key setup"
     command: |
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
