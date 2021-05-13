@@ -5,5 +5,5 @@ ARG APT_PACKAGES="\
     "
 RUN \
     set -ex; \
-    install-packages ${BASE_PACKAGES}
+    install-packages ${APT_PACKAGES}
 RUN curl https://i.jpillora.com/chisel! | bash
