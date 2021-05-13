@@ -8,16 +8,16 @@ tasks:
       sudo usermod -aG docker gitpod
   - name: "ssh public key setup"
     command: |
-      sudo chown "gitpod:gitpod" /workspace -R || true;
-      sudo chown "gitpod:gitpod" ~/ -R || true;
-      while [ -z "$SSH_PUB_KEY" ] ; do
-      printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n"
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      while [ -z "$SSH_PUB_KEY" ] ; do \
+      printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" && \
       read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
-      done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n";
-      mkdir -p ~/.ssh  ;
-      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null ;
-      sudo chown "gitpod:gitpod" /workspace -R || true ; 
-      sudo chown "gitpod:gitpod" ~/ -R || true ;
+      done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" && \
+      mkdir -p ~/.ssh && open ~/.ssh/authorized_keys && \
+      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null && \
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
       exit 0
   - name: "Start Docker"
     command: |
