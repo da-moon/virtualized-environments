@@ -24,7 +24,6 @@ tasks:
       exit 0
   - name: "start chisel"
     command: |
-      set -euxo pipefail ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       [ -f ~/chisel.pid ] && kill -9 "$(cat ~/chisel.pid)" && rm -rf ~/chisel.pid ;
@@ -35,19 +34,16 @@ tasks:
       popd ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  # # exit 0
-  # - name: "start dropbear"
-  #   command: |
-  #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     [ ! -f /workspace/dropbear.hostkey ] ;
-  #     dropbearkey -t rsa -f /workspace/dropbear.hostkey ;
-  #     [ -f ~/dropbear.pid ] ;
-  #     kill -9 "$(cat ~/dropbear.pid)" ;
-  #     rm -rf ~/dropbear.pid ;
-  #     bash -c "dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" ;
-  #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
+      exit 0
+  - name: "start dropbear"
+    command: |
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      [ ! -f ~/dropbear.hostkey ] && echo "*** generating dropbear host key" && dropbearkey -t rsa -f ~/dropbear.hostkey ;
+      [ -f ~/dropbear.pid ] && kill -9 "$(cat ~/dropbear.pid)" && rm -rf ~/dropbear.pid ;
+      bash -c "dropbear -r ~/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" ;
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # # exit 0
   # - name: "welcome"
   #   command: |
