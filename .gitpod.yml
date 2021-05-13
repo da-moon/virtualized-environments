@@ -4,9 +4,9 @@ image:
 # [ NOTE ] =>
 # - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
 tasks:
-  - init: |
-      sudo usermod -aG docker gitpod
-      exit 0
+  # - init: |
+  #     sudo usermod -aG docker gitpod
+  #     exit 0
   - name: "ssh public key setup"
     command: |
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
@@ -26,7 +26,7 @@ tasks:
     command: |
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-      [ -f ~/chisel.pid ] && kill -9 "$(cat ~/chisel.pid)" && rm -rf ~/chisel.pid ;
+      [ -f ~/chisel.pid ] && echo "*** killing chisel server" && kill -9 "$(cat ~/chisel.pid)" && rm -rf ~/chisel.pid ;
       pushd ~/ ;
       echo "*** starting chisel server" ;
       bash -c "chisel server --socks5 --pid > ~/chisel.log 2>&1 &" ;
@@ -40,8 +40,8 @@ tasks:
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       [ ! -f ~/dropbear.hostkey ] && echo "*** generating dropbear host key" && dropbearkey -t rsa -f ~/dropbear.hostkey ;
-      [ -f ~/dropbear.pid ] && kill -9 "$(cat ~/dropbear.pid)" && rm -rf ~/dropbear.pid ;
-      bash -c "dropbear -r ~/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" ;
+      [ -f ~/dropbear.pid ] && echo "*** killing dropbear server" && kill -9 "$(cat ~/dropbear.pid)" && rm -rf ~/dropbear.pid ;
+      bash -c "dropbear -r ~/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log 2>&1 &" ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # # exit 0
