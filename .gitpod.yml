@@ -15,10 +15,10 @@ tasks:
       printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" && \
       read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
       done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" && \
-      mkdir -p ~/.ssh && open ~/.ssh/authorized_keys && \
+      mkdir -p ~/.ssh && \
       echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null && \
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # exit 0
   - name: "Start Docker"
     command: |
@@ -27,8 +27,8 @@ tasks:
       sudo usermod -aG docker gitpod && \
       sudo pkill -9 docker-up || true && \
       sudo bash -c "docker-up > ~/docker.log 2>&1 &" && \
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # exit 0
   - name: "start chisel"
     command: |
@@ -40,8 +40,8 @@ tasks:
       pushd ~/ && \
       bash -c "chisel server --socks5 --pid > ~/chisel.log 2>&1 &" && \
       popd
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # exit 0
   - name: "start dropbear"
     command: |
@@ -53,8 +53,8 @@ tasks:
       kill -9 "$(cat ~/dropbear.pid)" && \
       rm -rf ~/dropbear.pid && \
       bash -c "dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" && \
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # exit 0
   - name: "ssh config"
     command: |
