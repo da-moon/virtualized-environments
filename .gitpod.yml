@@ -41,32 +41,35 @@ tasks:
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       [ ! -f ~/dropbear.hostkey ] && echo "*** generating dropbear host key" && dropbearkey -t rsa -f ~/dropbear.hostkey ;
       [ -f ~/dropbear.pid ] && echo "*** killing dropbear server" && kill -9 "$(cat ~/dropbear.pid)" && rm -rf ~/dropbear.pid ;
+      echo "*** starting dropbear server" ;
       bash -c "dropbear -r ~/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log 2>&1 &" ;
+      echo "*** dropbear server was started successfully" ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
-  # # exit 0
-  # - name: "welcome"
-  #   command: |
-  #     sudo usermod -aG docker gitpod ;
-  #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     cat << EOF | tee ~/ssh_config
-  #     Host $(gp url | sed -e 's/https:\/\///g' -e 's/[.].*$//g')
-  #       HostName localhost
-  #       User gitpod
-  #       Port 2222
-  #       ProxyCommand chisel client $(gp url 8080) stdio:%h:%p
-  #       IdentityFile ~/Documents/ssh-backup/id_rsa
-  #       IdentitiesOnly yes
-  #       StrictHostKeyChecking no
-  #       CheckHostIP no
-  #       MACs hmac-sha2-512
-  #       UserKnownHostsFile /dev/null
-  #     EOF
+      exit 0
+  - name: "welcome"
+    command: |
+      echo "*** ensuring gitpod user is part of docker group" ;
+      sudo usermod -aG docker gitpod ;
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      echo "*** preparing ssh config" ;
+      cat << EOF | tee ~/ssh_config
+      Host $(gp url | sed -e 's/https:\/\///g' -e 's/[.].*$//g')
+        HostName localhost
+        User gitpod
+        Port 2222
+        ProxyCommand chisel client $(gp url 8080) stdio:%h:%p
+        IdentityFile ~/Documents/ssh-backup/id_rsa
+        IdentitiesOnly yes
+        StrictHostKeyChecking no
+        CheckHostIP no
+        MACs hmac-sha2-512
+        UserKnownHostsFile /dev/null
+      EOF
 ports:
   - port: 2222
     onOpen: ignore
-
 vscode:
   extensions:
     - ms-azuretools.vscode-docker@1.8.1:xuHtLS23Q5czFwYH7grcCQ==
