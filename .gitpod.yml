@@ -5,40 +5,72 @@ image:
 # - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
 tasks:
   - init: |
-      sudo usermod -aG docker gitpod || true && \
-      bash /workspace/container-images/scripts/docker-buildx-installer || true && \
+      sudo usermod -aG docker gitpod
+  - name: "ssh public key setup"
+    command: |
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
       while [ -z "$SSH_PUB_KEY" ] ; do \
       printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" && \
       read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
       done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n"; && \
       mkdir -p ~/.ssh && open ~/.ssh/authorized_keys && \
-      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null
-  - name: "start Docker daemon"
-    command: sudo docker-up
-  - name: "ensure ownership of workspace directory"
-    command: sudo chown "gitpod:gitpod" /workspace -R || true
-  - name: "loging to docker group"
-    command: newgrp docker
-  - name: TCP Tunnel
-    command: chisel server --socks5
-  - name: SSH Server
+      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null && \
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      exit 0
+  - name: "Start Docker"
     command: |
-      [ -f /workspace/dropbear.hostkey ] || dropbearkey -t rsa -f /workspace/dropbear.hostkey
-      dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid
-  - command: |
-      clear
-      echo "=============="
-      echo " INSTRUCTIONS "
-      echo "=============="
-      echo ""
-      echo "1. Add your public SSH key to ~/.ssh/authorized_keys of this Gitpod workspace"
-      echo ""
-      echo "2. Install Chisel on your local machine, e.g. curl https://i.jpillora.com/chisel! | bash"
-      echo "   see https://github.com/jpillora/chisel"
-      echo ""
-      echo "3. Connect via SSH from your local machine:"
-      echo "   ssh -o ProxyCommand='chisel client $(gp url 8080) stdio:%h:%p' gitpod@localhost -p 2222"
-      echo ""
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      sudo pkill -9 docker-up || true && \
+      sudo bash -c "docker-up > ~/docker.log 2>&1 &" && \
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      exit 0
+  - name: "start chisel"
+    command: |
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      [ -f ~/chisel.pid ] && \
+      kill -9 "$(cat ~/chisel.pid)" && \
+      rm -rf ~/chisel.pid && \
+      pushd ~/ && \
+      bash -c "chisel server --socks5 --pid > ~/chisel.log 2>&1 &" && \
+      popd
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      exit 0
+  - name: "start dropbear"
+    command: |
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      [ ! -f /workspace/dropbear.hostkey ] && \
+      dropbearkey -t rsa -f /workspace/dropbear.hostkey && \
+      [ -f ~/dropbear.pid ] && \
+      kill -9 "$(cat ~/dropbear.pid)" && \
+      rm -rf ~/dropbear.pid  && \
+      bash -c "dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" && \
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      exit 0
+  - name: "ssh config"
+    command: |
+      sudo chown "gitpod:gitpod" /workspace -R || true && \
+      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      cat << EOF | tee ~/ssh_config
+      Host $(gp url | sed -e 's/https:\/\///g' -e 's/[.].*$//g')
+        HostName localhost
+        User gitpod
+        Port 2222
+        ProxyCommand chisel client $(gp url 8080) stdio:%h:%p
+        IdentityFile ~/Documents/ssh-backup/id_rsa
+        IdentitiesOnly yes
+        StrictHostKeyChecking no
+        CheckHostIP no
+        MACs hmac-sha2-512
+        UserKnownHostsFile /dev/null
+      EOF
 ports:
   - port: 8080
   - port: 2222
