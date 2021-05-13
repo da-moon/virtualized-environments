@@ -21,21 +21,20 @@ tasks:
       chmod 600 ~/.ssh/authorized_keys ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  # exit 0
+      exit 0
   - name: "start chisel"
-    command: >
-      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" &&
-      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" &&
+    command: |
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       [ -f ~/chisel.pid ] &&
-      echo "*** killing chisel" && 
       kill -9 "$(cat ~/chisel.pid)" &&
-      rm -rf ~/chisel.pid &&
-      pushd ~/ &&
-      echo "*** starting chisel server" &&
-      bash -c "chisel server --socks5 --pid > ~/chisel.log 2>&1 &" &&
-      echo "*** chisel was started successfully" &&
-      popd &&
-      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" &&
+      rm -rf ~/chisel.pid ;
+      pushd ~/ ;
+      echo "*** starting chisel server" ;
+      bash -c "chisel server --socks5 --pid > ~/chisel.log 2>&1 &" ;
+      echo "*** chisel was started successfully" ;
+      popd ;
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
   # # exit 0
   # - name: "start dropbear"
@@ -51,8 +50,9 @@ tasks:
   #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
   #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
   # # exit 0
-  # - name: "ssh config"
+  # - name: "welcome"
   #   command: |
+  #     sudo usermod -aG docker gitpod ;
   #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
   #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
   #     cat << EOF | tee ~/ssh_config
@@ -75,11 +75,3 @@ ports:
 vscode:
   extensions:
     - ms-azuretools.vscode-docker@1.8.1:xuHtLS23Q5czFwYH7grcCQ==
-# github:
-#   prebuilds:
-#     master: true
-#     branches: true
-#     pullRequests: true
-#     pullRequestsFromForks: true
-#     addCheck: true
-#     addComment: true
