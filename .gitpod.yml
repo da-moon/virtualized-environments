@@ -1,4 +1,5 @@
-image: gitpod/workspace-full
+image:
+  file: .gp/Dockerfile
 
 # [ NOTE ] =>
 # - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
@@ -10,6 +11,32 @@ tasks:
   - command: suod chown "gitpod:gitpod" /workspace -R || true
   - command: newgrp docker
   - command: bash /workspace/container-images/scripts/docker-buildx-installer || true
+  - name: TCP Tunnel
+    command: chisel server --socks5
+  - name: SSH Server
+    command: |
+      [ -f /workspace/dropbear.hostkey ] || dropbearkey -t rsa -f /workspace/dropbear.hostkey
+      dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid
+  - command: |
+      mkdir -p ~/.ssh && open ~/.ssh/authorized_keys
+      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null
+      clear
+      echo "=============="
+      echo " INSTRUCTIONS "
+      echo "=============="
+      echo ""
+      echo "1. Add your public SSH key to ~/.ssh/authorized_keys of this Gitpod workspace"
+      echo ""
+      echo "2. Install Chisel on your local machine, e.g. curl https://i.jpillora.com/chisel! | bash"
+      echo "   see https://github.com/jpillora/chisel"
+      echo ""
+      echo "3. Connect via SSH from your local machine:"
+      echo "   ssh -o ProxyCommand='chisel client $(gp url 8080) stdio:%h:%p' gitpod@localhost -p 2222"
+      echo ""
+ports:
+  - port: 8080
+  - port: 2222
+    onOpen: ignore
 
 vscode:
   extensions:
