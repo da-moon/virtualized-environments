@@ -65,6 +65,10 @@ tasks:
         UserKnownHostsFile /dev/null
       EOF
 ports:
+  # [ NOTE ] => for chisel
+  - port: 8080
+    onOpen: ignore
+  # [ NOTE ] => for dropbear
   - port: 2222
     onOpen: ignore
 vscode:
