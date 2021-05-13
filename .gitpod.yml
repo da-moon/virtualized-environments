@@ -4,13 +4,21 @@ image:
 # [ NOTE ] =>
 # - https://community.gitpod.io/t/knative-development-on-gitpod/2814/2
 tasks:
-  - command: sudo docker-up
-    name: Docker daemon
-  - command: docker
-  - command: sudo usermod -aG docker gitpod || true
-  - command: suod chown "gitpod:gitpod" /workspace -R || true
-  - command: newgrp docker
-  - command: bash /workspace/container-images/scripts/docker-buildx-installer || true
+  - init: >
+      sudo usermod -aG docker gitpod || true
+      bash /workspace/container-images/scripts/docker-buildx-installer || true
+      while [ -z "$SSH_PUB_KEY" ] ; do
+      printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" &&
+      read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ;
+      done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n";
+      mkdir -p ~/.ssh && open ~/.ssh/authorized_keys
+      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null
+  - name: "start Docker daemon"
+    command: sudo docker-up
+  - name: "ensure ownership of workspace directory"
+    command: sudo chown "gitpod:gitpod" /workspace -R || true
+  - name: "loging to docker group"
+    command: newgrp docker
   - name: TCP Tunnel
     command: chisel server --socks5
   - name: SSH Server
@@ -18,8 +26,6 @@ tasks:
       [ -f /workspace/dropbear.hostkey ] || dropbearkey -t rsa -f /workspace/dropbear.hostkey
       dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid
   - command: |
-      mkdir -p ~/.ssh && open ~/.ssh/authorized_keys
-      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null
       clear
       echo "=============="
       echo " INSTRUCTIONS "
