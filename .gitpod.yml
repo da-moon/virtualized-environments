@@ -9,8 +9,8 @@ tasks:
       exit 0
   - name: "ssh public key setup"
     command: |
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
       while [ -z "$SSH_PUB_KEY" ] ; do \
       printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" && \
       read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
@@ -22,9 +22,9 @@ tasks:
   # exit 0
   - name: "Start Docker"
     command: |
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
       sudo usermod -aG docker gitpod && \
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true && \
       sudo pkill -9 docker-up || true && \
       sudo bash -c "docker-up > ~/docker.log 2>&1 &" && \
       sudo chown "gitpod:gitpod" /workspace -R || true && \
@@ -32,8 +32,8 @@ tasks:
   # exit 0
   - name: "start chisel"
     command: |
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
       [ -f ~/chisel.pid ] && \
       kill -9 "$(cat ~/chisel.pid)" && \
       rm -rf ~/chisel.pid && \
@@ -45,21 +45,21 @@ tasks:
   # exit 0
   - name: "start dropbear"
     command: |
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
       [ ! -f /workspace/dropbear.hostkey ] && \
       dropbearkey -t rsa -f /workspace/dropbear.hostkey && \
       [ -f ~/dropbear.pid ] && \
       kill -9 "$(cat ~/dropbear.pid)" && \
-      rm -rf ~/dropbear.pid  && \
+      rm -rf ~/dropbear.pid && \
       bash -c "dropbear -r /workspace/dropbear.hostkey -F -E -s -p 2222 -P ~/dropbear.pid > ~/dropbear.log >2&1 &" && \
       sudo chown "gitpod:gitpod" /workspace -R || true && \
       sudo chown "gitpod:gitpod" ~/ -R || true
   # exit 0
   - name: "ssh config"
     command: |
-      sudo chown "gitpod:gitpod" /workspace -R || true && \
-      sudo chown "gitpod:gitpod" ~/ -R || true && \
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" && \
       cat << EOF | tee ~/ssh_config
       Host $(gp url | sed -e 's/https:\/\///g' -e 's/[.].*$//g')
         HostName localhost
