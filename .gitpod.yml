@@ -61,7 +61,7 @@ tasks:
         IdentitiesOnly yes
         StrictHostKeyChecking no
         CheckHostIP no
-        MACs hmac-sha2-512
+        MACs hmac-sha2-256
         UserKnownHostsFile /dev/null
       EOF
 ports:
