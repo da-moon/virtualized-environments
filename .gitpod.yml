@@ -17,12 +17,13 @@ tasks:
       done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" ;
       mkdir -p ~/.ssh ;
       echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null ;
+      chmod 700 ~/.ssh ;
+      chmod 600 ~/.ssh/authorized_keys ;
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-      exit 0
+  # exit 0
   - name: "start chisel"
     command: >
-      set -euxo pipefail &&
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" &&
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" &&
       [ -f ~/chisel.pid ] &&
