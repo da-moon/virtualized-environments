@@ -6,6 +6,7 @@ image:
 tasks:
   - init: |
       sudo usermod -aG docker gitpod
+      exit 0
   - name: "ssh public key setup"
     command: |
       sudo chown "gitpod:gitpod" /workspace -R || true && \
@@ -21,6 +22,7 @@ tasks:
       exit 0
   - name: "Start Docker"
     command: |
+      sudo usermod -aG docker gitpod && \
       sudo chown "gitpod:gitpod" /workspace -R || true && \
       sudo chown "gitpod:gitpod" ~/ -R || true && \
       sudo pkill -9 docker-up || true && \
