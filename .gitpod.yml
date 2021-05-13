@@ -7,26 +7,26 @@ tasks:
   - init: |
       sudo usermod -aG docker gitpod
       exit 0
-  # - name: "ssh public key setup"
-  #   command: |
-  #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     while [ -z "$SSH_PUB_KEY" ] ; do \
-  #     printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" ;
-  #     read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
-  #     done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" ;
-  #     mkdir -p ~/.ssh ;
-  #     echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null ;
-  #     find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-  #     find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`"
-  # exit 0
-  - name: "start chisel"
+  - name: "ssh public key setup"
     command: |
       find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
       find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
-      [ -f ~/chisel.pid ] ;
-      echo "*** killing chisel"
-      kill -9 "$(cat ~/chisel.pid)" ;
+      while [ -z "$SSH_PUB_KEY" ] ; do \
+      printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" ;
+      read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
+      done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" ;
+      mkdir -p ~/.ssh ;
+      echo "${SSH_PUB_KEY}" | tee ~/.ssh/authorized_keys > /dev/null ;
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      exit 0
+  - name: "start chisel"
+    command: >
+      find /workspace -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      find ~/ -not -group `id -g` -not -user `id -u` -print0 | sudo xargs -P 0 -0 --no-run-if-empty chown --no-dereference "`id -u`:`id -g`" ;
+      [ -f ~/chisel.pid ] &&
+      echo "*** killing chisel" && 
+      kill -9 "$(cat ~/chisel.pid)" &&
       rm -rf ~/chisel.pid ;
       pushd ~/ ;
       echo "*** starting chisel server"
