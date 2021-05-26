@@ -9,17 +9,12 @@ services:
       context: ./base
       dockerfile: alpine.Dockerfile
       args:
-        # - GOPLS_VERSION=v0.6.9
+        - GURU_VERSION=master
         - GOPLS_VERSION=latest
-        # - DELVE_VERSION=v1.5.0
         - DELVE_VERSION=latest
-        # - GOTESTS_VERSION=v1.5.3
         - GOTESTS_VERSION=latest
-        # - GOMODIFYTAGS_VERSION=v1.13.0
         - GOMODIFYTAGS_VERSION=latest
-        # - GOPLAY_VERSION=v1.0.0
         - GOPLAY_VERSION=latest
-        # - GOLANGCI_LINT_VERSION=v1.35.2
         - GOLANGCI_LINT_VERSION=latest
       
   vscode-golang-alpine:
