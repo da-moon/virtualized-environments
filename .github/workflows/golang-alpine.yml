@@ -11,7 +11,7 @@ jobs:
   golang-base-alpine:
     defaults:
       run:
-        working-directory: ./devcontainer/golang
+        working-directory: ./devcontainer/golang/base
     name: "build and push golang-base docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -26,16 +26,7 @@ jobs:
         shell: bash
         run: >
           set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          build golang-base-alpine
-      - name: "push docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          push golang-base-alpine
+          bash build.sh
   # ────────────────────────────────────────────────────────────────────────────────
   vscode-golang-alpine:
     name: "build and push vscode-golang-alpine docker image"
@@ -43,7 +34,7 @@ jobs:
     needs: golang-base-alpine
     defaults:
       run:
-        working-directory: ./devcontainer/golang
+        working-directory: ./devcontainer/golang/vscode
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -56,13 +47,4 @@ jobs:
         shell: bash
         run: >
           set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          build vscode-golang-alpine
-      - name: "push docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          push vscode-golang-alpine
+          bash build.sh
