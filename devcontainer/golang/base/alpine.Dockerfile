@@ -3,10 +3,12 @@ FROM golang:alpine AS go
 USER root
 RUN set -ex && \
   apk upgrade --no-cache -U -a && \
-  apk add --no-cache git bash upx findutils binutils && \
+  apk add --no-cache git bash findutils binutils && \
   go env -w "GO111MODULE=on" && \
   go env -w "CGO_ENABLED=0" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
+RUN set -ex && \
+  apk add --no-cache upx || true
 SHELL ["bash","-c"]
 FROM go AS go-builder
 ARG GOPLS_VERSION=v0.6.9
@@ -57,10 +59,12 @@ RUN set -ex && \
   go run bootstrap.go
 # ─── COMPRESS ───────────────────────────────────────────────────────────────────
 RUN set -ex && \
+  if ! command -v "upx" >/dev/null ; then \
   while read pkg ; do \
   strip "$pkg"; \
   upx "$pkg"; \
-  done < <(find $(go env GOPATH)/bin -type f -mindepth 1 -maxdepth 1)
+  done < <(find $(go env GOPATH)/bin -type f -mindepth 1 -maxdepth 1) \
+  fi
 # ────────────────────────────────────────────────────────────────────────────────
 FROM go
 # [ NOTE ] => base essential packages
@@ -72,7 +76,6 @@ ARG BASE_PACKAGES="\
   util-linux \
   git \
   ca-certificates \
-  upx \
   ncurses \
   ncurses-dev \
   sudo=1.9.5p2-r0 \
@@ -93,6 +96,7 @@ RUN set -ex && \
   apk add --no-cache ${BASE_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --no-cache ${BASE_PACKAGES})
+  
 SHELL ["bash","-c"]
 RUN set -ex && \
   curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
