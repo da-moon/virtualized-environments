@@ -36,14 +36,14 @@ RUN set -ex && \
   apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES})
 RUN set -ex && \ 
   git clone https://github.com/gokultp/go-tprof.git /tmp/go-tprof && \
-  make -C /tmp/go-tprof config && \
-  make -C /tmp/go-tprof && \
+  make -C /tmp/go-tprof config || true ; \
+  make -C /tmp/go-tprof || true ; \
   rm -rf /tmp/go-tprof  
 # ─── VSCODE LIVE SHARE ──────────────────────────────────────────────────────────
 RUN set -ex && \
   for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
-  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs && \
-  bash /tmp/vsls-reqs && \
+  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs ; \
+  bash /tmp/vsls-reqs || true ; \
   rm /tmp/vsls-reqs
 #
 # ────────────────────────────────────────────────────────────────── I ──────────
