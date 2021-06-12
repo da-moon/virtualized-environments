@@ -10,28 +10,19 @@ jobs:
   hashicorp:
     defaults:
       run:
-        working-directory: ./stacks
+        working-directory: ./stacks/hashicorp
     name: "build and push hashicorp docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: "build docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          build hashicorp
       - name: "Login to Docker Container Repository"
         run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "push docker image"
+      - name: "build docker and push the docker image"
         shell: bash
         run: >
           set -ex &&
-          docker-compose
-          -f build.docker-compose.yml
-          push hashicorp
+          bash build.sh

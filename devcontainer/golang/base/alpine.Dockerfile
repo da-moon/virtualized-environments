@@ -59,7 +59,7 @@ RUN set -ex && \
   go run bootstrap.go
 # ─── COMPRESS ───────────────────────────────────────────────────────────────────
 RUN set -ex && \
-  if ! command -v "upx" >/dev/null ; then \
+  if command -v "upx" >/dev/null ; then \
   while read pkg ; do \
   strip "$pkg"; \
   upx "$pkg"; \

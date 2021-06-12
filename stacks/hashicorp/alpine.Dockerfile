@@ -2,11 +2,14 @@ FROM golang:alpine as builder
 USER root
 ENV TERM xterm 
 RUN set -ex && \
-  apk upgrade --no-cache -U -a && \
-  apk add --no-cache git bash upx findutils binutils ripgrep && \
+  apk upgrade -U -a && \
+  apk add git bash findutils binutils ripgrep && \
   go env -w "GO111MODULE=on" && \
   go env -w "CGO_ENABLED=0" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
+RUN set -ex && \
+  apk add --no-cache upx || true
+
 SHELL ["bash","-c"]
 
 # [ NOTE ] the following builds would fail in alpine
@@ -67,9 +70,10 @@ RUN set -ex && \
   done ; \
   popd  > /dev/null 2>&1
 RUN set -ex && \
+  if command -v "upx" >/dev/null ; then \
   find /workspace -type f | xargs -I {} -P `nproc` strip {} || true &&  \
-  find /workspace -type f | xargs -I {} -P `nproc` upx {} || true 
-
+  find /workspace -type f | xargs -I {} -P `nproc` upx {} || true  \
+  fi
 FROM alpine
 COPY --from=builder /workspace /workspace
 RUN set -ex && \
