@@ -4,7 +4,7 @@ on:
     paths:
       - "devcontainer/golang/**/alpine.Dockerfile"
       - "devcontainer/golang/build.docker-compose.yml"
-      - .github/workflows/golang-alpine.yml
+      - ".github/workflows/golang-alpine.yml"
   workflow_dispatch:
 jobs:
   # ────────────────────────────────────────────────────────────────────────────────
@@ -17,6 +17,13 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
       - name: "Login to Docker Container Repository"
         run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
         env:
