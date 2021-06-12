@@ -62,8 +62,8 @@ RUN set -ex && \
 # ─── COMPRESS ───────────────────────────────────────────────────────────────────
 RUN set -ex && \
   if command -v "upx" >/dev/null ; then \
-  find $(go env GOPATH)/bin -type f | xargs -I {} -P `nproc` strip {} || true &&  \
-  find $(go env GOPATH)/bin -type f | xargs -I {} -P `nproc` upx {} || true  \
+  find $(go env GOPATH)/bin -type f | xargs -I {} -P `nproc` strip {} || true ; \
+  find $(go env GOPATH)/bin -type f | xargs -I {} -P `nproc` upx {} || true ; \
   fi
 # ────────────────────────────────────────────────────────────────────────────────
 FROM go
