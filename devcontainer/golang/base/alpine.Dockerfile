@@ -50,7 +50,9 @@ ARG GO_PACKAGES="\
 RUN set -ex && \
   go get -v golang.org/x/tools/cmd/... && \
   IFS=' ' read -a GO_PACKAGES <<< "$GO_PACKAGES" && \
-  go get -v "${GO_PACKAGES[@]}" ;
+  for pkg in "${GO_PACKAGES[@]}"; do \
+  go get -v "${pkg}" || true \
+  done
 # ────────────────────────────────────────────────────────────────────────────────
 RUN set -ex && \
   git clone https://github.com/magefile/mage /tmp/mage
