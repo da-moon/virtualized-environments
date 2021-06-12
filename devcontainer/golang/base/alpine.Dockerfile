@@ -48,10 +48,10 @@ ARG GO_PACKAGES="\
   github.com/mgechev/revive \
   "
 RUN set -ex && \
-  go get -v golang.org/x/tools/cmd/... && \
-  IFS=' ' read -a GO_PACKAGES <<< "$GO_PACKAGES" && \
+  go get -v golang.org/x/tools/cmd/... || true ; \
+  IFS=' ' read -a GO_PACKAGES <<< "$GO_PACKAGES" ; \
   for pkg in "${GO_PACKAGES[@]}"; do \
-  go get -v "${pkg}" || true \
+  go get -v "${pkg}" || true ; \
   done
 # ────────────────────────────────────────────────────────────────────────────────
 RUN set -ex && \
