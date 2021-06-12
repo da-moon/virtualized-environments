@@ -1,5 +1,7 @@
 name: "golang-alpine"
 on:
+  schedule:
+    - cron: "0 0 * * *"
   push:
     paths:
       - "devcontainer/golang/**/alpine.Dockerfile"
