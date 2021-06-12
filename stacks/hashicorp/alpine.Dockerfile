@@ -71,8 +71,8 @@ RUN set -ex && \
   popd  > /dev/null 2>&1
 RUN set -ex && \
   if command -v "upx" >/dev/null ; then \
-  find /workspace -type f | xargs -I {} -P `nproc` strip {} || true &&  \
-  find /workspace -type f | xargs -I {} -P `nproc` upx {} || true  \
+  find /workspace -type f | xargs -I {} -P `nproc` strip {} || true ; \
+  find /workspace -type f | xargs -I {} -P `nproc` upx {} || true  ; \
   fi
 FROM alpine
 COPY --from=builder /workspace /workspace
