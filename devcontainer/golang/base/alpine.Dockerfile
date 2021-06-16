@@ -68,7 +68,13 @@ RUN set -ex && \
 # ────────────────────────────────────────────────────────────────────────────────
 FROM go
 # [ NOTE ] => base essential packages
+RUN set -ex && \
+  echo 'https://gitsecret.jfrog.io/artifactory/git-secret-apk/all/main' | tee -a /etc/apk/repositories > /dev/null && \
+  wget -qO \
+    /etc/apk/keys/git-secret-apk.rsa.pub \
+    'https://gitsecret.jfrog.io/artifactory/api/security/keypair/public/repositories/git-secret-apk'
 ARG BASE_PACKAGES="\
+  git-secret \
   curl \
   perl \
   wget \
@@ -93,10 +99,9 @@ ARG BASE_PACKAGES="\
   make \
   "
 RUN set -ex && \
-  apk add --no-cache ${BASE_PACKAGES} || \
+  apk add --update --no-cache ${BASE_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
-  apk add --no-cache ${BASE_PACKAGES})
-  
+  apk add --update --no-cache ${BASE_PACKAGES})
 SHELL ["bash","-c"]
 RUN set -ex && \
   curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
