@@ -4,14 +4,14 @@ RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
  apk add --no-cache openssl-dev cmake ; \
- build "convco"
+ build "convco" || true
 FROM fjolsvin/rust-builder-alpine AS clog-builder
 ENV CFLAGS="-mno-outline-atomics"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   apk add --no-cache openssl-dev ; \
-  build "clog-cli"
+  build "clog-cli" || true
 FROM fjolsvin/upx AS compression-layer
 COPY --from=clog-builder "/workspace" "/workspace"
 COPY --from=convco-builder "/workspace" "/workspace" 
