@@ -112,12 +112,6 @@ RUN \
   && yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash
-COPY --from=compression-layer "/workspace" /usr/local/bin
-RUN \
-  sudo chmod +x /usr/local/bin/*
-ARG HOSTNAME="alpine"
-RUN \
-  hostname ${HOSTNAME}
 #
 # ────────────────────────────────────────────────────────────────── I ──────────
 #   :::::: C R E A T I N G   U S E R : :  :   :    :     :        :          :
@@ -147,16 +141,20 @@ USER ${USER}
 SHELL ["bash","-c"]
 ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
-ENV TERM xterm
-ENV EDITOR nvim
 # home profile and workdirectory setup
 RUN \
-  sudo chown "$(id -u):$(id -g)" . -R \
-  && sudo chown "$(id -u):$(id -g)" "${HOME}" -R \
-  && echo 'export EDITOR="nvim"' | tee -a ~/.bashrc > /dev/null \
+  find ${HOME} \
+  -not -group `id -g` \
+  -not -user `id -u` \
+  -print0 \
+  | sudo xargs \
+    --no-run-if-empty \
+    -0  \
+    -P 0 \
+    chown --no-dereference "`id -u`:`id -g`" \
   && echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null \
   && echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
-# userscoped spacevim install
+# user scoped spacevim install
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash
 ARG IMAGE_SPECIFIC_PACKAGES="\
@@ -189,34 +187,43 @@ RUN \
     sudo sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
     && sudo apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
   )
-# precommit hook management
+# precommit hook examples
 WORKDIR ${HOME}/pre-commit-templates
 COPY <<-"EOT" conventional-commits.yml
-#!/usr/bin/env bash
-set -euxo pipefail
+---
+# cat ~/pre-commit-templates/conventional-commits.yml >> /workspace/.pre-commit-config.yml
+default_stages: [commit]
+repos:
+ - repo: https://github.com/dafyddj/commitlint-pre-commit-hook
+   hooks:
+     - id: commitlint
+       name: Check commit message using commitlint
+       description: Lint commit message against @commitlint/config-conventional rules
+       stages: [commit-msg]
+       additional_dependencies: ['@commitlint/config-conventional']
 EOT
-
-#COPY <<-"EOT" conventional-commits.yml
-#default_stages: [commit]
-#repos:
-#  - repo: https://github.com/dafyddj/commitlint-pre-commit-hook
-#    hooks:
-#      - id: commitlint
-#        name: Check commit message using commitlint
-#        description: Lint commit message against @commitlint/config-conventional rules
-#        stages: [commit-msg]
-#        additional_dependencies: ['@commitlint/config-conventional']
-#EOT
-#RUN \
-#  && git config --global init.templateDir ~/.git-template \
-#  && pre-commit init-templatedir ~/.git-template \
-#	&& pre-commit --install-hooks -c conventional-commits.yml
-#RUN \
-#  sudo python3 -m pip cache purge \
-#  && sudo yarn cache clean --all \
-#  && sudo rm -rf \
-#  /tmp/*
-#ARG WORKDIR="/workspace"
-#ENV WORKDIR $WORKDIR
-#WORKDIR $WORKDIR
+RUN \
+  sudo chown "`id -u`:`id -g`" ${HOME}/pre-commit-templates -R \
+  && sudo usermod -aG docker "`whoami`" \
+  && sudo python3 -m pip cache purge \
+  && sudo yarn cache clean --all \
+  && sudo rm -rf \
+  /tmp/*
+COPY --from=compression-layer "/workspace" /usr/local/bin
+ARG WORKDIR="/workspace"
+ENV WORKDIR $WORKDIR
+WORKDIR $WORKDIR
+RUN \
+  find ${WORKDIR} \
+  -not -group `id -g` \
+  -not -user `id -u` \
+  -print0 \
+  | sudo xargs \
+    --no-run-if-empty \
+    -0  \
+    -P 0 \
+    chown --no-dereference "`id -u`:`id -g`" \
+  && sudo chmod +x /usr/local/bin/*
+ENV TERM xterm
+ENV EDITOR nvim
 ENTRYPOINT [ "/bin/bash" ]
