@@ -1,0 +1,14 @@
+{
+  "remote.downloadExtensionsLocally": true,
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/.vagrant": true,
+    "**/.git": true,
+  },
+  "[settings.json]": {
+    "editor.formatOnSave": false,
+  },
+  "[devcontainer.json]": {
+    "editor.formatOnSave": false,
+  },
+}

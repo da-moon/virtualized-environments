@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "mutantdino.resourcemonitor",
+        "editorconfig.editorconfig",
+        "kevinkyang.auto-comment-blocks",
+        "ms-azuretools.vscode-docker",
+        "karyfoundation.comment",
+        "wmaurer.change-case",
+        "skellock.just",
+        "gruntfuggly.todo-tree"
+    ]
+}
