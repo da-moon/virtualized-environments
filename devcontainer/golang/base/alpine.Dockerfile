@@ -1,4 +1,5 @@
-
+#
+#:syntax = docker/dockerfile-upstream:master-labs
 FROM golang:alpine AS go
 USER root
 RUN set -ex && \
@@ -66,55 +67,19 @@ RUN set -ex && \
   find $(go env GOPATH)/bin -type f | xargs -I {} -P `nproc` upx {} || true ; \
   fi
 # ────────────────────────────────────────────────────────────────────────────────
-FROM go
+FROM "fjolsvin/base-alpine"
+USER root
 # [ NOTE ] => base essential packages
-RUN set -ex && \
-  echo 'https://gitsecret.jfrog.io/artifactory/git-secret-apk/all/main' | tee -a /etc/apk/repositories > /dev/null && \
-  wget -qO \
-    /etc/apk/keys/git-secret-apk.rsa.pub \
-    'https://gitsecret.jfrog.io/artifactory/api/security/keypair/public/repositories/git-secret-apk'
 ARG BASE_PACKAGES="\
-  git-secret \
-  curl \
-  perl \
-  wget \
-  tree \
-  util-linux \
-  git \
-  ca-certificates \
-  ncurses \
-  ncurses-dev \
-  sudo=1.9.5p2-r0 \
-  bash \
-  bash-completion \
-  shadow \
-  libcap \
-  coreutils \
-  findutils \
-  binutils \
-  gnupg \
-  grep \
-  gawk \
-  build-base \
-  make \
-  "
+  go \
+"
 RUN set -ex && \
   apk add --update --no-cache ${BASE_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --update --no-cache ${BASE_PACKAGES})
-SHELL ["bash","-c"]
 RUN set -ex && \
   curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
 ARG GOLANGCI_LINT_VERSION=v1.35.2
 RUN set -ex && \ 
   wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin -d ${GOLANGCI_LINT_VERSION}
-RUN set -ex && \
-  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
-RUN set -ex && \
-  sed -i \
-  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
-  -e '/%sudo.*NOPASSWD:ALL/d' \
-  /etc/sudoers && \
-  echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers && \
-  echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 COPY --from=go-builder /go/bin /usr/local/bin
