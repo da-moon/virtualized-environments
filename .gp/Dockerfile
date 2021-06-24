@@ -1,4 +1,5 @@
-FROM gitpod/workspace-fullUSER root
+FROM gitpod/workspace-full
+USER root
 RUN \
   yes | add-apt-repository ppa:neovim-ppa/unstable
 ARG APT_PACKAGES="\
