@@ -6,7 +6,7 @@ RUN \
  apk add --no-cache openssl-dev cmake ; \
  build "convco" || true
 FROM fjolsvin/rust-builder-alpine AS clog-builder
-ENV CFLAGS="-mno-outline-atomics"
+# ENV CFLAGS="-mno-outline-atomics"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
