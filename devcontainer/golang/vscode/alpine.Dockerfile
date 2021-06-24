@@ -3,7 +3,7 @@ FROM fjolsvin/golang-base-alpine
 USER root
 # ────────────────────────────────────────────────────────────────────────────────
 ARG IMAGE_SPECIFIC_PACKAGES="\
-"
+  "
 RUN set -ex && \
   apk upgrade --no-cache -U -a \
   && apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES} || \
@@ -33,37 +33,41 @@ RUN set -ex && \
   -not -user `id -u` \
   -print0 \
   | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`" \
+  --no-run-if-empty \
+  -0  \
+  -P 0 \
+  chown --no-dereference "`id -u`:`id -g`" \
   && find ${HOME} \
   -not -group `id -g` \
   -not -user `id -u` \
   -print0 \
   | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`" \
+  --no-run-if-empty \
+  -0  \
+  -P 0 \
+  chown --no-dereference "`id -u`:`id -g`" \
   && find $(go env GOROOT) \
   -not -group `id -g` \
   -not -user `id -u` \
   -print0 \
   | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`" \
+  --no-run-if-empty \
+  -0  \
+  -P 0 \
+  chown --no-dereference "`id -u`:`id -g`" \
   && find $(go env GOPATH) \
   -not -group `id -g` \
   -not -user `id -u` \
   -print0 \
   | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`"
+  --no-run-if-empty \
+  -0  \
+  -P 0 \
+  chown --no-dereference "`id -u`:`id -g`" \
+  && mkdir -p ~/.vscode-server \
+  && mkdir -p ~/.vscode-server-insiders
+VOLUME "${HOME}/.vscode-server"
+VOLUME "${HOME}/.vscode-server-insiders"
 RUN set -ex && \
   sudo rm -rf \
   /tmp/*

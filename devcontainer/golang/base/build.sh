@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 IMAGE_NAME="fjolsvin/golang-base-alpine"
+CACHE_NAME="fjolsvin/cache:golang-base-alpine"
 # --------------------------------------------------------------------------------
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 builder="$(echo "$IMAGE_NAME" | cut -d/ -f2)"
@@ -16,8 +17,8 @@ BUILD+=" --build-arg 'GOTESTS_VERSION=latest'"
 BUILD+=" --build-arg 'GOMODIFYTAGS_VERSION=latest'"
 BUILD+=" --build-arg 'GOPLAY_VERSION=latest'"
 BUILD+=" --build-arg 'GOLANGCI_LINT_VERSION=latest'"
-BUILD+=" --cache-from type=registry,ref=${IMAGE_NAME}:cache"
-BUILD+=" --cache-to type=registry,mode=max,ref=${IMAGE_NAME}:cache"
+BUILD+=" --cache-from type=registry,ref=${CACHE_NAME}"
+BUILD+=" --cache-to type=registry,mode=max,ref=${CACHE_NAME}"
 BUILD+=" --tag ${IMAGE_NAME}:latest"
 BUILD+=" --progress=plain"
 BUILD+=" --push"
