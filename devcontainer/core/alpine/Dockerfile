@@ -11,7 +11,7 @@ RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   apk add --no-cache openssl-dev ; \
-  build "clog-cli" || true
+  build "clog-cli"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=clog-builder "/workspace" "/workspace"
 COPY --from=convco-builder "/workspace" "/workspace" 
