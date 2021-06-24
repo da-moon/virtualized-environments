@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile-upstream:master-labs
-FROM rust:alpine
+FROM alpine:edge
+USER root
 COPY <<-"EOT" /usr/local/bin/build
 #!/usr/bin/env bash
 set -euxo pipefail
@@ -29,11 +30,33 @@ for crate in "${CRATES[@]}"; do
 done ;
 EOT
 WORKDIR "/workspace"
+ARG BASE_PACKAGES="\
+  ncurses \
+  ncurses-dev \
+  ca-certificates \
+  git \ 
+  build-base \
+  make \
+  cmake \
+  cargo \
+  rust \
+  openssl-dev \
+  bash \
+"
 RUN \
-  set -ex \
-  && apk upgrade -U -a \
-  && apk add build-base make git bash ncurses \
-  && chmod +x /usr/local/bin/*
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories \
+  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories \
+  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories \
+  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories \
+  && apk add --no-cache --upgrade apk-tools \
+  && apk upgrade --no-cache -U -a \
+  && chmod +x /usr/local/bin/* \
+  &&   apk add --update --no-cache ${BASE_PACKAGES} \
+  || ( \
+    sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
+    && apk add --update --no-cache ${BASE_PACKAGES} \
+  )
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
