@@ -1,0 +1,36 @@
+name: "builder-rust"
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    paths:
+      - "builder/rust/**/Dockerfile"
+      - ".github/workflows/builder-rust.yml"
+  workflow_dispatch:
+jobs:
+  alpine:
+    defaults:
+      run:
+        working-directory: ./builder/rust/alpine
+    name: "build and push builder-rust-alpine docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
