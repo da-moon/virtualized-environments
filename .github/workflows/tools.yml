@@ -1,3 +1,5 @@
+---
+# [ TODO ] => move upx to a seperate workflow
 name: "tools"
 on:
   schedule:
@@ -66,7 +68,7 @@ jobs:
           set -ex &&
           bash build.sh
   convco:
-    needs: [upx, changes]
+    needs: changes
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.convco == 'true' }}
     defaults:
       run:
@@ -95,7 +97,7 @@ jobs:
           bash build.sh
   clog:
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.clog == 'true' }}
-    needs: [upx, changes]
+    needs: changes
     defaults:
       run:
         working-directory: ./tools/clog
@@ -123,7 +125,7 @@ jobs:
           bash build.sh
   jen:
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.jen == 'true' }}
-    needs: [upx, changes]
+    needs: changes
     defaults:
       run:
         working-directory: ./tools/jen
@@ -150,7 +152,7 @@ jobs:
           set -ex &&
           bash build.sh
   petname:
-    needs: [upx, changes]
+    needs: changes
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.petname == 'true' }}
     defaults:
       run:
@@ -178,7 +180,7 @@ jobs:
           set -ex &&
           bash build.sh
   tojson:
-    needs: [upx, changes]
+    needs: changes
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.tojson == 'true' }}
     defaults:
       run:
