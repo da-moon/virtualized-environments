@@ -12,5 +12,5 @@ FROM alpine:edge
 WORKDIR /userspace
 VOLUME /userspace
 COPY --from=compression-layer "/workspace" "/workspace"
-RUN apk add --no-cache --upgrade gcc
+RUN apk upgrade --no-cache -U -a && apk add --no-cache --upgrade gcc
 ENTRYPOINT [ "/workspace/jen" ]
