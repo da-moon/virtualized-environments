@@ -9,7 +9,37 @@ on:
       - "builder/rust/alpine/*"
   workflow_dispatch:
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      upx: ${{ steps.filter.outputs.upx }}
+      clog: ${{ steps.filter.outputs.clog }}
+      convco: ${{ steps.filter.outputs.convco }}
+      jen: ${{ steps.filter.outputs.jen }}
+      petname: ${{ steps.filter.outputs.petname }}
+      tojson: ${{ steps.filter.outputs.tojson }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            upx:
+              - 'tools/upx/**'
+            clog:
+              - 'tools/clog/**'
+            convco:
+              - 'tools/convco/**'
+            jen:
+              - 'tools/jen/**'
+            petname:
+              - 'tools/petname/**'
+            tojson:
+              - 'tools/tojson/**'
   upx:
+    needs: changes
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' }}
     defaults:
       run:
         working-directory: ./tools/upx
@@ -35,34 +65,9 @@ jobs:
         run: >
           set -ex &&
           bash build.sh
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      clog: ${{ steps.filter.outputs.clog }}
-      convco: ${{ steps.filter.outputs.convco }}
-      jen: ${{ steps.filter.outputs.jen }}
-      petname: ${{ steps.filter.outputs.petname }}
-      tojson: ${{ steps.filter.outputs.tojson }}
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            clog:
-              - 'tools/clog/**'
-            convco:
-              - 'tools/convco/**'
-            jen:
-              - 'tools/jen/**'
-            petname:
-              - 'tools/petname/**'
-            tojson:
-              - 'tools/tojson/**'
   convco:
     needs: [upx, changes]
-    if: ${{ github.event_name == 'schedule' && needs.changes.outputs.convco == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.convco == 'true' }}
     defaults:
       run:
         working-directory: ./tools/convco
