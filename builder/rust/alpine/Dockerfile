@@ -15,9 +15,9 @@ for crate in "${CRATES[@]}"; do
   [ ! -f ${CARGO_HOME}/config ] && ln -s /root/cargo.toml ${CARGO_HOME}/config ;
   echo >&2 "[ INFO ] building: $crate";
   case "$apkArch" in
-    x86_64)
-      cargo install --root "/workspace" -j `nproc` "${crate}" \
-      || ( rm -f ${CARGO_HOME}/config && cargo install --root "/workspace" -j `nproc` "${crate}" )
+    x86_64|aarch64)
+      cargo install --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" \
+      || ( rm -f ${CARGO_HOME}/config && cargo install --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" )
       ;;
     aarch64) 
       cargo install --root "/workspace" -j `nproc` "${crate}" || true
@@ -30,23 +30,29 @@ for crate in "${CRATES[@]}"; do
   mv -f /workspace/bin/* "/workspace/";
   rm -rf "/workspace/bin" ;
 done ;
+find /workspace -type f -exec grep -IL /workspace "rm {}" \;
 EOT
 COPY <<-"EOT" /root/cargo.toml
 [target.x86_64-unknown-linux-musl]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static"]
+[target.aarch64-unknown-linux-musl]
+rustflags = ["-C", "target-feature=+crt-static"]
+[target.armv7-unknown-linux-musleabihf]
+linker = "arm-linux-gnueabihf-gcc"
 EOT
 
 WORKDIR "/workspace"
 ARG BASE_PACKAGES="\
-  ncurses \
-  ncurses-dev \
+  musl-dev \
+  ncurses-static \
   ca-certificates \
-  git \ 
-  build-base \
+  git \
   make \
   cmake \
-  openssl-dev \
+  openssl-libs-static \
   bash \
+  findutils \
+  coreutils \
 "
 RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories \
