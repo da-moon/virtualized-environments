@@ -26,6 +26,7 @@ case "$apkArch" in
     exit 0
   ;;
 esac;
+find /workspace -type f -exec grep -IL /workspace "rm {}" \;
 EOT
 WORKDIR "/workspace"
 RUN \
@@ -39,7 +40,7 @@ RUN \
   apkArch="$(apk --print-arch)"; \
   case "$apkArch" in \
     x86_64) \
-      apk add --no-cache binutils findutils upx \
+      apk add --no-cache coreutils binutils findutils upx \
     ;; \
     *) \
       echo >&2 "[ WARN ] compression utilities are not available: $apkArch"; \
