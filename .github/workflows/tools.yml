@@ -35,8 +35,34 @@ jobs:
         run: >
           set -ex &&
           bash build.sh
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      clog: ${{ steps.filter.outputs.clog }}
+      convco: ${{ steps.filter.outputs.convco }}
+      jen: ${{ steps.filter.outputs.jen }}
+      petname: ${{ steps.filter.outputs.petname }}
+      tojson: ${{ steps.filter.outputs.tojson }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            clog:
+              - 'tools/clog/**'
+            convco:
+              - 'tools/convco/**'
+            jen:
+              - 'tools/jen/**'
+            petname:
+              - 'tools/petname/**'
+            tojson:
+              - 'tools/tojson/**'
   convco:
-    needs: upx
+    needs: [upx, changes]
+    if: ${{ github.event_name == 'schedule' && needs.changes.outputs.convco == 'true' }}
     defaults:
       run:
         working-directory: ./tools/convco
@@ -63,7 +89,8 @@ jobs:
           set -ex &&
           bash build.sh
   clog:
-    needs: upx
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.clog == 'true' }}
+    needs: [upx, changes]
     defaults:
       run:
         working-directory: ./tools/clog
@@ -90,7 +117,8 @@ jobs:
           set -ex &&
           bash build.sh
   jen:
-    needs: upx
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.jen == 'true' }}
+    needs: [upx, changes]
     defaults:
       run:
         working-directory: ./tools/jen
@@ -117,7 +145,8 @@ jobs:
           set -ex &&
           bash build.sh
   petname:
-    needs: upx
+    needs: [upx, changes]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.petname == 'true' }}
     defaults:
       run:
         working-directory: ./tools/petname
@@ -144,7 +173,8 @@ jobs:
           set -ex &&
           bash build.sh
   tojson:
-    needs: upx
+    needs: [upx, changes]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.tojson == 'true' }}
     defaults:
       run:
         working-directory: ./tools/tojson
