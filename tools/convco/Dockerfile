@@ -16,7 +16,7 @@ RUN \
   && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories \
-  && apk add --no-cache --upgrade openssl-dev git vim
+  && apk add --no-cache --upgrade openssl-dev git vim gcc
 WORKDIR /userspace
 VOLUME /userspace
 ENV EDITOR vim
