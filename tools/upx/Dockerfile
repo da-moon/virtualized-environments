@@ -43,7 +43,7 @@ find . \
 find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
 RUN \
-  && apk add --no-cache bash coreutils binutils findutils \
+  apk add --no-cache bash coreutils binutils findutils \
   && apk add --no-cache --virtual .deps-upx curl jq xz ;
 SHELL ["bash","-c"]
 ARG REPO="upx/upx"
