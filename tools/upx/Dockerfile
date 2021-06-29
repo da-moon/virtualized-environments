@@ -11,7 +11,7 @@ case "$apkArch" in
      find . \
     -type f \
     -executable \
-    -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+    -exec sh -c "file -i '{}' |  grep -qE 'x-[-a-z]*executable; charset=binary' \; \
     -print0 \
     | xargs \
         -0 \
@@ -32,7 +32,7 @@ find . \
   -mindepth 2 \
   -type f \
   -executable \
-  -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+  -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary' \; \
   -print0 \
   | xargs \
     -0 \
