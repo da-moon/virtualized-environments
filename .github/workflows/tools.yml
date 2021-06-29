@@ -28,6 +28,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
+          base: ${{ github.ref }}
           filters: |
             workflows:
               - '.github/workflows/*.yml'
