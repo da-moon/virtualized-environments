@@ -7,7 +7,7 @@ COPY <<-"EOT" /usr/local/bin/compress
 set -euxo pipefail
 apkArch="$(apk --print-arch)";
 case "$apkArch" in
-  x86_64|aarch64) 
+  x86_64|aarch64)
      find . \
     -type f \
     -executable \
@@ -23,7 +23,7 @@ case "$apkArch" in
           upx "$pkg" || true ;
       done' bash ;
     ;;
-  *) 
+  *)
     echo >&2 "[ WARN ] compression utilities are not available: $apkArch";
     exit 1
   ;;
@@ -39,7 +39,7 @@ find . \
     -P `nproc` \
     --no-run-if-empty \
     mv {} ./ ;
-# [ NOTE ] => cleanup 
+# [ NOTE ] => cleanup
 find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
 RUN \
@@ -49,31 +49,30 @@ SHELL ["bash","-c"]
 ARG REPO="upx/upx"
 ARG LATEST_RELEASE_ENDPOINT="https://api.github.com/repos/{REPO}/releases/latest"
 RUN \
-  tag_name=$(curl -sL https://api.github.com/repos/upx/upx/releases/latest \
-  | jq -r '.tag_name') ; \
+  tag_name="$(curl -sL ${LATEST_RELEASE_ENDPOINT} | jq -r '.tag_name')"; \
   architecture="$(apk --print-arch)"; \
   case "$architecture" in \
     x86_64|amd64) \
-      architecture="amd64"; \
+      architecture="amd64" \
     ;; \
     aarch64) \
-      architecture="arm64"; \
+      architecture="arm64" \
     ;; \
     *) \
       echo >&2 "[ WARN ] compression utilities are not available: $architecture"; \
       exit 0 \
     ;; \
-  esac \
-  version=$(echo ${tag_name} | sed 's/v//g'); \
+  esac ; \
+  version="$(echo ${tag_name} | sed 's/v//g')"; \
   download_url="https://github.com/upx/upx/releases/download/${tag_name}/upx-${version}-${architecture}_linux.tar.xz"; \
   rm -rf \
     /tmp/{upx.tar,upx.tar.xz} \
-    /usr/local/bin/upx \
-  && curl -fsSLo /tmp/upx.tar.xz "${download_url}" \
-  && xz -d -c /tmp/upx.tar.xz \
-  | tar -xOf - upx-${version}-${architecture}_linux/upx > /usr/local/bin/upx \
-  && chmod a+x /usr/local/bin/* \
-  && upx --version ;
+    /usr/local/bin/upx ; \
+  curl -fsSLo /tmp/upx.tar.xz "${download_url}" ; \
+  xz -d -c /tmp/upx.tar.xz \
+  | tar -xOf - upx-${version}-${architecture}_linux/upx > /usr/local/bin/upx ; \
+  chmod a+x /usr/local/bin/* ; \
+  upx --version ;
 # [ NOTE ] => cleanup
 RUN \
   apk del .deps-upx \
