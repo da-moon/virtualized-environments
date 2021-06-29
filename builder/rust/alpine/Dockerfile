@@ -12,27 +12,31 @@ fi
 IFS=' ' read -a CRATES <<< $@ ;
 apkArch="$(apk --print-arch)";
 for crate in "${CRATES[@]}"; do 
-  [ ! -f ${CARGO_HOME}/config ] && ln -s /root/cargo.toml ${CARGO_HOME}/config ;
   echo >&2 "[ INFO ] building: $crate";
   case "$apkArch" in
     x86_64|aarch64)
       cargo install --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" \
-      || ( rm -f ${CARGO_HOME}/config && cargo install --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" )
-      ;;
-    aarch64) 
-      cargo install --root "/workspace" -j `nproc` "${crate}" || true
       ;;
     *) 
       echo >&2 "[ WARN ] unsupported architecture: $apkArch";
       continue
     ;;
   esac;
-  mv -f /workspace/bin/* "/workspace/";
+  find /workspace/bin \
+    -type f \
+    -executable \
+    -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+    -print0 \
+    | xargs \
+        -0 \
+        -P `nproc` \
+        --no-run-if-empty \
+        mv {} /workspace/ ;
   rm -rf "/workspace/bin" ;
 done ;
 find /workspace -type f -exec grep -IL /workspace "rm {}" \;
 EOT
-COPY <<-"EOT" /root/cargo.toml
+COPY <<-"EOT" /usr/local/cargo/config
 [target.x86_64-unknown-linux-musl]
 rustflags = ["-C", "target-feature=+crt-static"]
 [target.aarch64-unknown-linux-musl]
@@ -43,28 +47,35 @@ EOT
 
 WORKDIR "/workspace"
 ARG BASE_PACKAGES="\
+  alpine-sdk \
+  build-base \
   musl-dev \
   ncurses-static \
   ca-certificates \
   git \
   make \
   cmake \
+  openssl-dev \
   openssl-libs-static \
   bash \
   findutils \
   coreutils \
 "
+ENV OPENSSL_STATIC=yes
+ENV OPENSSL_LIB_DIR="/usr/lib"
+ENV OPENSSL_INCLUDE_DIR="/usr/include"
 RUN \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories \
-  && apk add --no-cache --upgrade apk-tools \
-  && apk upgrade --no-cache -U -a \
-  && chmod +x /usr/local/bin/* \
+  chmod +x /usr/local/bin/* ; \
+  ( \
+    echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
+  ) | tee /etc/apk/repositories > /dev/null ; \
+  apk upgrade --no-cache -U -a \
   && apk add --update --no-cache ${BASE_PACKAGES} \
   || ( \
     sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
@@ -77,4 +88,4 @@ RUN \
   # [ NOTE ] hacky way to update index
   && cargo search hello-world
 SHELL ["bash","-c"]
-ENTRYPOINT [ "bash" ]
+ENTRYPOINT [ "bash","/usr/local/bin/build"]
