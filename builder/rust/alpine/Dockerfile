@@ -25,7 +25,7 @@ for crate in "${CRATES[@]}"; do
   find /workspace/bin \
     -type f \
     -executable \
-    -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+    -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary' \; \
     -print0 \
     | xargs \
         -0 \
@@ -34,7 +34,6 @@ for crate in "${CRATES[@]}"; do
         mv {} /workspace/ ;
   rm -rf "/workspace/bin" ;
 done ;
-find /workspace -type f -exec grep -IL /workspace "rm {}" \;
 EOT
 COPY <<-"EOT" /usr/local/cargo/config
 [target.x86_64-unknown-linux-musl]
