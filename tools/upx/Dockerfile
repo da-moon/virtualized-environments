@@ -1,16 +1,19 @@
 # syntax = docker/dockerfile-upstream:master-labs
+# ─── USAGE ──────────────────────────────────────────────────────────────────────
+# docker run --mount type=bind,source="$PWD",target='/workspace'--rm -it fjolsvin/upx
 FROM alpine:edge
 COPY <<-"EOT" /usr/local/bin/compress
 #!/usr/bin/env bash
 set -euxo pipefail
-# [ NOTE ] => turn a space delinated string into an array
-IFS=' ' read -a DIRS <<< $@ ;
 apkArch="$(apk --print-arch)";
-# [ NOTE ] installing dependancies
 case "$apkArch" in
-  x86_64) 
-      find . -type f -print0 \
-      | xargs \
+  x86_64|aarch64) 
+     find . \
+    -type f \
+    -executable \
+    -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+    -print0 \
+    | xargs \
         -0 \
         -P `nproc` \
         --no-run-if-empty \
@@ -18,33 +21,66 @@ case "$apkArch" in
       for pkg do
           strip "$pkg" || true ;
           upx "$pkg" || true ;
-      done' bash
+      done' bash ;
     ;;
   *) 
     echo >&2 "[ WARN ] compression utilities are not available: $apkArch";
-    # [ NOTE ] graceful exit so that aarch64 builds don't break
-    exit 0
+    exit 1
   ;;
 esac;
-find /workspace -type f -exec grep -IL /workspace "rm {}" \;
+find . \
+  -mindepth 2 \
+  -type f \
+  -executable \
+  -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; \
+  -print0 \
+  | xargs \
+    -0 \
+    -P `nproc` \
+    --no-run-if-empty \
+    mv {} ./ ;
+# [ NOTE ] => cleanup 
+find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
-WORKDIR "/workspace"
 RUN \
-  set -ex \
-  && apk upgrade -U -a \
-  && apk add --no-cache bash \
-  && chmod +x /usr/local/bin/* ;
+  && apk add --no-cache bash coreutils binutils findutils \
+  && apk add --no-cache --virtual .deps-upx curl jq xz ;
 SHELL ["bash","-c"]
+ARG REPO="upx/upx"
+ARG LATEST_RELEASE_ENDPOINT="https://api.github.com/repos/{REPO}/releases/latest"
 RUN \
-  set -ex ; \
-  apkArch="$(apk --print-arch)"; \
-  case "$apkArch" in \
-    x86_64) \
-      apk add --no-cache coreutils binutils findutils upx \
+  tag_name=$(curl -sL https://api.github.com/repos/upx/upx/releases/latest \
+  | jq -r '.tag_name') ; \
+  architecture="$(apk --print-arch)"; \
+  case "$architecture" in \
+    x86_64|amd64) \
+      architecture="amd64"; \
+    ;; \
+    aarch64) \
+      architecture="arm64"; \
     ;; \
     *) \
-      echo >&2 "[ WARN ] compression utilities are not available: $apkArch"; \
+      echo >&2 "[ WARN ] compression utilities are not available: $architecture"; \
       exit 0 \
     ;; \
-  esac
-ENTRYPOINT [ "bash" ]
+  esac \
+  version=$(echo ${tag_name} | sed 's/v//g'); \
+  download_url="https://github.com/upx/upx/releases/download/${tag_name}/upx-${version}-${architecture}_linux.tar.xz"; \
+  rm -rf \
+    /tmp/{upx.tar,upx.tar.xz} \
+    /usr/local/bin/upx \
+  && curl -fsSLo /tmp/upx.tar.xz "${download_url}" \
+  && xz -d -c /tmp/upx.tar.xz \
+  | tar -xOf - upx-${version}-${architecture}_linux/upx > /usr/local/bin/upx \
+  && chmod a+x /usr/local/bin/* \
+  && upx --version ;
+# [ NOTE ] => cleanup
+RUN \
+  apk del .deps-upx \
+  && rm -rf \
+    /var/cache/apk/* \
+    /var/tmp/* \
+    /tmp/*
+WORKDIR "/workspace"
+ENTRYPOINT [ "/bin/bash" ]
+CMD ["/usr/local/bin/compress"]
