@@ -25,7 +25,7 @@ for crate in "${CRATES[@]}"; do
   find /workspace/bin \
     -type f \
     -executable \
-    -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary' \; \
+    -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary'" \; \
     -print0 \
     | xargs \
         -0 \
