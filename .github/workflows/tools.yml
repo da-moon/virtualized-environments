@@ -77,7 +77,7 @@ jobs:
           set -ex &&
           bash build.sh
   convco:
-    needs: changes
+    needs: [changes,upx]
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
@@ -106,7 +106,7 @@ jobs:
           bash build.sh
   clog:
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
-    needs: changes
+    needs: [changes,upx]
     defaults:
       run:
         working-directory: ./tools/clog
@@ -134,7 +134,7 @@ jobs:
           bash build.sh
   jen:
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
-    needs: changes
+    needs: [changes,upx]
     defaults:
       run:
         working-directory: ./tools/jen
@@ -161,7 +161,7 @@ jobs:
           set -ex &&
           bash build.sh
   petname:
-    needs: changes
+    needs: [changes,upx]
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
@@ -189,7 +189,7 @@ jobs:
           set -ex &&
           bash build.sh
   tojson:
-    needs: changes
+    needs: [changes,upx]
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
@@ -217,7 +217,7 @@ jobs:
           set -ex &&
           bash build.sh
   jsonfmt:
-    needs: changes
+    needs: [changes,upx]
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
