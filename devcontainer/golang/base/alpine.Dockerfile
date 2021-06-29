@@ -2,13 +2,13 @@
 #:syntax = docker/dockerfile-upstream:master-labs
 FROM golang:alpine AS go
 USER root
-RUN set -ex && \
+RUN  \
   apk upgrade --no-cache -U -a && \
   apk add --no-cache git bash findutils binutils && \
   go env -w "GO111MODULE=on" && \
   go env -w "CGO_ENABLED=0" && \
   go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
-RUN set -ex && \
+RUN  \
   apk add --no-cache upx || true
 SHELL ["bash","-c"]
 FROM go AS go-builder
@@ -77,9 +77,9 @@ RUN set -ex && \
   apk add --update --no-cache ${BASE_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --update --no-cache ${BASE_PACKAGES})
-RUN set -ex && \
-  curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
+RUN \
+  curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b /usr/local/bin/
 ARG GOLANGCI_LINT_VERSION=v1.35.2
-RUN set -ex && \ 
-  wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin -d ${GOLANGCI_LINT_VERSION}
+RUN \ 
+  wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin/ -d ${GOLANGCI_LINT_VERSION}
 COPY --from=go-builder /go/bin /usr/local/bin
