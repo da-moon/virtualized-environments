@@ -15,8 +15,7 @@ RUN \
   && yes | add-apt-repository ppa:neovim-ppa/unstable \
   && apt-get update \
   && apt-get -y full-upgrade \
-  && install-packages ${APT_PACKAGES} \
-  && usermod -aG docker gitpod
+  && install-packages ${APT_PACKAGES}
 ARG PYTHON_PACKAGES="\
   pre-commit \
   pylint \
