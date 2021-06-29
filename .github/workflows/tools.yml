@@ -16,6 +16,7 @@ jobs:
     outputs:
       workflows: ${{ steps.filter.outputs.workflows }}
       upx: ${{ steps.filter.outputs.upx }}
+      rust: ${{ steps.filter.outputs.rust }}
       clog: ${{ steps.filter.outputs.clog }}
       convco: ${{ steps.filter.outputs.convco }}
       jen: ${{ steps.filter.outputs.jen }}
@@ -32,6 +33,8 @@ jobs:
           filters: |
             workflows:
               - '.github/workflows/*.yml'
+            rust:
+              - 'builder/rust/alpine/**'
             upx:
               - 'tools/upx/**'
             clog:
@@ -75,7 +78,7 @@ jobs:
           bash build.sh
   convco:
     needs: changes
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/convco
@@ -102,7 +105,7 @@ jobs:
           set -ex &&
           bash build.sh
   clog:
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
     needs: changes
     defaults:
       run:
@@ -130,7 +133,7 @@ jobs:
           set -ex &&
           bash build.sh
   jen:
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
     needs: changes
     defaults:
       run:
@@ -159,7 +162,7 @@ jobs:
           bash build.sh
   petname:
     needs: changes
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/petname
@@ -187,7 +190,7 @@ jobs:
           bash build.sh
   tojson:
     needs: changes
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/tojson
@@ -215,7 +218,7 @@ jobs:
           bash build.sh
   jsonfmt:
     needs: changes
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/jsonfmt
