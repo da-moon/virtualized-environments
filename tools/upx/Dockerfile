@@ -11,10 +11,9 @@ case "$apkArch" in
      find . \
     -type f \
     -executable \
-    -exec sh -c "file -i '{}' |  grep -qE 'x-[-a-z]*executable; charset=binary'" \; \
-    -print0 \
+    -exec sh -c "file -i '{}' |  grep -q 'charset=binary'" \; \
+    -print \
     | xargs \
-        -0 \
         -P `nproc` \
         --no-run-if-empty \
         bash -c '
@@ -32,13 +31,10 @@ find . \
   -mindepth 2 \
   -type f \
   -executable \
-  -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary'" \; \
-  -print0 \
-  | xargs \
-    -0 \
-    -P `nproc` \
-    --no-run-if-empty \
-    mv {} ./ ;
+  -exec sh -c "file -i '{}' | grep -q 'charset=binary'" \; \
+  -print \
+  | xargs -P `nproc` -I {} --no-run-if-empty \
+    mv "{}" ./
 # [ NOTE ] => cleanup
 find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
