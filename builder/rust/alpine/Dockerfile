@@ -25,13 +25,13 @@ for crate in "${CRATES[@]}"; do
   find /workspace/bin \
     -type f \
     -executable \
-    -exec sh -c "file -i '{}' | grep -qE 'x-[-a-z]*executable; charset=binary'" \; \
-    -print0 \
+    -exec sh -c "file -i '{}' | grep -q 'charset=binary'" \; \
+    -print \
     | xargs \
-        -0 \
         -P `nproc` \
+        -I {} \
         --no-run-if-empty \
-        mv {} /workspace/ ;
+        mv "{}" /workspace/
   rm -rf "/workspace/bin" ;
 done ;
 EOT
