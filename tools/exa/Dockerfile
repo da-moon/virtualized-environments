@@ -5,6 +5,9 @@ FROM fjolsvin/rust-builder-alpine AS exa-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
+  if [ "$(apk --print-arch)" == "aarch64" ]; then \
+    export CFLAGS="-mno-outline-atomics" ; \
+  fi ; \
   build "exa" ;
 FROM fjolsvin/upx AS compression-layer
 COPY --from=exa-builder "/workspace" "/workspace"
