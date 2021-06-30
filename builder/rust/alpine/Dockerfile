@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile-upstream:master-labs
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
-# docker run --mount type=bind,source="$PWD",target='/workspace'--rm -it fjolsvin/rust-builder-alpine
+# docker run --mount type=bind,source="$PWD",target='/workspace' --rm -it fjolsvin/rust-builder-alpine
 FROM rust:alpine
 USER root
 COPY <<-"EOT" /usr/local/bin/build
