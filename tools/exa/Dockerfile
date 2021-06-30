@@ -21,6 +21,7 @@ RUN \
     echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
     echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null ; \
+  apk upgrade --no-cache -U -a \
   && apk add --no-cache --upgrade bash bash-completion
 WORKDIR /userspace
 VOLUME /userspace
