@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile-upstream:master-labs
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
-# docker run --mount type=bind,source="$PWD",target='/userspace'--rm -it fjolsvin/just
+# docker run --mount type=bind,source="$PWD",target='/userspace' --rm -it fjolsvin/just
 FROM fjolsvin/rust-builder-alpine AS just-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
