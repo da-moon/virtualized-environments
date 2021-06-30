@@ -143,20 +143,21 @@ ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
 # home profile and workdirectory setup
 RUN \
-  find ${HOME} \
-  -not -group `id -g` \
-  -not -user `id -u` \
-  -print0 \
-  | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`" \
-  && echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null \
+  echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null \
   && echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
 # user scoped spacevim install
+ENV EDITOR="nvim"
+ENV VISUAL="nvim"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash
+RUN \
+  timeout 120 nvim --headless +"call dein#install#_update([], 'update', 0)" +qall \
+  && timeout 120 nvim --headless +"call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
+  && timeout 120 nvim --headless +VimProcInstall +qall
+RUN \
+  timeout 120 vim "+call dein#install#_update([], 'update', 0)" +qall \
+  && timeout 120 vim "+call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
+  && timeout 120 vim +VimProcInstall +qall
 ARG IMAGE_SPECIFIC_PACKAGES="\
   glow \
   aria2 \
@@ -187,43 +188,17 @@ RUN \
     sudo sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
     && sudo apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
   )
-# precommit hook examples
-WORKDIR ${HOME}/pre-commit-templates
-COPY <<-"EOT" conventional-commits.yml
----
-# cat ~/pre-commit-templates/conventional-commits.yml >> /workspace/.pre-commit-config.yml
-default_stages: [commit]
-repos:
- - repo: https://github.com/dafyddj/commitlint-pre-commit-hook
-   hooks:
-     - id: commitlint
-       name: Check commit message using commitlint
-       description: Lint commit message against @commitlint/config-conventional rules
-       stages: [commit-msg]
-       additional_dependencies: ['@commitlint/config-conventional']
-EOT
+# [ NOTE ] => finishing touches
+COPY --from=compression-layer "/workspace" /usr/local/bin
 RUN \
-  sudo chown "`id -u`:`id -g`" ${HOME}/pre-commit-templates -R \
+  sudo chmod +x /usr/local/bin/* \
   && sudo usermod -aG docker "`whoami`" \
   && sudo python3 -m pip cache purge \
   && sudo yarn cache clean --all \
   && sudo rm -rf \
   /tmp/*
-COPY --from=compression-layer "/workspace" /usr/local/bin
+ENV TERM xterm
 ARG WORKDIR="/workspace"
 ENV WORKDIR $WORKDIR
 WORKDIR $WORKDIR
-RUN \
-  find ${WORKDIR} \
-  -not -group `id -g` \
-  -not -user `id -u` \
-  -print0 \
-  | sudo xargs \
-    --no-run-if-empty \
-    -0  \
-    -P 0 \
-    chown --no-dereference "`id -u`:`id -g`" \
-  && sudo chmod +x /usr/local/bin/*
-ENV TERM xterm
-ENV EDITOR nvim
 ENTRYPOINT [ "/bin/bash" ]
