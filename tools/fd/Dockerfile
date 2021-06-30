@@ -1,11 +1,11 @@
 # syntax = docker/dockerfile-upstream:master-labs
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
-# docker run --mount type=bind,source="$PWD",target='/userspace'--rm -it fjolsvin/fd
+# docker run --mount type=bind,source="$PWD",target='/userspace' --rm -it fjolsvin/fd
 FROM fjolsvin/rust-builder-alpine AS fd-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  build "fd" ;
+  build "fd-find" ;
 FROM fjolsvin/upx AS compression-layer
 COPY --from=fd-builder "/workspace" "/workspace"
 RUN \
