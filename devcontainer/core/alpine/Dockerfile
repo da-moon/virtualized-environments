@@ -1,20 +1,4 @@
 # syntax = docker/dockerfile-upstream:master-labs
-FROM fjolsvin/rust-builder-alpine AS convco-builder
-RUN \
-  --mount=type=cache,target=/root/.cargo \
-  --mount=type=cache,target=/usr/local/cargo/registry \
- apk add --no-cache openssl-dev cmake ; \
- build "convco" || true
-FROM fjolsvin/rust-builder-alpine AS clog-builder
-# ENV CFLAGS="-mno-outline-atomics"
-RUN \
-  --mount=type=cache,target=/root/.cargo \
-  --mount=type=cache,target=/usr/local/cargo/registry \
-  apk add --no-cache openssl-dev ; \
-  build "clog-cli"
-FROM fjolsvin/upx AS compression-layer
-COPY --from=clog-builder "/workspace" "/workspace"
-COPY --from=convco-builder "/workspace" "/workspace" 
 RUN \
   compress ;
 FROM alpine:edge
@@ -222,7 +206,6 @@ RUN \
   +'call dein#install()'  \
   +UpdateRemotePlugins  \
   +qall || true ;
-COPY --from=compression-layer "/workspace" /usr/local/bin
 USER root
 RUN \
   chmod +x /usr/local/bin/* \
@@ -235,4 +218,6 @@ ENV TERM xterm
 ARG WORKDIR="/workspace"
 ENV WORKDIR $WORKDIR
 WORKDIR $WORKDIR
+COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
 ENTRYPOINT [ "/bin/bash" ]
