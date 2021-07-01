@@ -19,46 +19,130 @@ RUN \
   compress ;
 FROM alpine:edge
 USER root
-RUN \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories \
-  && apk add --no-cache --upgrade apk-tools || true \
-  && apk upgrade --no-cache -U -a
 ARG BASE_PACKAGES="\
-  git-secret \
-  curl \
-  perl \
-  wget \
-  tree \
-  util-linux \
-  ca-certificates \
-  ncurses \
-  ncurses-dev \
-  git \ 
-  sudo \
-  bash \
-  bash-completion \
-  shadow \
-  libcap \
-  coreutils \
-  findutils \
+  alpine-sdk \
+  autoconf  \
+  automake  \
   binutils \
-  gnupg \
-  grep \
-  gawk \
-  build-base \
+  build-base  \
+  ca-certificates  \
+  cmake  \
+  coreutils  \
+  curl  \
+  doxygen \
+  gettext-tiny-dev  \
+  git  \
+  gtest-dev \
+  less  \
+  libtool  \
+  lua  \
   make \
+  nodejs \
+  npm \
+  openssl  \
+  perl \
+  pkgconf  \
+  python3-dev  \
+  py3-pip  \
+  tmux  \
+  unzip  \
+  xclip  \
+  yarn \
+  zlib-dev \
 "
+
 RUN \
-  apk add --update --no-cache ${BASE_PACKAGES} \
+  ( \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
+  ) | tee /etc/apk/repositories > /dev/null ; \
+  apk upgrade --no-cache -U -a \
+  && apk add --update --no-cache ${BASE_PACKAGES} \
   || ( \
-    sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-    && apk add --update --no-cache ${BASE_PACKAGES} \
+  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
+  && apk add --update --no-cache ${BASE_PACKAGES} \
   )
 
+WORKDIR "/usr/src/neovim"
+RUN \ 
+  git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
+  && make -j`nproc` CMAKE_BUILD_TYPE=RelWithDebInfo  \
+  CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
+  && make -j`nproc` install  \
+  && rm -r /usr/src/neovim
+WORKDIR "/usr/src/ctags"
+RUN  \
+  git clone https://github.com/universal-ctags/ctags.git "/usr/src/ctags" \
+  && ./autogen.sh  \
+  && ./configure  \
+  && make -j`nproc` \
+  && make -j`nproc` install  \
+  && rm -rf /usr/src/ctags
+ARG IMAGE_SPECIFIC_PACKAGES="\
+  aria2 \
+  bash \
+  bash-completion \
+  bat \
+  bzip2 \
+  docker \
+  docker-compose \
+  exa \
+  fd \
+  findutils \
+  fontconfig \
+  fzf \
+  fzf-bash-completion \
+  gawk \
+  git-secret \
+  glow \
+  gnupg \
+  grep \
+  htop \
+  jq \
+  just \
+  just-bash-completion \
+  libcap \
+  libffi-dev \
+  mkfontscale \
+  musl-dev \
+  ncurses \
+  ncurses-dev \
+  ncurses-static \
+  nerd-fonts \
+  openssl-dev \
+  ripgrep \
+  ripgrep-bash-completion \
+  rng-tools-extra \
+  shadow \
+  starship \
+  sudo \
+  tokei \
+  tree \
+  util-linux \
+  wget \
+"
+
+RUN \
+  ( \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
+  ) | tee /etc/apk/repositories > /dev/null ; \
+  apk upgrade --no-cache -U -a \
+  && apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
+  || ( \
+  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
+  && apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
+  )
 SHELL ["bash","-c"]
 RUN \
   getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
@@ -69,25 +153,8 @@ RUN \
   /etc/sudoers \
   && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-ARG SPACEVIM_SPECIFIC_PACKAGES="\
-  py3-pip \
-  vim \
-  neovim \
-  fontconfig \
-  mkfontscale \
-  nerd-fonts \
-  py3-pynvim \
-  yarn \
-  nodejs \
-  npm \
-"
-RUN \
-  apk add --update --no-cache ${SPACEVIM_SPECIFIC_PACKAGES} \
-  || ( \
-    sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-    && apk add --update --no-cache ${SPACEVIM_SPECIFIC_PACKAGES} \
-  )
 ARG PYTHON_PACKAGES="\
+  pynvim \
   pre-commit \
   pylint \
   yapf \
@@ -95,9 +162,9 @@ ARG PYTHON_PACKAGES="\
   isort \
   coverage \ 
 "
+RUN \
+  sudo python3 -m pip install --no-cache-dir ${PYTHON_PACKAGES}
 ARG NODEJS_PACKAGES="\
-  @commitlint/cli \
-  @commitlint/config-conventional \
   remark \
   remark-cli \
   remark-stringify \
@@ -106,10 +173,8 @@ ARG NODEJS_PACKAGES="\
   bash-language-server \
   prettier \
 "
-# spacevim python and nodejs packages
 RUN \
-  sudo python3 -m pip install --no-cache-dir ${PYTHON_PACKAGES} \
-  && yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
+  yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash
 #
@@ -136,67 +201,36 @@ RUN \
   --password \
   $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
   "${USER}" \
-  && usermod -aG wheel,root,sudo "${USER}"
+  && usermod -aG wheel,root,sudo,docker "${USER}"
 USER ${USER}
 SHELL ["bash","-c"]
 ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
-# home profile and workdirectory setup
+ENV PIP_USER="false"
 RUN \
   echo 'alias apk="sudo apk"' | tee -a ~/.bashrc > /dev/null \
   && echo 'eval "$(starship init bash)"' | tee -a ~/.bashrc > /dev/null
-# user scoped spacevim install
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash
+COPY .SpaceVim.d "${HOME}/"
 RUN \
-  timeout 120 nvim --headless +"call dein#install#_update([], 'update', 0)" +qall \
-  && timeout 120 nvim --headless +"call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
-  && timeout 120 nvim --headless +VimProcInstall +qall
-RUN \
-  timeout 120 vim "+call dein#install#_update([], 'update', 0)" +qall \
-  && timeout 120 vim "+call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
-  && timeout 120 vim +VimProcInstall +qall
-ARG IMAGE_SPECIFIC_PACKAGES="\
-  glow \
-  aria2 \
-  rng-tools-extra \
-  openssl-dev \
-  libffi-dev \
-  jq \
-  htop \
-  bzip2 \
-  ripgrep \
-  ripgrep-bash-completion \
-  bat \
-  tokei \
-  fd \
-  exa \
-  starship \
-  just \
-  fzf \
-  fzf-bash-completion \
-  just \
-  just-bash-completion \
-  docker \
-  docker-compose \
-"
-RUN \
-  sudo apk add --update --no-cache  ${IMAGE_SPECIFIC_PACKAGES} \
-  || ( \
-    sudo sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-    && sudo apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
-  )
-# [ NOTE ] => finishing touches
+  timeout 200 \
+  nvim --headless \
+  +VimProcInstall \
+  +'call dein#install()'  \
+  +UpdateRemotePlugins  \
+  +qall || true ;
 COPY --from=compression-layer "/workspace" /usr/local/bin
+USER root
 RUN \
-  sudo chmod +x /usr/local/bin/* \
-  && sudo usermod -aG docker "`whoami`" \
-  && sudo python3 -m pip cache purge \
-  && sudo yarn cache clean --all \
-  && sudo rm -rf \
-  /tmp/*
+  chmod +x /usr/local/bin/* \
+  && yarn cache clean --all \
+  && rm -rf \
+  /tmp/* \
+  /usr/src
+USER ${USER}
 ENV TERM xterm
 ARG WORKDIR="/workspace"
 ENV WORKDIR $WORKDIR
