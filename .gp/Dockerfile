@@ -77,7 +77,8 @@ RUN \
   echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
   echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
-  echo 'eval "$(starship init bash)";' ; \
+  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
+  echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
 RUN \
