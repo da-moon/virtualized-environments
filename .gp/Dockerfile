@@ -38,8 +38,9 @@ ARG NODEJS_PACKAGES="\
   remark-stringify \
   remark-frontmatter \
   wcwidth \
-  bash-language-server \
   prettier \
+  bash-language-server \
+  dockerfile-language-server-nodejs \
   "
 RUN \
   yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
@@ -57,7 +58,7 @@ ENV VISUAL="nvim"
 ENV PIP_USER="nvim"
 ENV HOME="/home/${USER}"
 RUN \
-  rustup default stable \
+  rustup default stable ; \
   && sudo sed -i \
   -e '/^\s*#/d' \
   -e '/gitpod/d' \
@@ -80,18 +81,16 @@ RUN \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo 'eval "$(starship init bash)";' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ; \
-  && sudo rustup default stable \
-  RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && timeout 120 nvim --headless +"call dein#install#_update([], 'update', 0)" +qall \
-  && timeout 120 nvim --headless +"call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
-  && timeout 120 nvim --headless +VimProcInstall +qall \
-  && timeout 120 vim "+call dein#install#_update([], 'update', 0)" +qall \
-  && timeout 120 vim "+call dein#add('Shougo/vimproc.vim', {'build': 'make'})" +qall  \
-  && timeout 120 vim +VimProcInstall +qall
+  && sudo rustup default stable ;
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
-RUN  timeout 120 vim "+call dein#install()" +qall || true
-RUN  timeout 120 nvim --headless +'call dein#install()' +qall || true
+RUN \
+  curl -sLf https://spacevim.org/install.sh | bash \
+  && timeout 200 \
+    nvim --headless \
+    +VimProcInstall \
+    +'call dein#install()'  \
+    +UpdateRemotePlugins  \
+    +qall || true ;
 COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
