@@ -1,6 +1,5 @@
 let g:spacevim_custom_plugins = [
-  \ ['fatih/vim-go',                            { 'on_ft' : 'go'}],
-  \ ['jvirtanen/vim-hcl',                       { 'on_ft' : 'hcl'}],
+  \ ['vmchale/just-vim'],
   \ ['PhilRunninger/nerdtree-visual-selection'],
   \ ['mg979/vim-visual-multi'],
   \ ['hashivim/vim-hashicorp-tools'],
@@ -22,17 +21,20 @@ function! init#before() abort
   let g:spacevim_buffer_index_type = 1
   call SpaceVim#logger#info("[ bootstrap-before ] common vim and nvim configs")
   call before#cfg#bootstrap()
+  call before#coc#common#bootstrap()
+  call before#coc#list#bootstrap()
+  call before#coc#json#bootstrap()
+  call SpaceVim#logger#info("[ bootstrap-before ] setting theme")
+  call before#themes#bootstrap()
   if has('nvim')
     call SpaceVim#logger#info("[ bootstrap-before ] configuring neovim")
     call before#nvim#bootstrap()
-    call SpaceVim#logger#info("[ bootstrap-before ] setting theme")
-    call before#themes#bootstrap()
   endif
 endfunction
 
 function! init#after() abort
-  call SpaceVim#logger#info("[ bootstrap-after ] coc.nvim bootstrapping")
-  call after#coc#bootstrap()
+  " call SpaceVim#logger#info("[ bootstrap-after ] coc.nvim bootstrapping")
+  " call after#coc#bootstrap()
   let g:neomake_open_list=0
   if executable('rg')
     let g:spacevim_search_tools=['rg']

@@ -1,10 +1,10 @@
 " https://github.com/SpaceVim/SpaceVim/issues/2564#issuecomment-462086849
 " https://github.com/Gabirel/dotfiles/blob/master/.SpaceVim.d/init.vim
-let g:coc_start_at_startup    = 1
-let g:coc_force_debug = 1
-
-let g:coc_disable_startup_warning = 1
-let g:UltiSnipsExpandTrigger = "<nop>"
+for extension in g:coc_extensions
+  call SpaceVim#logger#info("installing [ " . extension . " ] coc extension")
+  call coc#add_extension(extension)
+endfor
+call coc#config('coc.preferences', g:coc_preferences)
 
 " If coc-explorer is the only buffer then close that too
 autocmd BufEnter * if (winnr("$") == 1 && &filetype == 'coc-explorer') | q | endif
@@ -21,17 +21,6 @@ command! -nargs=0 ShowDoc :call CocAction('doHover')
 command! -nargs=0 CodeAction :call CocAction('codeAction')
 
 
-call SpaceVim#custom#SPCGroupName(['C'], '+Coc-nvim')
-call SpaceVim#custom#SPC('nore', ['C', 'o'], 'CocList outline', 'Buffer symbols outline', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'e'], 'CocList extensions', 'List coc-extensions', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'f'], 'CocCommand explorer', 'Toggle coc-explorer', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'r'], 'Refactor', 'Open coc-refactor window', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'c'], 'CocList commands', 'Open fuzzy coc-commands search', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'y'], 'CocList -A --normal yank', 'Open yank fuzzy search', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'n'], 'RenameSym', 'Rename cword symbol', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'h'], 'ShowDoc', 'Show current symbol help', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'l'], 'CocList', 'Show CocList', 1)
-call SpaceVim#custom#SPC('nore', ['C', 'R'], 'CocCommand workspace.renameCurrentFile', 'Rename current file ,update imports', 1)
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
