@@ -58,8 +58,7 @@ ENV VISUAL="nvim"
 ENV PIP_USER="nvim"
 ENV HOME="/home/${USER}"
 RUN \
-  rustup default stable ; \
-  && sudo sed -i \
+  sudo sed -i \
   -e '/^\s*#/d' \
   -e '/gitpod/d' \
   -e '/PIP_USER/d' \
@@ -80,8 +79,10 @@ RUN \
   echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo 'eval "$(starship init bash)";' ; \
-  ) | sudo tee -a /etc/bash.bashrc > /dev/null ; \
-  && sudo rustup default stable ;
+  ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
+RUN \
+  rustup default stable \
+  && sudo default stable ;
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
