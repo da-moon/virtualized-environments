@@ -80,9 +80,6 @@ RUN \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo 'eval "$(starship init bash)";' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
-RUN \
-  rustup default stable \
-  && sudo default stable ;
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
