@@ -1,6 +1,30 @@
 image:
   file: .gp/Dockerfile
+tasks:
+  - name: "setup"
+    command: |
+      echo >&2 "*** adding client's ssh public key to authroized list" ;
+      just ssh-pub-key
+      echo >&2 "*** setting up chisel" ;
+      just chisel
+      echo >&2 "*** setting up dropbear" ;
+      just dropbear
+      echo >&2 "*** ensuring gitpod user belongs to docker group" ;
+      sudo usermod -aG docker gitpod
+      echo >&2 "*** ensuring correct ownership of docker socket" ;
+      just docker-socket-chown ;
+      echo >&2 "*** signing into docker hub " ;
+      just docker-login
 
+ports:
+  # [ NOTE ] => for chisel
+  - port: 8080
+    onOpen: ignore
+    visibility: public
+  # [ NOTE ] => for dropbear
+  - port: 2222
+    onOpen: ignore
+    visibility: public
 vscode:
   extensions:
     - ms-azuretools.vscode-docker@1.8.1:xuHtLS23Q5czFwYH7grcCQ==
