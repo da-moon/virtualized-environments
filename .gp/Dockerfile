@@ -56,7 +56,6 @@ USER gitpod
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PIP_USER="nvim"
-ENV HOME="/home/${USER}"
 RUN \
   sudo sed -i \
   -e '/^\s*#/d' \
