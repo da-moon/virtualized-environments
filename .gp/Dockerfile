@@ -59,6 +59,7 @@ USER gitpod
 WORKDIR /workspace
 RUN \
   sed -i \
+  -e '/cargo/d' \
   -e '1s/^/export PIP_USER="false"\n/' \
   -e '1s/^/export VISUAL="nvim"\n/' \
   -e '1s/^/export EDITOR="nvim"\n/' \
@@ -67,9 +68,9 @@ RUN \
   -e '1s/^/[ -d ~\/go ] \&\&  export GOPATH=~\/go-packages ; \n/' \
   -e '1s/^/[ -d ~\/go ] \&\&  export GOROOT=~\/go ; \n/' \
   -e '1s/^/[ -d ~\/.pyenv ] \&\& export PATH="${PATH}:~\/.pyenv\/bin:~\/.pyenv\/shims" \n/' \
+  -e '1s/^/[ -f ~\/.cargo/env ] \&\& source "~\/.cargo\/env" \n/' \
   -e '1s/^/export PATH="${PATH}:\/usr\/local\/bin"\n/' \
   ~/.profile
-
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 RUN \
