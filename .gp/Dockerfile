@@ -82,7 +82,7 @@ RUN \
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
-  && timeout 200 \
+  && timeout 150 \
     nvim --headless \
     +VimProcInstall \
     +'call dein#install()'  \
