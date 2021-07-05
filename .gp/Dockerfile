@@ -68,7 +68,7 @@ RUN \
   -e '1s/^/[ -d ~\/go ] \&\&  export GOPATH=~\/go-packages ; \n/' \
   -e '1s/^/[ -d ~\/go ] \&\&  export GOROOT=~\/go ; \n/' \
   -e '1s/^/[ -d ~\/.pyenv ] \&\& export PATH="${PATH}:~\/.pyenv\/bin:~\/.pyenv\/shims" \n/' \
-  -e '1s/^/[ -f ~\/.cargo/env ] \&\& source "~\/.cargo\/env" \n/' \
+  -e '1s/^/[ -f ~\/.cargo\/env ] \&\& source "~\/.cargo\/env" \n/' \
   -e '1s/^/export PATH="${PATH}:\/usr\/local\/bin"\n/' \
   ~/.profile
 ENV EDITOR="nvim"
