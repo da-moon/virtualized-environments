@@ -26,6 +26,9 @@ function! init#before() abort
   call before#coc#json#bootstrap()
   call SpaceVim#logger#info("[ bootstrap-before ] setting theme")
   call before#themes#bootstrap()
+  if executable('xclip')
+    call before#xclip#bootstrap()
+  endif
   if has('nvim')
     call SpaceVim#logger#info("[ bootstrap-before ] configuring neovim")
     call before#nvim#bootstrap()
