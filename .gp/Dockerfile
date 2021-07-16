@@ -55,7 +55,7 @@ RUN \
 USER gitpod
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
-ENV PIP_USER="nvim"
+ENV PIP_USER="false"
 RUN \
   sudo sed -i \
   -e '/^\s*#/d' \
@@ -79,17 +79,45 @@ RUN \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
   echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
+  echo '[ $(command -v just) ] && alias j="just";' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
+RUN \
+  sed -i \
+  -e '/^\s*#/d' \
+  -e '/PIP_USER/d' \
+  -e '/cargo/d' \
+  -e '/^\s*$/d' \
+  "${HOME}/.profile" \
+  && ( \
+  echo "export EDITOR=\"${EDITOR}\"" ; \
+  echo "export VISUAL=\"${VISUAL}\"" ; \
+  echo "export PIP_USER=\"${PIP_USER}\"" ; \
+  ) | tee -a "${HOME}/.profile" > /dev/null ;
 COPY "./.SpaceVim.d" "${HOME}/.SpaceVim.d"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
   && timeout 150 \
-    nvim --headless \
-    +VimProcInstall \
-    +'call dein#install()'  \
-    +UpdateRemotePlugins  \
-    +qall || true ;
+  nvim --headless \
+  +VimProcInstall \
+  +'call dein#install()'  \
+  +UpdateRemotePlugins  \
+  +qall || true ;
+COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
+ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
+RUN \
+  cat /tmp/delta >> "$HOME/.gitconfig" \
+  && sudo rm /tmp/delta \
+  && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
+  && chmod +x $HOME/.git-fuzzy/bin/*
+
 COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/fd:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/exa:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/bat:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/tokei:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/jsonfmt:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/tojson:latest /workspace /usr/local/bin
 WORKDIR /workspace

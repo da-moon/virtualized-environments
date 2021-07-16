@@ -1,6 +1,4 @@
 # syntax = docker/dockerfile-upstream:master-labs
-RUN \
-  compress ;
 FROM alpine:edge
 USER root
 ARG BASE_PACKAGES="\
@@ -33,7 +31,7 @@ ARG BASE_PACKAGES="\
   xclip  \
   yarn \
   zlib-dev \
-"
+  "
 
 RUN \
   ( \
@@ -109,7 +107,7 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   tree \
   util-linux \
   wget \
-"
+  "
 
 RUN \
   ( \
@@ -145,7 +143,7 @@ ARG PYTHON_PACKAGES="\
   autoflake \
   isort \
   coverage \ 
-"
+  "
 RUN \
   sudo python3 -m pip install --no-cache-dir ${PYTHON_PACKAGES}
 ARG NODEJS_PACKAGES="\
@@ -156,7 +154,7 @@ ARG NODEJS_PACKAGES="\
   wcwidth \
   bash-language-server \
   prettier \
-"
+  "
 RUN \
   yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
 RUN \
@@ -220,4 +218,12 @@ ENV WORKDIR $WORKDIR
 WORKDIR $WORKDIR
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
+ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
+RUN \
+  cat /tmp/delta >> "$HOME/.gitconfig" \
+  && sudo rm /tmp/delta \
+  && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
+  && chmod +x $HOME/.git-fuzzy/bin/*
 ENTRYPOINT [ "/bin/bash" ]
