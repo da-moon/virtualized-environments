@@ -28,6 +28,7 @@ jobs:
       exa: ${{ steps.filter.outputs.exa }}
       bat: ${{ steps.filter.outputs.bat }}
       tokei: ${{ steps.filter.outputs.tokei }}
+      delta: ${{ steps.filter.outputs.delta }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -62,6 +63,9 @@ jobs:
               - 'tools/bat/**'
             tokei:
               - 'tools/tokei/**'
+            delta:
+              - 'tools/delta/**'
+
   upx:
     needs: changes
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.workflows == 'true' }}
@@ -377,6 +381,34 @@ jobs:
       run:
         working-directory: ./tools/tokei
     name: "build and push tokei docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  delta:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.delta == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/delta
+    name: "build and push delta docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
