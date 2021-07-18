@@ -1,0 +1,145 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "bootstrap",
+      "command": "just bootstrap"
+    },
+    {
+      "type": "shell",
+      "label": "chisel",
+      "command": "just chisel"
+    },
+    {
+      "type": "shell",
+      "label": "commit",
+      "command": "just commit"
+    },
+    {
+      "type": "shell",
+      "label": "default",
+      "command": "just default"
+    },
+    {
+      "type": "shell",
+      "label": "dev-container-clean",
+      "command": "just dev-container-clean"
+    },
+    {
+      "type": "shell",
+      "label": "dev-container-exec",
+      "command": "just dev-container-exec"
+    },
+    {
+      "type": "shell",
+      "label": "dev-container-pull",
+      "command": "just dev-container-pull"
+    },
+    {
+      "type": "shell",
+      "label": "dev-container-up",
+      "command": "just dev-container-up"
+    },
+    {
+      "type": "shell",
+      "label": "docker-login",
+      "command": "just docker-login"
+    },
+    {
+      "type": "shell",
+      "label": "docker-login-env",
+      "command": "just docker-login-env"
+    },
+    {
+      "type": "shell",
+      "label": "docker-socket-chown",
+      "command": "just docker-socket-chown"
+    },
+    {
+      "type": "shell",
+      "label": "dropbear",
+      "command": "just dropbear"
+    },
+    {
+      "type": "shell",
+      "label": "fix-ownership",
+      "command": "just fix-ownership"
+    },
+    {
+      "type": "shell",
+      "label": "format",
+      "command": "just format"
+    },
+    {
+      "type": "shell",
+      "label": "format-json",
+      "command": "just format-json"
+    },
+    {
+      "type": "shell",
+      "label": "gitpod",
+      "command": "just gitpod"
+    },
+    {
+      "type": "shell",
+      "label": "kary-comments",
+      "command": "just kary-comments"
+    },
+    {
+      "type": "shell",
+      "label": "major-release",
+      "command": "just major-release"
+    },
+    {
+      "type": "shell",
+      "label": "minor-release",
+      "command": "just minor-release"
+    },
+    {
+      "type": "shell",
+      "label": "patch-release",
+      "command": "just patch-release"
+    },
+    {
+      "type": "shell",
+      "label": "pre-commit",
+      "command": "just pre-commit"
+    },
+    {
+      "type": "shell",
+      "label": "spacevim-dependencies",
+      "command": "just spacevim-dependencies"
+    },
+    {
+      "type": "shell",
+      "label": "ssh-config",
+      "command": "just ssh-config"
+    },
+    {
+      "type": "shell",
+      "label": "ssh-pub-key",
+      "command": "just ssh-pub-key"
+    },
+    {
+      "type": "shell",
+      "label": "ssh-pub-key-env",
+      "command": "just ssh-pub-key-env"
+    },
+    {
+      "type": "shell",
+      "label": "vagrant-down-gcloud",
+      "command": "just vagrant-down-gcloud"
+    },
+    {
+      "type": "shell",
+      "label": "vagrant-up-gcloud",
+      "command": "just vagrant-up-gcloud"
+    },
+    {
+      "type": "shell",
+      "label": "vscode-tasks",
+      "command": "just vscode-tasks"
+    }
+  ]
+}

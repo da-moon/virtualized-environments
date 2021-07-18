@@ -3,12 +3,15 @@
   "files.eol": "\n",
   "files.exclude": {
     "**/.vagrant": true,
-    "**/.git": true,
+    "**/.git": true
   },
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
   "[settings.json]": {
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": false
   },
   "[devcontainer.json]": {
-    "editor.formatOnSave": false,
-  },
+    "editor.formatOnSave": false
+  }
 }
