@@ -45,9 +45,9 @@ function! before#spacevim#xclip#bootstrap()
     call SpaceVim#custom#SPC('nore', ['X', 'c'], 'w !xclip -i -sel c', 'Copy selected part to clipboard',1)
     call SpaceVim#custom#SPC('nore', ['X', 'C'], '%w !xclip -i -sel c', 'Copy whole file to clipboard',1)
     call SpaceVim#custom#SPC('nore', ['X', 'p'], 'r !xclip -o -sel -c', 'Paste from clipboard',1)
-    call before#spacevim#linter#yank()
-    call before#spacevim#linter#paste()
-    call before#spacevim#linter#get()
-    call before#spacevim#linter#put()
+    call before#spacevim#xclip#yank()
+    call before#spacevim#xclip#paste()
+    call before#spacevim#xclip#get()
+    call before#spacevim#xclip#put()
   endif
 endfunction
