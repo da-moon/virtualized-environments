@@ -498,7 +498,7 @@ alias rb-arm := rust-builder-arm64
 # ────────────────────────────────────────────────────────────────────────────────
 build-and-push-changes: format-just
     #!/usr/bin/env bash
-    set -euo pipefail
+    set -euox pipefail
     docker_files=($(git ls-files --others --exclude-standard | grep -E '.*Dockerfile.*' | sort -u ))
     docker_files+=($(git diff --name-only HEAD | grep -E '.*Dockerfile.*' | sort -u || true))
     mkdir -p "{{ justfile_directory() }}/tmp"
@@ -506,7 +506,7 @@ build-and-push-changes: format-just
     for docker_file in "${docker_files[@]}" ; do
       script="$(dirname $docker_file)/build.sh" ;
       if [ -r "${script}" ]; then
-        echo "${script}" || echo "${script}" >> "{{ justfile_directory() }}/tmp/failed"
+        bash "${script}" || echo "${script}" >> "{{ justfile_directory() }}/tmp/failed"
       fi
     done
 
