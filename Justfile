@@ -2,12 +2,17 @@
 # vi: ft=just tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 default:
   @just --choose
-
-alias vim-dep := spacevim-dependencies
+# ─── DEPENDENCIES ───────────────────────────────────────────────────────────────
+alias b := bootstrap
+bootstrap: spacevim-dependencies vscode-tasks kary-comments pre-commit
+  @echo bootstrap completed
+# ────────────────────────────────────────────────────────────────────────────────
+alias sd := spacevim-dependencies
 spacevim-dependencies:
   #!/usr/bin/env bash
   set -euo pipefail
-  sudo yarn global add --prefix /usr/local \
+  if command -- sudo $(which node) $(which yarn) -h > /dev/null 2>&1 ; then
+    NODE_PACKAGES="\
     remark \
     remark-cli \
     remark-stringify \
@@ -15,7 +20,244 @@ spacevim-dependencies:
     wcwidth \
     prettier \
     bash-language-server \
-    dockerfile-language-server-nodejs ;
+    dockerfile-language-server-nodejs \
+    "
+    IFS=' ' read -a NODE_PACKAGES <<< "$NODE_PACKAGES" ;
+    installed=()
+    if command -- jq -h > /dev/null 2>&1 && [ -r ~/.config/yarn/global/package.json ] ; then
+      while IFS='' read -r line; do
+        installed+=("$line");
+      done < <(cat  ~/.config/yarn/global/package.json  | jq -r '.dependencies|keys[]')
+    fi
+    intersection=($(comm -12 <(for X in "${NODE_PACKAGES[@]}"; do echo "${X}"; done|sort)  <(for X in "${installed[@]}"; do echo "${X}"; done|sort)))
+    to_install=($(echo ${intersection[*]} ${NODE_PACKAGES[*]} | sed 's/ /\n/g' | sort -n | uniq -u | paste -sd " " - ))
+    if [ ${#to_install[@]} -ne 0  ];then
+      sudo $(which node) $(which yarn) global add --prefix /usr/local ${to_install[@]}
+    fi
+  fi
+# ────────────────────────────────────────────────────────────────────────────────
+alias kc := kary-comments
+kary-comments:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  sed -i.bak \
+  -e "/case 'yaml':.*/a case 'terraform':" \
+  -e "/case 'yaml':.*/a case 'dockerfile':" \
+  -e "/case 'yaml':.*/a case 'just':" \
+  -e "/case 'yaml':.*/a case 'hcl':" \
+  ~/.vscode*/extensions/karyfoundation.comment*/dictionary.js
+# ────────────────────────────────────────────────────────────────────────────────
+alias vt := vscode-tasks
+vscode-tasks:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  IFS=' ' read -a TASKS <<< "$(just --summary --color never -f "{{ justfile() }}" 2>/dev/null)"
+  if [ ${#TASKS[@]} -ne 0  ];then
+    json=$(jq -n --arg version "2.0.0" '{"version":$version,"tasks":[]}')
+    for task in "${TASKS[@]}";do
+      taskjson=$(jq -n --arg task "${task}" --arg command "just ${task}" '[{"type": "shell","label": $task,  "command": $command }]')
+      json=$(echo "${json}" | jq ".tasks += ${taskjson}")
+    done
+    echo "${json}" | jq -r '.' > "{{justfile_directory()}}/.vscode/tasks.json"
+  fi
+# ─── FORMAT ─────────────────────────────────────────────────────────────────────
+alias f := format
+alias fmt := format
+format: format-json
+  @echo format completed
+# ────────────────────────────────────────────────────────────────────────────────
+alias fj := format-json
+alias json-fmt := format-json
+format-json:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  while read file;do
+    echo "*** formatting $file"
+    jsonfmt "$file" || true
+  done < <(find -type f -not -path '*/\.git/*' -name '*.json')
+# ─── GIT ────────────────────────────────────────────────────────────────────────
+# Variables
+MASTER_BRANCH_NAME  := 'master'
+MAJOR_VERSION       := `convco version --major 2>/dev/null || echo '0.0.1'`
+MINOR_VERSION       := `convco version --minor 2>/dev/null || echo '0.0.1'`
+PATCH_VERSION       := `convco version --patch 2>/dev/null || echo '0.0.1'`
+# ────────────────────────────────────────────────────────────────────────────────
+alias pc := pre-commit
+pre-commit:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  pushd "{{justfile_directory()}}" > /dev/null 2>&1
+  export PIP_USER=false
+  git add ".pre-commit-config.yaml"
+  pre-commit install > /dev/null 2>&1
+  pre-commit install-hooks
+  pre-commit
+  popd > /dev/null 2>&1
+# ────────────────────────────────────────────────────────────────────────────────
+alias c := commit
+commit: pre-commit
+  #!/usr/bin/env bash
+  set -euo pipefail
+  pushd "{{justfile_directory()}}" > /dev/null 2>&1
+  if command -- convco -h > /dev/null 2>&1 ; then
+    convco commit
+  else
+    git commit
+  fi
+  popd > /dev/null 2>&1
+# ────────────────────────────────────────────────────────────────────────────────
+alias mar := major-release
+major-release:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  pushd "{{justfile_directory()}}" > /dev/null 2>&1
+  git checkout "{{MASTER_BRANCH_NAME}}"
+  git pull
+  git tag -a "v{{MAJOR_VERSION}}" -m 'major release {{MAJOR_VERSION}}'
+  git push origin --tags
+  if command -- convco -h > /dev/null 2>&1 ; then
+    convco changelog > CHANGELOG.md
+    git add CHANGELOG.md
+    if command -- pre-commit -h > /dev/null 2>&1 ; then
+      pre-commit || true
+      git add CHANGELOG.md
+    fi
+    git commit -m 'docs(changelog): updated changelog for v{{MAJOR_VERSION}}'
+    git push
+  fi
+  popd > /dev/null 2>&1
+# ────────────────────────────────────────────────────────────────────────────────
+alias mir := minor-release
+minor-release:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  pushd "{{justfile_directory()}}" > /dev/null 2>&1
+  git checkout "{{MASTER_BRANCH_NAME}}"
+  git pull
+  git tag -a "v{{MINOR_VERSION}}" -m 'minor release {{MINOR_VERSION}}'
+  git push origin --tags
+  if command -- convco -h > /dev/null 2>&1 ; then
+    convco changelog > CHANGELOG.md
+    git add CHANGELOG.md
+    if command -- pre-commit -h > /dev/null 2>&1 ; then
+      pre-commit || true
+      git add CHANGELOG.md
+    fi
+    git commit -m 'docs(changelog): updated changelog for v{{MINOR_VERSION}}'
+    git push
+  fi
+  popd > /dev/null 2>&1
+# ────────────────────────────────────────────────────────────────────────────────
+alias pr := patch-release
+patch-release:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  pushd "{{justfile_directory()}}" > /dev/null 2>&1
+  git checkout "{{MASTER_BRANCH_NAME}}"
+  git pull
+  git tag -a "v{{PATCH_VERSION}}" -m 'patch release {{PATCH_VERSION}}'
+  git push origin --tags
+  if command -- convco -h > /dev/null 2>&1 ; then
+    convco changelog > CHANGELOG.md
+    git add CHANGELOG.md
+    if command -- pre-commit -h > /dev/null 2>&1 ; then
+      pre-commit || true
+      git add CHANGELOG.md
+    fi
+    git commit -m 'docs(changelog): updated changelog for v{{MINOR_VERSION}}'
+    git push
+  fi
+  popd > /dev/null 2>&1
+# ─── DEVCONTAINER SETUP ─────────────────────────────────────────────────────────
+alias dcp := dev-container-pull
+dev-container-pull:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  docker-compose -f "{{justfile_directory()}}/.devcontainer/docker-compose.yml" pull
+# ────────────────────────────────────────────────────────────────────────────────
+alias dcc := dev-container-clean
+dev-container-clean:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  docker-compose -f "{{justfile_directory()}}/.devcontainer/docker-compose.yml" down -v --remove-orphans
+  docker rm -f "$(docker ps -aq)"
+  docker system prune -f -a --volumes
+# ────────────────────────────────────────────────────────────────────────────────
+alias dcu := dev-container-up
+dev-container-up: dev-container-pull dev-container-clean
+  #!/usr/bin/env bash
+  set -euo pipefail
+  docker-compose -f "{{justfile_directory()}}/.devcontainer/docker-compose.yml" up -d
+# ────────────────────────────────────────────────────────────────────────────────
+alias dce := dev-container-exec
+dev-container-exec: dev-container-up
+  #!/usr/bin/env bash
+  set -euo pipefail
+  docker-compose -f .devcontainer/docker-compose.yml exec workspace /bin/bash
+# ─── VAGRANT RELATED TARGETS ────────────────────────────────────────────────────
+alias vug := vagrant-up-gcloud
+vagrant-up-gcloud:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  export NAME="$(basename "{{justfile_directory()}}")" ;
+  plugins=(
+    "vagrant-share"
+    "vagrant-google"
+    "vagrant-rsync-back"
+  );
+  available_plugins=($(vagrant plugin list | awk '{print $1}'))
+  intersection=($(comm -12 <(for X in "${plugins[@]}"; do echo "${X}"; done|sort)  <(for X in "${available_plugins[@]}"; do echo "${X}"; done|sort)))
+  to_install=($(echo ${intersection[*]} ${plugins[*]} | sed 's/ /\n/g' | sort -n | uniq -u | paste -sd " " - ))
+  if [ ${#to_install[@]} -ne 0  ];then
+    vagrant plugin install ${to_install[@]}
+  fi
+  if [ -z ${GOOGLE_PROJECT_ID+x} ] || [ -z ${GOOGLE_PROJECT_ID} ]; then
+    export GOOGLE_PROJECT_ID="$(gcloud config get-value core/project)" ;
+  fi
+  GCLOUD_IAM_ACCOUNT="${NAME}@${GOOGLE_PROJECT_ID}.iam.gserviceaccount.com"
+  if ! gcloud iam service-accounts describe "${GCLOUD_IAM_ACCOUNT}" > /dev/null 2>&1; then
+    gcloud iam service-accounts create "${NAME}" ;
+    gcloud projects add-iam-policy-binding "${GOOGLE_PROJECT_ID}" \
+      --member="serviceAccount:${GCLOUD_IAM_ACCOUNT}" \
+      --role="roles/owner" ;
+  fi
+    if [ -z ${GOOGLE_APPLICATION_CREDENTIALS+x} ] || [ -z ${GOOGLE_APPLICATION_CREDENTIALS} ]; then
+    export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/${NAME}_gcloud.json" ;
+  fi
+  if [ -r "${GOOGLE_APPLICATION_CREDENTIALS}" ];then
+    rm ${GOOGLE_APPLICATION_CREDENTIALS}
+  fi
+  gcloud iam service-accounts keys list \
+    --iam-account="${GCLOUD_IAM_ACCOUNT}" \
+    --format="value(KEY_ID)" | xargs -I {} \
+    gcloud iam service-accounts keys delete \
+    --iam-account="${GCLOUD_IAM_ACCOUNT}" {} >/dev/null 2>&1 || true ;
+  gcloud iam service-accounts keys \
+    create ${GOOGLE_APPLICATION_CREDENTIALS} \
+    --iam-account="${GCLOUD_IAM_ACCOUNT}" ;
+  rm -f "$HOME/.ssh/${NAME}"* ;
+  ssh-keygen -q -N "" -t rsa -b 2048 -f "$HOME/.ssh/${NAME}" || true ;
+  vagrant up --provider=google
+# ────────────────────────────────────────────────────────────────────────────────
+alias vdg := vagrant-down-gcloud
+vagrant-down-gcloud:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  vagrant destroy -f || true ;
+  export NAME="$(basename "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")" ;
+  if [ -z ${GOOGLE_PROJECT_ID+x} ] || [ -z ${GOOGLE_PROJECT_ID} ]; then
+  export GOOGLE_PROJECT_ID="$(gcloud config get-value core/project)" ;
+  fi
+  if [ -z ${GOOGLE_APPLICATION_CREDENTIALS+x} ] || [ -z ${GOOGLE_APPLICATION_CREDENTIALS} ]; then
+  export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/${NAME}_gcloud.json" ;
+  fi
+  GCLOUD_IAM_ACCOUNT="${NAME}@${GOOGLE_PROJECT_ID}.iam.gserviceaccount.com"
+  gcloud iam service-accounts delete --quiet "${GCLOUD_IAM_ACCOUNT}" > /dev/null 2>&1  || true ;
+  rm -f "${GOOGLE_APPLICATION_CREDENTIALS}" ;
+  rm -f "$HOME/.ssh/${NAME}" ;
+  rm -f "$HOME/.ssh/${NAME}.pub" ;
+  gcloud compute instances delete --quiet "${NAME}" > /dev/null 2>&1 || true ;
+  sudo rm -rf .vagrant ;
 
 docker-socket-chown:
   #!/usr/bin/env bash
@@ -116,5 +358,3 @@ ssh-config: ssh-pub-key
     MACs hmac-sha2-256
     UserKnownHostsFile /dev/null
   EOF
-
-
