@@ -58,6 +58,11 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-cellar",
+      "command": "just build-tools-cellar"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-clog",
       "command": "just build-tools-clog"
     },
@@ -108,8 +113,18 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-ripgrep",
+      "command": "just build-tools-ripgrep"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-sad",
       "command": "just build-tools-sad"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-scoob",
+      "command": "just build-tools-scoob"
     },
     {
       "type": "shell",

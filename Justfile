@@ -526,7 +526,7 @@ build-targets-gen: format-just
     done
     just vscode-tasks
 
-build: build-devcontainer-core-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-golang-base-alpine build-devcontainer-rust-vscode-debian build-devcontainer-rust-base-debian build-tools-skim build-tools-tokei build-tools-delta build-tools-fd build-tools-exa build-tools-jen build-tools-just build-tools-releez build-tools-upx build-tools-tojson build-tools-jsonfmt build-tools-bat build-tools-sad build-tools-petname build-tools-convco build-tools-clog build-stacks-hashicorp build-builder-rust-alpine
+build: build-devcontainer-core-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-golang-base-alpine build-devcontainer-rust-vscode-debian build-devcontainer-rust-base-debian build-tools-skim build-tools-tokei build-tools-delta build-tools-fd build-tools-exa build-tools-jen build-tools-just build-tools-releez build-tools-upx build-tools-tojson build-tools-cellar build-tools-ripgrep build-tools-jsonfmt build-tools-bat build-tools-sad build-tools-scoob build-tools-petname build-tools-convco build-tools-clog build-stacks-hashicorp build-builder-rust-alpine
 
 build-devcontainer-core-alpine: format-just
     #!/usr/bin/env bash
@@ -603,6 +603,16 @@ build-tools-tojson: format-just
     set -euo pipefail ;
     bash ./tools/tojson/build.sh
 
+build-tools-cellar: format-just
+    #!/usr/bin/env bash
+    set -euo pipefail ;
+    bash ./tools/cellar/build.sh
+
+build-tools-ripgrep: format-just
+    #!/usr/bin/env bash
+    set -euo pipefail ;
+    bash ./tools/ripgrep/build.sh
+
 build-tools-jsonfmt: format-just
     #!/usr/bin/env bash
     set -euo pipefail ;
@@ -617,6 +627,11 @@ build-tools-sad: format-just
     #!/usr/bin/env bash
     set -euo pipefail ;
     bash ./tools/sad/build.sh
+
+build-tools-scoob: format-just
+    #!/usr/bin/env bash
+    set -euo pipefail ;
+    bash ./tools/scoob/build.sh
 
 build-tools-petname: format-just
     #!/usr/bin/env bash
