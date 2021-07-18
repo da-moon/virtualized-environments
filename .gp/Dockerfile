@@ -8,13 +8,13 @@ RUN \
   yes | add-apt-repository ppa:neovim-ppa/unstable \
   && apt-get update \
   && curl https://i.jpillora.com/chisel! | bash \
-  && curl -fsSL https://starship.rs/install.sh | sudo bash -s -- --force 
+  && curl -fsSL https://starship.rs/install.sh | sudo bash -s -- --force
 ARG APT_PACKAGES="\
   dropbear \
   cmake \
   xfonts-utils \
   neovim \
-  jq \ 
+  jq \
   curl \
   libssl-dev \
   fonts-symbola \
@@ -27,7 +27,7 @@ ARG PYTHON_PACKAGES="\
   yapf \
   autoflake \
   isort \
-  coverage \ 
+  coverage \
   "
 ENV PIP_USER="false"
 RUN \
@@ -50,7 +50,7 @@ RUN \
   -not -group "$(id -g gitpod)" \
   -not -user "$(id -u gitpod)" \
   -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \ 
+  | xargs -I {} -P `nproc` --no-run-if-empty \
   chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
 USER gitpod
 ENV EDITOR="nvim"
@@ -79,7 +79,7 @@ RUN \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
   echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
-  echo '[ $(command -v just) ] && alias j="just";' ; \
+  echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
 RUN \
   sed -i \
