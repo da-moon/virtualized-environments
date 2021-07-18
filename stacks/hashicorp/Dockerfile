@@ -1,6 +1,6 @@
 FROM golang:alpine as builder
 USER root
-ENV TERM xterm 
+ENV TERM xterm
 RUN set -ex && \
   apk upgrade -U -a && \
   apk add git bash findutils binutils ripgrep && \
@@ -13,7 +13,7 @@ RUN set -ex && \
 SHELL ["bash","-c"]
 
 # [ NOTE ] the following builds would fail in alpine
-# - nomad 
+# - nomad
 ARG PACKAGES="\
   github.com/hashicorp/consul \
   github.com/hashicorp/vault \
@@ -79,4 +79,3 @@ COPY --from=builder /workspace /workspace
 RUN set -ex && \
   mv /workspace/* /usr/local/bin/ && \
   rm -rf /workspace
-

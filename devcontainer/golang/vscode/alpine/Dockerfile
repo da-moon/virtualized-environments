@@ -9,11 +9,11 @@ RUN set -ex && \
   && apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES} || \
   (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
   apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES})
-RUN set -ex && \ 
+RUN set -ex && \
   git clone https://github.com/gokultp/go-tprof.git /tmp/go-tprof && \
   make -C /tmp/go-tprof config || true ; \
   make -C /tmp/go-tprof || true ; \
-  rm -rf /tmp/go-tprof  
+  rm -rf /tmp/go-tprof
 # ─── VSCODE LIVE SHARE ──────────────────────────────────────────────────────────
 RUN set -ex && \
   for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \

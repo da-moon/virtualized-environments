@@ -258,19 +258,17 @@ vagrant-down-gcloud:
   rm -f "$HOME/.ssh/${NAME}.pub" ;
   gcloud compute instances delete --quiet "${NAME}" > /dev/null 2>&1 || true ;
   sudo rm -rf .vagrant ;
-
+# ─── GITPOD ─────────────────────────────────────────────────────────────────────
 docker-socket-chown:
   #!/usr/bin/env bash
   set -euo pipefail
   sudo chown "$(id -u gitpod):$(cut -d: -f3 < <(getent group docker))" /var/run/docker.sock
-
 alias fo := fix-ownership
 fix-ownership: docker-socket-chown
   #!/usr/bin/env bash
   set -euo pipefail
   sudo find "${HOME}/" "/workspace" -not -group `id -g` -not -user `id -u` -print0 | xargs -P 0 -0 --no-run-if-empty sudo chown --no-dereference "`id -u`:`id -g`" || true ;
   # sudo find "/workspace" -not -group `id -g` -not -user `id -u` -print | xargs -I {}  -P `nproc` --no-run-if-empty sudo chown --no-dereference "`id -u`:`id -g`" {} || true ;
-
 docker-login-env:
   #!/usr/bin/env bash
   set -euo pipefail
@@ -285,20 +283,17 @@ docker-login-env:
   printf "\n❗ The DOCKER_PASSWORD environment variable is required. Please enter its value.\n" ;
   read -s -p "DOCKER_PASSWORD: " DOCKER_PASSWORD ; \
   done ; gp env DOCKER_PASSWORD=$DOCKER_PASSWORD && printf "\nThanks\n" || true ;
-
 alias dl := docker-login
 docker-login: fix-ownership docker-login-env
   #!/usr/bin/env bash
   set -euo pipefail
   echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ;
   just fix-ownership
-
 alias gp := gitpod
 gitpod:
   #!/usr/bin/env bash
   set -euxo pipefail
   bash "{{ justfile_directory() }}/.gp/build.sh"
-
 ssh-pub-key-env:
   #!/usr/bin/env bash
   set -euo pipefail
@@ -306,7 +301,6 @@ ssh-pub-key-env:
   printf "\n❗ The SSH_PUB_KEY environment variable is required. Please enter its value.\n" ;
   read -s -p "SSH_PUB_KEY: " SSH_PUB_KEY ; \
   done ; gp env SSH_PUB_KEY=$SSH_PUB_KEY && printf "\nThanks\n" || true ;
-
 ssh-pub-key: fix-ownership ssh-pub-key-env
   #!/usr/bin/env bash
   set -euo pipefail
@@ -316,7 +310,6 @@ ssh-pub-key: fix-ownership ssh-pub-key-env
   chmod 600 ${HOME}/.ssh/authorized_keys ;
   just fix-ownership
   exit 0
-
 chisel: fix-ownership
   #!/usr/bin/env bash
   set -euo pipefail
@@ -328,7 +321,6 @@ chisel: fix-ownership
   popd ;
   just fix-ownership
   exit 0
-
 dropbear: fix-ownership
   #!/usr/bin/env bash
   set -euo pipefail
@@ -358,3 +350,113 @@ ssh-config: ssh-pub-key
     MACs hmac-sha2-256
     UserKnownHostsFile /dev/null
   EOF
+# ─── IMAGE BUILD TARGETS ────────────────────────────────────────────────────────
+# [ WARN ] do NOT add any tagets after this.
+# since the sed command in this target removes all
+# lines that comes after 'build:'
+alias btg:=build-targets-gen
+build-targets-gen:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  scripts=()
+  targets=()
+  while read script;do
+    scripts+=("${script}")
+    target="build-$(dirname ${script} | sed -e 's/\.\///g' -e 's/\//-/g')"
+    targets+=("${target}")
+  done < <(find . -name build.sh)
+  sed -i '/^build:/,$d' "{{ justfile() }}"
+  echo "" >> "{{ justfile() }}"
+  echo "build: ${targets[@]}" | tee -a "{{ justfile() }}" > /dev/null
+  for script in "${scripts[@]}"; do
+    target="build-$(dirname ${script} | sed -e 's/\.\///g' -e 's/\//-/g')"
+    (
+      echo "$target:" ;
+      echo '  #!/usr/bin/env bash'
+      echo '  set -euo pipefail ;'
+      echo "  bash ${script}"
+    ) | tee -a "{{ justfile() }}" > /dev/null
+  done
+  sed -i '/^\s*$/d' {{ justfile() }}
+  just vscode-tasks
+build: build-devcontainer-rust-vscode-debian build-devcontainer-rust-base-debian build-devcontainer-golang-vscode-alpine build-devcontainer-golang-base-alpine build-devcontainer-core-alpine build-builder-rust-alpine build-stacks-hashicorp build-tools-tojson build-tools-exa build-tools-jsonfmt build-tools-jen build-tools-just build-tools-bat build-tools-convco build-tools-fd build-tools-clog build-tools-petname build-tools-delta build-tools-tokei build-tools-upx
+build-devcontainer-rust-vscode-debian:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./devcontainer/rust/vscode/debian/build.sh
+build-devcontainer-rust-base-debian:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./devcontainer/rust/base/debian/build.sh
+build-devcontainer-golang-vscode-alpine:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./devcontainer/golang/vscode/alpine/build.sh
+build-devcontainer-golang-base-alpine:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./devcontainer/golang/base/alpine/build.sh
+build-devcontainer-core-alpine:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./devcontainer/core/alpine/build.sh
+build-builder-rust-alpine:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./builder/rust/alpine/build.sh
+build-stacks-hashicorp:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./stacks/hashicorp/build.sh
+build-tools-tojson:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/tojson/build.sh
+build-tools-exa:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/exa/build.sh
+build-tools-jsonfmt:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/jsonfmt/build.sh
+build-tools-jen:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/jen/build.sh
+build-tools-just:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/just/build.sh
+build-tools-bat:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/bat/build.sh
+build-tools-convco:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/convco/build.sh
+build-tools-fd:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/fd/build.sh
+build-tools-clog:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/clog/build.sh
+build-tools-petname:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/petname/build.sh
+build-tools-delta:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/delta/build.sh
+build-tools-tokei:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/tokei/build.sh
+build-tools-upx:
+  #!/usr/bin/env bash
+  set -euo pipefail ;
+  bash ./tools/upx/build.sh

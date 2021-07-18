@@ -32,7 +32,7 @@ RUN set -ex && \
   useradd \
   --no-log-init \
   --create-home \
-  --home-dir "/home/${USER}" \ 
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
   --groups sudo \
   --shell "/bin/bash" \

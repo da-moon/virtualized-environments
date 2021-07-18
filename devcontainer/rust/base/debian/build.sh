@@ -3,10 +3,10 @@
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -euxo pipefail ;
 if [ -z ${IMAGE_NAME+x} ] || [  -z ${IMAGE_NAME+x} ];then
-  IMAGE_NAME="fjolsvin/$(basename $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
+  IMAGE_NAME="fjolsvin/rust-base-debian"
 fi
 # ────────────────────────────────────────────────────────────────────────────────
-WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
@@ -33,6 +33,13 @@ else
   BUILD+=" --progress=plain"
   BUILD+=" --pull"
 fi
+BUILD+=" --build-arg 'MDBOOK_VERSION=0.4.8'"
+BUILD+=" --build-arg 'CARGO_ABOUT_VERSION=0.2.3'"
+BUILD+=" --build-arg 'CARGO_DENY_VERSION=0.8.5'"
+BUILD+=" --build-arg 'OPENSSL_VERSION=1.1.1i'"
+BUILD+=" --build-arg 'ZLIB_VERSION=1.2.11'"
+BUILD+=" --build-arg 'POSTGRESQL_VERSION=11.9'"
+BUILD+=" --build-arg 'TOOLCHAIN=stable'"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────

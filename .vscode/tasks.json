@@ -8,6 +8,116 @@
     },
     {
       "type": "shell",
+      "label": "build",
+      "command": "just build"
+    },
+    {
+      "type": "shell",
+      "label": "build-builder-rust-alpine",
+      "command": "just build-builder-rust-alpine"
+    },
+    {
+      "type": "shell",
+      "label": "build-devcontainer-core-alpine",
+      "command": "just build-devcontainer-core-alpine"
+    },
+    {
+      "type": "shell",
+      "label": "build-devcontainer-golang-base-alpine",
+      "command": "just build-devcontainer-golang-base-alpine"
+    },
+    {
+      "type": "shell",
+      "label": "build-devcontainer-golang-vscode-alpine",
+      "command": "just build-devcontainer-golang-vscode-alpine"
+    },
+    {
+      "type": "shell",
+      "label": "build-devcontainer-rust-base-debian",
+      "command": "just build-devcontainer-rust-base-debian"
+    },
+    {
+      "type": "shell",
+      "label": "build-devcontainer-rust-vscode-debian",
+      "command": "just build-devcontainer-rust-vscode-debian"
+    },
+    {
+      "type": "shell",
+      "label": "build-stacks-hashicorp",
+      "command": "just build-stacks-hashicorp"
+    },
+    {
+      "type": "shell",
+      "label": "build-targets-gen",
+      "command": "just build-targets-gen"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-bat",
+      "command": "just build-tools-bat"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-clog",
+      "command": "just build-tools-clog"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-convco",
+      "command": "just build-tools-convco"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-delta",
+      "command": "just build-tools-delta"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-exa",
+      "command": "just build-tools-exa"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-fd",
+      "command": "just build-tools-fd"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-jen",
+      "command": "just build-tools-jen"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-jsonfmt",
+      "command": "just build-tools-jsonfmt"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-just",
+      "command": "just build-tools-just"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-petname",
+      "command": "just build-tools-petname"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-tojson",
+      "command": "just build-tools-tojson"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-tokei",
+      "command": "just build-tools-tokei"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-upx",
+      "command": "just build-tools-upx"
+    },
+    {
+      "type": "shell",
       "label": "chisel",
       "command": "just chisel"
     },

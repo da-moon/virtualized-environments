@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1.2
-FROM rust:alpine AS alpine-base 
+FROM rust:alpine AS alpine-base
 USER root
 RUN \
     --mount=type=cache,target=/root/.cargo \
@@ -142,7 +142,7 @@ ARG BASE_PACKAGES="\
     ca-certificates \
     gnupg2 \
     ssl-cert \
-    # 
+    #
     build-essential \
     cmake \
     curl \
@@ -220,9 +220,9 @@ RUN \
 ENV PQ_LIB_STATIC_X86_64_UNKNOWN_LINUX_MUSL=1
 ENV PG_CONFIG_X86_64_UNKNOWN_LINUX_GNU=/usr/bin/pg_config
 
-ENV RUST_HOME="/opt/rust" 
-ENV RUSTUP_HOME="${RUST_HOME}/rustup" 
-ENV CARGO_HOME="${RUST_HOME}/cargo" 
+ENV RUST_HOME="/opt/rust"
+ENV RUSTUP_HOME="${RUST_HOME}/rustup"
+ENV CARGO_HOME="${RUST_HOME}/cargo"
 ENV PATH="${CARGO_HOME}/bin:${PATH}"
 ARG TOOLCHAIN=nightly
 RUN curl https://sh.rustup.rs -sSf | \
@@ -262,9 +262,9 @@ RUN \
     set -ex && \
     rm -rf "${CARGO_HOME}/registry/" && \
     # [ NOTE ] Hacky way to quickly chown recursively
-    # as chgrp -hR or chown -R are super slow 
+    # as chgrp -hR or chown -R are super slow
     # https://github.com/docker/for-linux/issues/388#issuecomment-685410250
     apt-get autoremove -y && \
     apt-get clean -y && \
-    rm -rf "/tmp/*" 
+    rm -rf "/tmp/*"
 ENTRYPOINT [ "/bin/bash" ]

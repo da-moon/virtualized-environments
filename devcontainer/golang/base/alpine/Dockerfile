@@ -80,6 +80,6 @@ RUN set -ex && \
 RUN \
   curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b /usr/local/bin/
 ARG GOLANGCI_LINT_VERSION=v1.35.2
-RUN \ 
+RUN \
   wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin/ -d ${GOLANGCI_LINT_VERSION}
 COPY --from=go-builder /go/bin /usr/local/bin

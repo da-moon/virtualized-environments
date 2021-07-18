@@ -19,6 +19,7 @@ ARG APT_PACKAGES="\
   libssl-dev \
   fonts-symbola \
   fzf \
+  ripgrep \
   "
 RUN install-packages ${APT_PACKAGES}
 ARG PYTHON_PACKAGES="\

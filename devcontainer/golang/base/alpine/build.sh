@@ -3,10 +3,10 @@
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -euxo pipefail ;
 if [ -z ${IMAGE_NAME+x} ] || [  -z ${IMAGE_NAME+x} ];then
-  IMAGE_NAME="fjolsvin/$(basename $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
+  IMAGE_NAME="fjolsvin/golang-base-alpine"
 fi
 # ────────────────────────────────────────────────────────────────────────────────
-WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
@@ -33,6 +33,13 @@ else
   BUILD+=" --progress=plain"
   BUILD+=" --pull"
 fi
+BUILD+=" --build-arg 'GURU_VERSION=master'"
+BUILD+=" --build-arg 'GOPLS_VERSION=latest'"
+BUILD+=" --build-arg 'DELVE_VERSION=latest'"
+BUILD+=" --build-arg 'GOTESTS_VERSION=latest'"
+BUILD+=" --build-arg 'GOMODIFYTAGS_VERSION=latest'"
+BUILD+=" --build-arg 'GOPLAY_VERSION=latest'"
+BUILD+=" --build-arg 'GOLANGCI_LINT_VERSION=latest'"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────
