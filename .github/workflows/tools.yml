@@ -29,6 +29,11 @@ jobs:
       bat: ${{ steps.filter.outputs.bat }}
       tokei: ${{ steps.filter.outputs.tokei }}
       delta: ${{ steps.filter.outputs.delta }}
+      skim: ${{ steps.filter.outputs.cellar }}
+      skim: ${{ steps.filter.outputs.releez }}
+      skim: ${{ steps.filter.outputs.ripgrep }}
+      skim: ${{ steps.filter.outputs.sad }}
+      skim: ${{ steps.filter.outputs.scoob }}
       skim: ${{ steps.filter.outputs.skim }}
     steps:
       - name: Check out the repo
@@ -68,6 +73,16 @@ jobs:
               - 'tools/delta/**'
             skim:
               - 'tools/skim/**'
+            cellar:
+              - 'tools/cellar/**'
+            releez:
+              - 'tools/releez/**'
+            ripgrep:
+              - 'tools/ripgrep/**'
+            sad:
+              - 'tools/sad/**'
+            scoob:
+              - 'tools/scoob/**'
 
   upx:
     needs: changes
@@ -440,6 +455,146 @@ jobs:
       run:
         working-directory: ./tools/skim
     name: "build and push skim docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  cellar:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.cellar == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/cellar
+    name: "build and push cellar docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  releez:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.releez == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/releez
+    name: "build and push releez docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  ripgrep:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.ripgrep == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/ripgrep
+    name: "build and push ripgrep docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  sad:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.sad == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/sad
+    name: "build and push sad docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  scoob:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.scoob == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/scoob
+    name: "build and push scoob docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
