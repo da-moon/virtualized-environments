@@ -1,4 +1,9 @@
 # syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
+# ─── USAGE ──────────────────────────────────────────────────────────────────────
+# docker run --mount type=bind,source="$PWD",target='/workspace' --rm -it fjolsvin/base-alpine
+# ────────────────────────────────────────────────────────────────────────────────
 FROM alpine:edge
 USER root
 ARG BASE_PACKAGES="\
@@ -51,7 +56,7 @@ RUN \
   )
 
 WORKDIR "/usr/src/neovim"
-RUN \ 
+RUN \
   git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
   && make -j`nproc` CMAKE_BUILD_TYPE=RelWithDebInfo  \
   CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
@@ -142,7 +147,7 @@ ARG PYTHON_PACKAGES="\
   yapf \
   autoflake \
   isort \
-  coverage \ 
+  coverage \
   "
 RUN \
   sudo python3 -m pip install --no-cache-dir ${PYTHON_PACKAGES}
@@ -152,8 +157,10 @@ ARG NODEJS_PACKAGES="\
   remark-stringify \
   remark-frontmatter \
   wcwidth \
-  bash-language-server \
   prettier \
+  bash-language-server \
+  dockerfile-language-server-nodejs \
+  standard-readme-spec \
   "
 RUN \
   yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
@@ -175,7 +182,7 @@ RUN \
   useradd \
   --no-log-init \
   --create-home \
-  --home-dir "/home/${USER}" \ 
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
   --gid "${GID}" \
   --groups sudo \
@@ -218,6 +225,9 @@ ENV WORKDIR $WORKDIR
 WORKDIR $WORKDIR
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
 ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"

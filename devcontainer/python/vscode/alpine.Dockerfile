@@ -1,8 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
-
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file alpine.Dockerfile --build-arg USER=operator --build-arg UID=1000 --tag fjolsvin/vscode-python-alpine:latest .
-# ────────────────────────────────────────────────────────────────────────────────
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 FROM fjolsvin/python-base-alpine:latest
 ENV TERM=xterm
 USER root
@@ -39,7 +37,7 @@ RUN set -ex && \
   useradd \
   --no-log-init \
   --create-home \
-  --home-dir "/home/${USER}" \ 
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
   --groups sudo \
   --shell "/bin/bash" \
@@ -59,13 +57,13 @@ ENV PATH="${PATH}:${POETRY_HOME}/bin"
 RUN set -ex && \
   mkdir -p "${HOME}/.local/bin" && \
   echo 'PATH="${PATH}:${HOME}/.local/bin"' | tee -a ~/.bashrc > /dev/null && \
-  mkdir -p "${POETRY_HOME}/bin" && \ 
+  mkdir -p "${POETRY_HOME}/bin" && \
   echo '[ -r ${POETRY_HOME}/env ] && . ${HOME}/.poetry/env' | tee -a ~/.bashrc > /dev/null && \
   curl -fsSL \
   https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 && \
   poetry --version
 RUN set -ex && \
-  python3 -m pip install pex dephell[full] 
+  python3 -m pip install pex dephell[full]
 RUN set -ex && \
   sudo rm -rf \
   /tmp/*

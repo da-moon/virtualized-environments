@@ -1,7 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --tag fjolsvin/gitpod-powershell:latest .
-# ────────────────────────────────────────────────────────────────────────────────
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 FROM fjolsvin/gitpod-base:latest
 ENV SHELL="/bin/bash"
@@ -59,7 +58,7 @@ RUN set -ex && \
 #   :::::: C L E A N   U P : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────
 #
-RUN set -ex && \ 
+RUN set -ex && \
   sudo apt-get autoremove -y && \
   sudo apt-get clean -y && \
   sudo rm -rf "/tmp/*"

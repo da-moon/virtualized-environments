@@ -1,4 +1,6 @@
 # syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
 # docker run --mount type=bind,source="$PWD",target='/workspace' --rm -it fjolsvin/rust-builder-alpine
 FROM rust:alpine
@@ -17,7 +19,7 @@ for crate in "${CRATES[@]}"; do
 echo >&2 "[ INFO ] building: $crate";
 case "$apkArch" in
 x86_64|aarch64)
-cargo install --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" \
+cargo install --locked --all-features --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" "${crate}" \
   ;;
 *)
 echo >&2 "[ WARN ] unsupported architecture: $apkArch";

@@ -1,4 +1,6 @@
-
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 FROM alpine:latest
 ENV TERM=xterm
 USER root
@@ -74,12 +76,12 @@ ENV PYTHON_PATH=/usr/local/bin/
 ENV PYENV_ROOT="/usr/local/lib/pyenv"
 ENV PATH="${PATH}:/usr/local/lib/python${PYTHON_VERSION}/bin"
 ENV PATH="${PATH}:/usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin:${PATH}"
-ARG CONFIGURE_OPTS="--enable-shared" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
+ARG CONFIGURE_OPTS="--enable-shared"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared"
 ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip"
 RUN set -ex && \
   git clone --depth 1 https://github.com/pyenv/pyenv /usr/local/lib/pyenv ;\
   GNU_ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" ;\

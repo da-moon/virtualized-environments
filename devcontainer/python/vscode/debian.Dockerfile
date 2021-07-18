@@ -1,12 +1,7 @@
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 FROM fjolsvin/python-base-debian:latest
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file debian.Dockerfile --build-arg USER=code --build-arg UID=1000 fjolsvin/vscode-python-debian:latest .
-# ────────────────────────────────────────────────────────────────────────────────
-#
-# ──────────────────────────────────────────────────────────── I ──────────
-#   :::::: U S E R   S E T U P : :  :   :    :     :        :          :
-# ──────────────────────────────────────────────────────────────────────
-#
 USER root
 RUN set -ex && \
   for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
@@ -22,7 +17,7 @@ RUN set -ex && \
   useradd \
   --no-log-init \
   --create-home \
-  --home-dir "/home/${USER}" \ 
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
   --groups sudo \
   --shell "${SHELL}" \
@@ -85,7 +80,7 @@ ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
 RUN set -ex && \
   mkdir -p "${HOME}/.local/bin" && \
-  mkdir -p "${POETRY_HOME}/bin" && \ 
+  mkdir -p "${POETRY_HOME}/bin" && \
   echo '[ -r ${POETRY_HOME}/env ] && . ${HOME}/.poetry/env' | tee -a "$HOME/.bashrc" && \
   curl -fsSL \
   https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 && \

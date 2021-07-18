@@ -1,7 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --build-arg USER=gitpod --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/gitpod-python:latest   .
-# ────────────────────────────────────────────────────────────────────────────────
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 FROM fjolsvin/gitpod-base:latest
 ARG PYTHON_VERSION=3.9.2
@@ -32,18 +31,18 @@ ENV PYTHON_PATH=/usr/local/bin/
 ENV PYENV_ROOT="/usr/local/lib/pyenv"
 ENV PATH="${PATH}:/usr/local/lib/python${PYTHON_VERSION}/bin"
 ENV PATH="${PATH}:/usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin:${PATH}"
-ENV CONFIGURE_OPTS="--enable-shared" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
+ENV CONFIGURE_OPTS="--enable-shared"
+ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared"
 ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
-ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
+ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat"
+ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi"
+ENV CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip"
 RUN set -ex ;\
   git clone --depth 1 https://github.com/pyenv/pyenv /usr/local/lib/pyenv ;\
   GNU_ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" ;\
   CONFIGURE_OPTS="${CONFIGURE_OPTS} --build=${GNU_ARCH}" ;\
   /usr/local/lib/pyenv/bin/pyenv install ${PYTHON_VERSION};
-RUN set -ex ;\ 
+RUN set -ex ;\
   find /usr/local/lib/pyenv \
   -mindepth 1 \
   -name versions \
@@ -99,7 +98,7 @@ ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
 RUN set -ex && \
   mkdir -p "${HOME}/.local/bin" && \
-  mkdir -p "${POETRY_HOME}/bin" && \ 
+  mkdir -p "${POETRY_HOME}/bin" && \
   echo 'echo >&2 "*** sourced 60-python ***"' | tee -a "$HOME/.bashrc.d/60-python" && \
   echo '[ -r ${POETRY_HOME}/env ] && . ${HOME}/.poetry/env' | tee -a "$HOME/.bashrc.d/60-python" && \
   curl -fsSL \

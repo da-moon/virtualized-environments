@@ -1,7 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --file debian.Dockerfile --build-arg PYTHON_VERSION=3.9.2 --tag fjolsvin/python-base-debian:latest .
-# ────────────────────────────────────────────────────────────────────────────────
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 FROM debian:buster
 USER root
@@ -39,7 +38,7 @@ ARG ESSENTIAL_PACKAGES="\
   "
 RUN set -ex; \
   install-packages ${ESSENTIAL_PACKAGES}
- 
+
 RUN set -ex; \
   locale-gen en_US.UTF-8 && \
   dpkg-reconfigure locales
@@ -64,18 +63,18 @@ ENV PYTHON_PATH=/usr/local/bin/
 ENV PYENV_ROOT="/usr/local/lib/pyenv"
 ENV PATH="${PATH}:/usr/local/lib/python${PYTHON_VERSION}/bin"
 ENV PATH="${PATH}:/usr/local/lib/pyenv/versions/${PYTHON_VERSION}/bin:${PATH}"
-ARG CONFIGURE_OPTS="--enable-shared" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared" 
+ARG CONFIGURE_OPTS="--enable-shared"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-shared"
 ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --enable-loadable-sqlite-extensions"
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi" 
-ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip" 
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-expat"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --with-system-ffi"
+ARG CONFIGURE_OPTS="${CONFIGURE_OPTS} --without-ensurepip"
 RUN set -ex ;\
   git clone --depth 1 https://github.com/pyenv/pyenv /usr/local/lib/pyenv ;\
   GNU_ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" ;\
   CONFIGURE_OPTS="${CONFIGURE_OPTS} --build=${GNU_ARCH}" ;\
   /usr/local/lib/pyenv/bin/pyenv install ${PYTHON_VERSION};
-RUN set -ex ;\ 
+RUN set -ex ;\
   find /usr/local/lib/pyenv \
   -mindepth 1 \
   -name versions \

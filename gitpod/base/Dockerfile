@@ -1,7 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
-# ─── EXAMPLE BUILD COMMAND ──────────────────────────────────────────────────────
-# docker build --build-arg USER=gitpod --build-arg UID=33333 --tag fjolsvin/gitpod-base:latest   .
-# ────────────────────────────────────────────────────────────────────────────────
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 FROM debian:buster
 USER root
@@ -112,26 +111,26 @@ RUN set -ex && \
 #   :::::: B B C P   S E T U P : :  :   :    :     :        :          :
 # ──────────────────────────────────────────────────────────────────────
 #
-RUN set -ex && \ 
+RUN set -ex && \
   install-packages \
     make libssl-dev build-essential zlib1g-dev aria2
-RUN set -ex && \ 
+RUN set -ex && \
   aria2c \
   --check-certificate=false \
   --dir=/tmp/ \
   http://www.slac.stanford.edu/~abh/bbcp/bbcp.tgz
 WORKDIR /tmp
-RUN set -ex && \ 
+RUN set -ex && \
   tar xvfz bbcp.tgz
 WORKDIR /tmp/bbcp/src
-RUN set -ex && \ 
+RUN set -ex && \
   sed -i.bak 's/\-i/\-m/g' Makefile && \
   make && \
   mv ../bin/*/bbcp /usr/local/bin/ && \
   chmod +x /usr/local/bin/bbcp && \
   bbcp --version
 WORKDIR /tmp
-RUN set -ex && \ 
+RUN set -ex && \
   rm -rf /tmp/bbcp && \
   rm -rf /tmp/bbcp.tgz
 #
@@ -149,7 +148,7 @@ RUN set -ex && \
   useradd \
   --no-log-init \
   --create-home \
-  --home-dir "/home/${USER}" \ 
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
   --groups sudo \
   --shell "${SHELL}" \

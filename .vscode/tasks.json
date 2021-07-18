@@ -103,6 +103,21 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-releez",
+      "command": "just build-tools-releez"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-sad",
+      "command": "just build-tools-sad"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-skim",
+      "command": "just build-tools-skim"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-tojson",
       "command": "just build-tools-tojson"
     },
@@ -130,6 +145,11 @@
       "type": "shell",
       "label": "default",
       "command": "just default"
+    },
+    {
+      "type": "shell",
+      "label": "dependencies",
+      "command": "just dependencies"
     },
     {
       "type": "shell",
@@ -163,6 +183,11 @@
     },
     {
       "type": "shell",
+      "label": "docker-qemu",
+      "command": "just docker-qemu"
+    },
+    {
+      "type": "shell",
       "label": "docker-socket-chown",
       "command": "just docker-socket-chown"
     },
@@ -185,6 +210,11 @@
       "type": "shell",
       "label": "format-json",
       "command": "just format-json"
+    },
+    {
+      "type": "shell",
+      "label": "format-just",
+      "command": "just format-just"
     },
     {
       "type": "shell",
@@ -218,8 +248,13 @@
     },
     {
       "type": "shell",
-      "label": "spacevim-dependencies",
-      "command": "just spacevim-dependencies"
+      "label": "rust-builder-amd64",
+      "command": "just rust-builder-amd64"
+    },
+    {
+      "type": "shell",
+      "label": "rust-builder-arm64",
+      "command": "just rust-builder-arm64"
     },
     {
       "type": "shell",

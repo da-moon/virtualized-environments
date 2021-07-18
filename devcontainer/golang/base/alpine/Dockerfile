@@ -1,5 +1,6 @@
-#
-#:syntax = docker/dockerfile-upstream:master-labs
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 FROM golang:alpine AS go
 USER root
 RUN  \

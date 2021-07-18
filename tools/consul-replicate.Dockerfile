@@ -1,6 +1,9 @@
-# syntax = docker/dockerfile:1.0-experimental
-# eg. build command
-# docker build -t fjolsvin/consul-replicate --file consul-replicate.Dockerfile .
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
+# ─── USAGE ──────────────────────────────────────────────────────────────────────
+# docker run --mount type=bind,source="$PWD",target='/userspace' --rm -it fjolsvin/consul-replicate
+# ────────────────────────────────────────────────────────────────────────────────
 FROM golang:alpine AS builder
 RUN apk add --no-cache git
 RUN go env -w GO111MODULE=off && \

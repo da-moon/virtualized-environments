@@ -42,6 +42,7 @@ ARG NODEJS_PACKAGES="\
   prettier \
   bash-language-server \
   dockerfile-language-server-nodejs \
+  standard-readme-spec \
   "
 RUN \
   yarn global add --prefix /usr/local ${NODEJS_PACKAGES}
@@ -58,6 +59,7 @@ ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PIP_USER="false"
 RUN \
+  sudo curl -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf -o /etc/bashrc_fzf \
   sudo sed -i \
   -e '/^\s*#/d' \
   -e '/gitpod/d' \
@@ -81,6 +83,7 @@ RUN \
   echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
   echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
   echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
+  echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
 RUN \
   sed -i \

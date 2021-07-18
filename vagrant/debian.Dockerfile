@@ -1,4 +1,6 @@
-# syntax = docker/dockerfile:1.0-experimental
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 FROM debian:buster
 EXPOSE 22
 USER root
@@ -40,8 +42,8 @@ RUN sudo echo "Running 'sudo' for 'vagrant': success" && \
     /etc/pam.d/sshd && \
     sudo mkdir /var/run/sshd
 RUN export DEBIAN_FRONTEND=noninteractive; \
-   sudo apt-get autoclean -y && \ 
+   sudo apt-get autoclean -y && \
    sudo apt-get clean && \
-   sudo rm -rf /var/lib/apt/lists/* 
+   sudo rm -rf /var/lib/apt/lists/*
 CMD ["sudo","/usr/sbin/sshd", "-D", "-e"]
 docker-compose -f build.docker-compose.yml build vscode-golang-alpine

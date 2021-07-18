@@ -1,3 +1,7 @@
+# syntax = docker/dockerfile-upstream:master-labs
+#-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
+
 # docker-slim --debug --log-level debug --verbose build --http-probe=false --dockerfile Dockerfile --tag-fat hashicorp/vault .
 FROM golang:alpine
 RUN go env -w GO111MODULE=on && \
