@@ -13,7 +13,7 @@ jobs:
   golang-base-alpine:
     defaults:
       run:
-        working-directory: ./devcontainer/golang/base
+        working-directory: ./devcontainer/golang/base/alpine
     name: "build and push golang-base docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -43,7 +43,7 @@ jobs:
     needs: golang-base-alpine
     defaults:
       run:
-        working-directory: ./devcontainer/golang/vscode
+        working-directory: ./devcontainer/golang/vscode/alpine
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
