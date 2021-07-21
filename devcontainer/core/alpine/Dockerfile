@@ -109,11 +109,10 @@ ARG CORE_PACKAGES="\
   expac \
   base-devel \
   git \
-  bash-completion \
-  sshpass \
   wget \
   curl \
-  unzip \
+  chisel \
+  dropbear \
   "
 RUN \
 IFS=' ' read -a PACKAGES <<< "$CORE_PACKAGES" ; \
@@ -145,8 +144,7 @@ ARG DEVEL_PACKAGES="\
   python-pip \
   python-poetry \
   yarn \
-  neovim \
-  python-pynvim \
+  ansible \
   "
 RUN \
 IFS=' ' read -a PACKAGES <<< "$DEVEL_PACKAGES" ; \
@@ -154,19 +152,22 @@ pacman -Sy --noconfirm --needed "${PACKAGES[@]}"
 # ─── COMMON CLI PACKAGES ────────────────────────────────────────────────────────
 USER root
 ARG COMMON_CLI_PACKAGES="\
-  cmake \
-  go \
-  perl \
-  python \
-  python2 \
-  nodejs \
-  ruby \
-  python2-pip \
-  python-pip \
-  python-poetry \
-  yarn \
-  neovim \
-  python-pynvim \
+  bash-completion \
+  sshpass \
+  unzip \
+  fzf \
+  aria2 \
+  jq \
+  github-cli \
+  rsync \
+  rclone \
+  parallel \
+  tmux \
+  htop \
+  progress \
+  unrar \
+  dialog \
+  psutils \
   "
 RUN \
 IFS=' ' read -a PACKAGES <<< "$COMMON_CLI_PACKAGES" ; \
@@ -308,8 +309,6 @@ IFS=' ' read -a PACKAGES <<< "$RUST_NIGHTLY_PACKAGES" ; \
 rustup default "nightly-$(uname -m)-unknown-linux-gnu" ; \
 cargo install --all-features -j"$(nproc)" "${PACKAGES[@]}" ; \
 rustup default "stable-$(uname -m)-unknown-linux-gnu" ;
-
-
 # ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
 USER root
 RUN \
