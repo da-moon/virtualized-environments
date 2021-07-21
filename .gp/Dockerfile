@@ -61,7 +61,7 @@ ENV VISUAL="nvim"
 ENV PIP_USER="false"
 RUN \
   sudo curl -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf -o /etc/bashrc_fzf \
-  sudo sed -i \
+  && sudo sed -i \
   -e '/^\s*#/d' \
   -e '/gitpod/d' \
   -e '/PIP_USER/d' \
@@ -115,7 +115,6 @@ RUN \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
-
 COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
