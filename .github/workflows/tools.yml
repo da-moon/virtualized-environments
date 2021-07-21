@@ -29,11 +29,11 @@ jobs:
       bat: ${{ steps.filter.outputs.bat }}
       tokei: ${{ steps.filter.outputs.tokei }}
       delta: ${{ steps.filter.outputs.delta }}
-      skim: ${{ steps.filter.outputs.cellar }}
-      skim: ${{ steps.filter.outputs.releez }}
-      skim: ${{ steps.filter.outputs.ripgrep }}
-      skim: ${{ steps.filter.outputs.sad }}
-      skim: ${{ steps.filter.outputs.scoob }}
+      cellar: ${{ steps.filter.outputs.cellar }}
+      releez: ${{ steps.filter.outputs.releez }}
+      ripgrep: ${{ steps.filter.outputs.ripgrep }}
+      sad: ${{ steps.filter.outputs.sad }}
+      scoob: ${{ steps.filter.outputs.scoob }}
       skim: ${{ steps.filter.outputs.skim }}
     steps:
       - name: Check out the repo
