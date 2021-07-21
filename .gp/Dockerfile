@@ -4,6 +4,7 @@
 FROM gitpod/workspace-full:build-branch-master
 USER root
 SHELL ["/bin/bash","-c"]
+ENV DEBIAN_FRONTEND=noninteractive
 RUN \
   yes | add-apt-repository ppa:neovim-ppa/unstable \
   && apt-get update \
@@ -23,6 +24,7 @@ ARG APT_PACKAGES="\
 RUN install-packages ${APT_PACKAGES}
 ARG PYTHON_PACKAGES="\
   pre-commit \
+  neovim \
   pylint \
   yapf \
   autoflake \
@@ -118,14 +120,14 @@ COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/fd:latest /workspace /usr/local/bin
-# COPY --from=fjolsvin/exa:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/bat:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/tokei:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/jsonfmt:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/tojson:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
-# COPY --from=fjolsvin/ripgrep:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
-# COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
+# COPY --from=fjolsvin/exa:latest /workspace /usr/local/bin
+# COPY --from=fjolsvin/ripgrep:latest /workspace /usr/local/bin
+# COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 WORKDIR /workspace
