@@ -2,7 +2,7 @@
 #-*-mode:sh;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -euxo pipefail ;
-if [ -z ${IMAGE_NAME+x} ] || [  -z ${IMAGE_NAME+x} ];then
+if [ -z ${IMAGE_NAME+x} ] || [  -z ${IMAGE_NAME} ];then
   IMAGE_NAME="fjolsvin/hashicorp"
 fi
 # ────────────────────────────────────────────────────────────────────────────────
