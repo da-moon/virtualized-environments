@@ -13,6 +13,11 @@
     },
     {
       "type": "shell",
+      "label": "build-and-push-changes",
+      "command": "just build-and-push-changes"
+    },
+    {
+      "type": "shell",
       "label": "build-builder-rust-alpine",
       "command": "just build-builder-rust-alpine"
     },
