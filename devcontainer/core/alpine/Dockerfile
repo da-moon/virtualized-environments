@@ -5,6 +5,34 @@
 # docker run --mount type=bind,source="$PWD",target='/workspace' --rm -it fjolsvin/base-alpine
 # ────────────────────────────────────────────────────────────────────────────────
 
+# ─── IMAGE DEPENDENCY ALIASES ───────────────────────────────────────────────────
+# hadolint ignore=DL3007
+FROM fjolsvin/jen:latest AS jen
+# hadolint ignore=DL3007
+FROM fjolsvin/tojson:latest AS tojson
+# hadolint ignore=DL3007
+FROM fjolsvin/jsonfmt:latest AS jsonfmt
+# hadolint ignore=DL3007
+FROM fjolsvin/just:latest AS just
+# hadolint ignore=DL3007
+FROM fjolsvin/convco:latest AS convco
+# hadolint ignore=DL3007
+FROM fjolsvin/clog:latest AS clog
+# hadolint ignore=DL3007
+FROM fjolsvin/fd:latest AS fd
+# hadolint ignore=DL3007
+FROM fjolsvin/bat:latest AS bat
+# hadolint ignore=DL3007
+FROM fjolsvin/tokei:latest AS tokei
+# hadolint ignore=DL3007
+FROM fjolsvin/sad:latest AS sad
+# hadolint ignore=DL3007
+FROM fjolsvin/releez:latest AS releez
+# hadolint ignore=DL3007
+FROM fjolsvin/skim:latest AS skim
+# hadolint ignore=DL3007
+FROM fjolsvin/delta:latest AS delta
+# ─── MAIN LAYER ─────────────────────────────────────────────────────────────────
 FROM archlinux:base
 WORKDIR /tmp/
 # ─── INITIAL SETUP ──────────────────────────────────────────────────────────────
@@ -310,21 +338,21 @@ curl \
   echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
 # ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
+COPY --from=jen /workspace /usr/local/bin
+COPY --from=tojson /workspace /usr/local/bin
+COPY --from=jsonfmt /workspace /usr/local/bin
+COPY --from=just /workspace /usr/local/bin
+COPY --from=convco /workspace /usr/local/bin
+COPY --from=clog /workspace /usr/local/bin
+COPY --from=fd /workspace /usr/local/bin
+COPY --from=bat /workspace /usr/local/bin
+COPY --from=tokei /workspace /usr/local/bin
+COPY --from=sad /workspace /usr/local/bin
+COPY --from=releez /workspace /usr/local/bin
+COPY --from=skim /workspace /usr/local/bin
+COPY --from=delta /workspace /usr/local/bin
+COPY --from=delta /opt/delta /tmp/delta
 USER "$USER"
-COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/fd:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/bat:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/tokei:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/jsonfmt:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/tojson:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/jen:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
 RUN \
 cat /tmp/delta >> "$HOME/.gitconfig"
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
