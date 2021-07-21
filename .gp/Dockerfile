@@ -11,6 +11,7 @@ RUN \
   && curl https://i.jpillora.com/chisel! | bash \
   && curl -fsSL https://starship.rs/install.sh | sudo bash -s -- --force
 ARG APT_PACKAGES="\
+  tmux \
   dropbear \
   cmake \
   xfonts-utils \
