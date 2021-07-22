@@ -33,8 +33,8 @@ else
   BUILD+=" --progress=plain"
   BUILD+=" --pull"
 fi
-BUILD+=" --build-arg 'USER=devel'"
-BUILD+=" --build-arg 'UID=1000'"
+BUILD+=" --build-arg USER=devel"
+BUILD+=" --build-arg UID=1000"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────

@@ -33,13 +33,13 @@ else
   BUILD+=" --progress=plain"
   BUILD+=" --pull"
 fi
-BUILD+=" --build-arg 'GURU_VERSION=master'"
-BUILD+=" --build-arg 'GOPLS_VERSION=latest'"
-BUILD+=" --build-arg 'DELVE_VERSION=latest'"
-BUILD+=" --build-arg 'GOTESTS_VERSION=latest'"
-BUILD+=" --build-arg 'GOMODIFYTAGS_VERSION=latest'"
-BUILD+=" --build-arg 'GOPLAY_VERSION=latest'"
-BUILD+=" --build-arg 'GOLANGCI_LINT_VERSION=latest'"
+BUILD+=" --build-arg GURU_VERSION=master"
+BUILD+=" --build-arg GOPLS_VERSION=latest"
+BUILD+=" --build-arg DELVE_VERSION=latest"
+BUILD+=" --build-arg GOTESTS_VERSION=latest"
+BUILD+=" --build-arg GOMODIFYTAGS_VERSION=latest"
+BUILD+=" --build-arg GOPLAY_VERSION=latest"
+BUILD+=" --build-arg GOLANGCI_LINT_VERSION=latest"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────

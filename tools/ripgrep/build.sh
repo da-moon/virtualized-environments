@@ -19,7 +19,7 @@ if [[ $(docker buildx version 2> /dev/null ) ]]; then
   # ────────────────────────────────────────────────────────────────────────────────
   BUILD+=" buildx build"
   BUILD+=" --file $DOCKER_FILE"
-  BUILD+=" --platform linux/amd64,linux/arm64"
+  # BUILD+=" --platform linux/amd64,linux/arm64"
   BUILD+=" --cache-from type=registry,ref=${CACHE_NAME}"
   BUILD+=" --cache-to type=registry,mode=max,ref=${CACHE_NAME}"
   BUILD+=" --tag ${IMAGE_NAME}:latest"

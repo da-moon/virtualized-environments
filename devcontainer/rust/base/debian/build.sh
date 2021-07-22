@@ -33,13 +33,13 @@ else
   BUILD+=" --progress=plain"
   BUILD+=" --pull"
 fi
-BUILD+=" --build-arg 'MDBOOK_VERSION=0.4.8'"
-BUILD+=" --build-arg 'CARGO_ABOUT_VERSION=0.2.3'"
-BUILD+=" --build-arg 'CARGO_DENY_VERSION=0.8.5'"
-BUILD+=" --build-arg 'OPENSSL_VERSION=1.1.1i'"
-BUILD+=" --build-arg 'ZLIB_VERSION=1.2.11'"
-BUILD+=" --build-arg 'POSTGRESQL_VERSION=11.9'"
-BUILD+=" --build-arg 'TOOLCHAIN=stable'"
+BUILD+=" --build-arg MDBOOK_VERSION=0.4.8"
+BUILD+=" --build-arg CARGO_ABOUT_VERSION=0.2.3"
+BUILD+=" --build-arg CARGO_DENY_VERSION=0.8.5"
+BUILD+=" --build-arg OPENSSL_VERSION=1.1.1i"
+BUILD+=" --build-arg ZLIB_VERSION=1.2.11"
+BUILD+=" --build-arg POSTGRESQL_VERSION=11.9"
+BUILD+=" --build-arg TOOLCHAIN=stable"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────
