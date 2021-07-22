@@ -76,7 +76,7 @@ RUN \
     -e 'print crypt($ARGV[0], "password")' \
       "${USER}_${UID}" 2>/dev/null) \
 "${USER}"  \
-  && usermod -aG wheel,root,sudo,docker "${USER}"
+  && usermod -aG wheel,root,sudo "${USER}"
 # ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
 USER root
 ENV EDITOR="nvim"
