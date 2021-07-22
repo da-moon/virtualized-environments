@@ -1,4 +1,4 @@
-image: fjolsvin/gitpod-workspace-full-archlinux
+image: fjolsvin/gitpod-workspace-full-alpine
   # file: .gp/Dockerfile
 # tasks:
 #   - name: "setup"
