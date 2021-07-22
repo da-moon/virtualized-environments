@@ -103,6 +103,7 @@ curl \
 # ─── BASE PACKAGES ──────────────────────────────────────────────────────────────
 
 ARG BASE_PACKAGES="\
+  dropbear \
   alpine-sdk \
   autoconf  \
   automake  \
@@ -148,7 +149,8 @@ RUN \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --update --no-cache ${BASE_PACKAGES} \
-  )
+  ) \
+  && curl https://i.jpillora.com/chisel! | sudo bash -s --
 
 # ─── VSCODE LIVE SHARE ──────────────────────────────────────────────────────────
 RUN set -ex && \
