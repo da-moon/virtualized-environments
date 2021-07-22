@@ -310,6 +310,8 @@ cargo install --all-features -j"$(nproc)" "${PACKAGES[@]}" ; \
 rustup default "stable-$(uname -m)-unknown-linux-gnu" ;
 # ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
 USER root
+ENV EDITOR="nvim"
+ENV VISUAL="${EDITOR}"
 RUN \
 curl \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
@@ -336,7 +338,13 @@ curl \
   echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
   echo '[ $(command -v rustup) ] && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
   echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
-  ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
+  ) | tee -a /etc/bash.bashrc > /dev/null \
+  && find "${HOME}" \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} ;
 # ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
 COPY --from=jen /workspace /usr/local/bin
 COPY --from=tojson /workspace /usr/local/bin
@@ -361,9 +369,9 @@ RUN \
 rm -rf \
   /tmp/*
 # ─── WORKDIR ────────────────────────────────────────────────────────────────────
+USER "$USER"
 ENV TERM xterm
 ARG WORKDIR="/workspace"
 ENV WORKDIR $WORKDIR
 VOLUME $WORKDIR
 WORKDIR $WORKDIR
-USER "$USER"
