@@ -31,6 +31,77 @@ FROM fjolsvin/delta:latest AS delta
 # ─── MAIN LAYER ─────────────────────────────────────────────────────────────────
 FROM alpine:edge
 USER root
+RUN \
+  ( \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
+  ) | tee /etc/apk/repositories > /dev/null \
+  && apk add --update --no-cache \
+  sudo bash util-linux coreutils findutils util-linux shadow \
+  grep gawk perl curl
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# ─── CREATING USER ──────────────────────────────────────────────────────────────
+RUN \
+  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
+RUN \
+  sed -i \
+  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
+  -e '/%sudo.*NOPASSWD:ALL/d' \
+  /etc/sudoers \
+  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
+  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+ARG USER=devel
+ENV USER $USER
+ARG UID="1000"
+ENV UID $UID
+ENV HOME="/home/${USER}"
+RUN \
+! getent group "${USER}" > /dev/null \
+&& groupadd --gid "${UID}" "${USER}" > /dev/null > /dev/null \
+&& useradd \
+  --no-log-init \
+  --create-home \
+  --home-dir "${HOME}" \
+  --gid "${UID}" \
+  --uid "${UID}" \
+  --groups sudo \
+  --shell "/bin/bash" \
+  --password \
+  $(perl \
+    -e 'print crypt($ARGV[0], "password")' \
+      "${USER}_${UID}" 2>/dev/null) \
+"${USER}"  \
+  && usermod -aG wheel,root,sudo,docker "${USER}"
+# ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
+USER root
+ENV EDITOR="nvim"
+ENV PIP_USER="false"
+ENV VISUAL="${EDITOR}"
+RUN \
+curl \
+  -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
+  -o /etc/bashrc_fzf \
+  && ( \
+  echo "export EDITOR=\"${EDITOR}\"" ; \
+  echo "export VISUAL=\"${VISUAL}\"" ; \
+  echo "export PIP_USER=\"${PIP_USER}\"" ; \
+  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
+  echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
+  echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
+  echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
+  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
+  echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
+  echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
+  echo '[ $(command -v rustup) ] && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
+  echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
+  ) | tee "/etc/profile.d/00-${USER}.sh" > /dev/null
+# ─── BASE PACKAGES ──────────────────────────────────────────────────────────────
+
 ARG BASE_PACKAGES="\
   alpine-sdk \
   autoconf  \
@@ -40,42 +111,27 @@ ARG BASE_PACKAGES="\
   ca-certificates  \
   cmake  \
   coreutils  \
-  curl  \
+  wget \
   doxygen \
   gettext-tiny-dev  \
   git  \
   gtest-dev \
   less  \
   libtool  \
-  lua  \
   make \
-  nodejs \
-  npm \
-  shadow \
-  sudo \
   tree \
-  bash \
   bash-completion \
-  findutils \
-  gawk \
-  grep \
   musl-dev \
   ncurses \
   ncurses-dev \
   ncurses-static \
-  util-linux \
-  wget \
   openssl  \
   openssl-dev \
   openssl-libs-static \
-  perl \
   pkgconf  \
-  python3-dev  \
-  py3-pip  \
   tmux  \
   unzip  \
   xclip  \
-  yarn \
   zlib-dev \
   "
 RUN \
@@ -94,22 +150,21 @@ RUN \
   && apk add --update --no-cache ${BASE_PACKAGES} \
   )
 
-WORKDIR "/usr/src/neovim"
-RUN \
-  git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
-  && make -j`nproc` CMAKE_BUILD_TYPE=RelWithDebInfo  \
-  CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
-  && make -j`nproc` install  \
-  && rm -r /usr/src/neovim
-WORKDIR "/usr/src/ctags"
-RUN  \
-  git clone https://github.com/universal-ctags/ctags.git "/usr/src/ctags" \
-  && ./autogen.sh  \
-  && ./configure  \
-  && make -j`nproc` \
-  && make -j`nproc` install  \
-  && rm -rf /usr/src/ctags
+# ─── VSCODE LIVE SHARE ──────────────────────────────────────────────────────────
+RUN set -ex && \
+  for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
+  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs ; \
+  bash /tmp/vsls-reqs || true ; \
+  rm /tmp/vsls-reqs
+
 ARG IMAGE_SPECIFIC_PACKAGES="\
+  lua  \
+  nodejs \
+  npm \
+  python3-dev  \
+  py3-pip  \
+  yarn \
+  go \
   aria2 \
   bzip2 \
   docker \
@@ -128,7 +183,6 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   nerd-fonts \
   rng-tools-extra \
   "
-
 RUN \
   ( \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
@@ -144,16 +198,47 @@ RUN \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
   )
-SHELL ["bash","-c"]
 RUN \
-  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
+  usermod -aG docker "${USER}"
+  # ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
+
+WORKDIR "/usr/src/ctags"
+RUN  \
+  git clone https://github.com/universal-ctags/ctags.git "/usr/src/ctags" \
+  && ./autogen.sh  \
+  && ./configure  \
+  && make -j`nproc` \
+  && make -j`nproc` install  \
+  && rm -rf /usr/src/ctags
+WORKDIR "/usr/src/neovim"
 RUN \
-  sed -i \
-  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
-  -e '/%sudo.*NOPASSWD:ALL/d' \
-  /etc/sudoers \
-  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
-  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+  git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
+  && make -j`nproc` CMAKE_BUILD_TYPE=RelWithDebInfo  \
+  CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
+  && make -j`nproc` install  \
+  && rm -r /usr/src/neovim
+
+# ─── SPACEVIM ───────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  curl -sLf https://spacevim.org/install.sh | bash \
+  && timeout 40 \
+  nvim --headless \
+  +VimProcInstall \
+  +'call dein#install()'  \
+  +UpdateRemotePlugins  \
+  +qall || true ;
+
+USER "$USER"
+RUN \
+  curl -sLf https://spacevim.org/install.sh | bash \
+  && timeout 40 \
+  nvim --headless \
+  +VimProcInstall \
+  +'call dein#install()'  \
+  +UpdateRemotePlugins  \
+  +qall || true ;
+USER root
 # ─── PYTHON PACKAGES ────────────────────────────────────────────────────────────
 USER root
 ARG PYTHON_PACKAGES="\
@@ -164,7 +249,6 @@ ARG PYTHON_PACKAGES="\
   isort \
   coverage \
   "
-ENV PIP_USER="false"
 RUN \
 IFS=' ' read -a PACKAGES <<< "$PYTHON_PACKAGES" ; \
 python3 -m pip install --no-cache-dir "${PACKAGES[@]}"
@@ -184,29 +268,8 @@ ARG NODEJS_PACKAGES="\
 RUN \
 IFS=' ' read -a PACKAGES <<< "$NODEJS_PACKAGES" ; \
 yarn global add --prefix /usr/local "${PACKAGES[@]}"
-# ─── SPACEVIM ───────────────────────────────────────────────────────────────────
-USER root
-RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && timeout 40 \
-  nvim --headless \
-  +VimProcInstall \
-  +'call dein#install()'  \
-  +UpdateRemotePlugins  \
-  +qall || true ;
-USER "$USER"
-RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && timeout 40 \
-  nvim --headless \
-  +VimProcInstall \
-  +'call dein#install()'  \
-  +UpdateRemotePlugins  \
-  +qall || true ;
 # ─── RUST TOOLCHAIN SETUP ───────────────────────────────────────────────────────
 USER root
-RUN \
-  pacman -Rcns --noconfirm rust > /dev/null 2>&1 || true ;
 ENV RUSTUP_HOME="/usr/local/rustup"
 ENV CARGO_HOME="/usr/local/cargo"
 ENV PATH="${CARGO_HOME}/bin:$PATH"
@@ -271,30 +334,10 @@ rustup run nightly cargo install \
   --target "$(apk --print-arch)-unknown-linux-musl" "${PACKAGES[@]}" ;
 
 
-
-# ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
+# ─── FIX PERMISSION ─────────────────────────────────────────────────────────────
 USER root
-ENV EDITOR="nvim"
-ENV VISUAL="${EDITOR}"
 RUN \
-curl \
-  -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
-  -o /etc/bashrc_fzf \
-  && ( \
-  echo "export EDITOR=\"${EDITOR}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo "export PIP_USER=\"${PIP_USER}\"" ; \
-  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
-  echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
-  echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
-  echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
-  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
-  echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
-  echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
-  echo '[ $(command -v rustup) ] && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
-  echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
-  ) | tee "/etc/profile.d/00-${USER}.sh" > /dev/null \
-  && find "${HOME}" \
+   find "${HOME}" \
   -not -group "$(id -g $USER)" \
   -not -user "$(id -u $USER)" \
   -print0 \
