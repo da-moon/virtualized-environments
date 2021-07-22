@@ -38,14 +38,18 @@ COPY <<-"EOT" /opt/delta
     reflog = delta
     show = delta
 
-[delta]
-    plus-style = "syntax #012800"
-    minus-style = "syntax #340001"
-    syntax-theme = Monokai Extended
-    navigate = true
-
 [interactive]
     diffFilter = delta --color-only
+
+[delta]
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22 reverse
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+
 EOT
 ENTRYPOINT [ "/workspace/delta" ]
 CMD ["--help"]
