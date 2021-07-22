@@ -77,13 +77,17 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
-  ) | tee /etc/apk/repositories > /dev/null ; \
-  apk upgrade --no-cache -U -a \
+  ) | tee /etc/apk/repositories > /dev/null  \
   && apk add --update --no-cache ${BASE_PACKAGES} \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --update --no-cache ${BASE_PACKAGES} \
   )
+RUN \
+rustup toolchain install "nightly-$(apk --print-arch)-unknown-linux-musl" \
+&& rustup default "stable-$(apk --print-arch)-unknown-linux-musl" \
+&& rustup component add rust-src rustfmt rls clippy
+
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \

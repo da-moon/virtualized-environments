@@ -11,7 +11,12 @@ RUN \
   if [ "$(apk --print-arch)" == "aarch64" ]; then \
     export CFLAGS="-mno-outline-atomics" ; \
   fi ; \
-  build "ripgrep"
+  export RUSTFLAGS="-C target-cpu=native" ; \
+  rustup run nightly cargo install \
+  --root "/workspace" \
+  --features simd-accel \
+  -j"$(nproc)" \
+  --target "$(apk --print-arch)-unknown-linux-musl" ripgrep
 FROM fjolsvin/upx AS compression-layer
 COPY --from=ripgrep-builder "/workspace" "/workspace"
 RUN \

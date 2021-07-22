@@ -35,6 +35,9 @@ jobs:
       sad: ${{ steps.filter.outputs.sad }}
       scoob: ${{ steps.filter.outputs.scoob }}
       skim: ${{ steps.filter.outputs.skim }}
+      hyperfine: ${{ steps.filter.outputs.hyperfine }}
+      sd: ${{ steps.filter.outputs.sd }}
+      starship: ${{ steps.filter.outputs.starship }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -83,6 +86,12 @@ jobs:
               - 'tools/sad/**'
             scoob:
               - 'tools/scoob/**'
+            hyperfine:
+              - 'tools/hyperfine/**'
+            sd:
+              - 'tools/sd/**'
+            starship:
+              - 'tools/starship/**'
 
   upx:
     needs: changes
@@ -595,6 +604,90 @@ jobs:
       run:
         working-directory: ./tools/scoob
     name: "build and push scoob docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  hyperfine:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.hyperfine == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/hyperfine
+    name: "build and push hyperfine docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  sd:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.sd == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/sd
+    name: "build and push sd docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  starship:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.starship == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/starship
+    name: "build and push starship docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo

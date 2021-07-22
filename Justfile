@@ -499,8 +499,8 @@ alias rb-arm := rust-builder-arm64
 build-and-push-changes: format-just
     #!/usr/bin/env bash
     set -euox pipefail
-    docker_files=($(git ls-files --others --exclude-standard | grep -E '.*Dockerfile.*' | sort -u ))
-    docker_files+=($(git diff --name-only HEAD | grep -E '.*Dockerfile.*' | sort -u || true))
+    docker_files=($(git ls-files --others --exclude-standard | /bin/grep -E '.*Dockerfile.*' | sort -u ))
+    docker_files+=($(git diff --name-only HEAD | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
     mkdir -p "{{ justfile_directory() }}/tmp"
     [ -r "{{ justfile_directory() }}/tmp/failed" ] && rm "{{ justfile_directory() }}/tmp/failed"
     for docker_file in "${docker_files[@]}" ; do
