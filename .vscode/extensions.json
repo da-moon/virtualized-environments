@@ -1,12 +1,22 @@
 {
   "recommendations": [
+    "bungcip.better-toml",
     "mutantdino.resourcemonitor",
-    "editorconfig.editorconfig",
+    "TabNine.tabnine-vscode",
+    "github.copilot",
+    "redhat.vscode-yaml",
+    "znck.grammarly",
+    "streetsidesoftware.code-spell-checker",
+    "wayou.vscode-todo-highlight",
+    "wmaurer.change-case",
+    "yzane.markdown-pdf",
+    "yzhang.markdown-all-in-one",
+    "aaron-bond.better-comments",
+    "bungcip.better-toml",
+    "EditorConfig.EditorConfig",
     "kevinkyang.auto-comment-blocks",
     "ms-azuretools.vscode-docker",
-    "karyfoundation.comment",
-    "wmaurer.change-case",
-    "skellock.just",
-    "gruntfuggly.todo-tree"
+    "dracula-theme.theme-dracula",
+    "github.github-vscode-theme"
   ]
 }
