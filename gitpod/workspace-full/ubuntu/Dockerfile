@@ -23,6 +23,17 @@ ARG APT_PACKAGES="\
   fonts-symbola \
   xsel \
   xclip \
+  pandoc \
+  librsvg2-bin \
+  pdftk \
+  poppler-utils \
+  texmaker \
+  texlive-xetex \
+  texlive-fonts-recommended \
+  texlive-fonts-extra \
+  texlive-latex-extra \
+  ttf-mscorefonts-installer \
+  lmodern \
   "
 RUN install-packages ${APT_PACKAGES}
 ARG PYTHON_PACKAGES="\
