@@ -1,5 +1,4 @@
-image:
-  file: .gp/Dockerfile
+image: fjolsvin/gitpod-workspace-full-ubuntu
 tasks:
   - name: "setup"
     command: |

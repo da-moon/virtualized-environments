@@ -48,6 +48,21 @@
     },
     {
       "type": "shell",
+      "label": "build-gitpod-workspace-full-alpine",
+      "command": "just build-gitpod-workspace-full-alpine"
+    },
+    {
+      "type": "shell",
+      "label": "build-gitpod-workspace-full-archlinux",
+      "command": "just build-gitpod-workspace-full-archlinux"
+    },
+    {
+      "type": "shell",
+      "label": "build-gitpod-workspace-full-ubuntu",
+      "command": "just build-gitpod-workspace-full-ubuntu"
+    },
+    {
+      "type": "shell",
       "label": "build-stacks-hashicorp",
       "command": "just build-stacks-hashicorp"
     },
@@ -93,6 +108,11 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-hyperfine",
+      "command": "just build-tools-hyperfine"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-jen",
       "command": "just build-tools-jen"
     },
@@ -133,8 +153,18 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-sd",
+      "command": "just build-tools-sd"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-skim",
       "command": "just build-tools-skim"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-starship",
+      "command": "just build-tools-starship"
     },
     {
       "type": "shell",
