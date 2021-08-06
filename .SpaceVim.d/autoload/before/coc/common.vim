@@ -1,8 +1,7 @@
-  " install coc extensions
 let g:coc_extensions = [
   \ 'coc-marketplace',
   \ 'coc-docker',
-  \ 'coc-sh', 
+  \ 'coc-sh',
   \ 'coc-vimlsp',
   \ 'coc-markdownlint',
   \ 'coc-tabnine',
@@ -15,20 +14,8 @@ let g:coc_extensions = [
   \ 'coc-yaml',
   \ 'coc-tasks',
   \ 'coc-fzf-preview',
+  \ 'coc-reveal',
 \]
-
-let g:coc_preferences = {
-  \ "autoTrigger": "always",
-  \ "maxCompleteItemCount": 10,
-  \ "codeLens.enable": 1,
-  \ "diagnostic.virtualText": 1,
-\}
-let g:coc_start_at_startup    = 1
-let g:coc_force_debug = 1
-
-let g:coc_disable_startup_warning = 1
-let g:UltiSnipsExpandTrigger = "<nop>"
-
 function! before#coc#common#bootstrap()
   call SpaceVim#logger#info("[ before#coc#common ] bootstrap function called.")
   call SpaceVim#logger#info("[ before#coc#common ] binding coc-nvim group to 'C'.")
@@ -37,4 +24,9 @@ function! before#coc#common#bootstrap()
   call SpaceVim#custom#SPC('nore', ['C', 'r'], 'Refactor', 'Open coc-refactor window', 1)
   call SpaceVim#custom#SPC('nore', ['C', 'n'], 'RenameSym', 'Rename cword symbol', 1)
   call SpaceVim#custom#SPC('nore', ['C', 'R'], 'CocCommand workspace.renameCurrentFile', 'Rename current file ,update imports', 1)
+endfunction
+function! PrintCocExtensions()
+	for plugin in g:coc_extensions
+		echon plugin " "
+	endfor
 endfunction

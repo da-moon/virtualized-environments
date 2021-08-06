@@ -29,7 +29,7 @@
   auto_completion_tab_key_behavior = "smart"
 [[layers]]
   name = 'shell'
-  default_position = 'top'
+  default_position = 'bottom'
   default_height = 30
 [[layers]]
   name = "checkers"
@@ -38,15 +38,17 @@
 [[layers]]
   name = "core#statusline"
 [[layers]]
+  name = "lang#extra"
+[[layers]]
   name = "lang#dockerfile"
 [[layers]]
   name = "lang#sh"
 [[layers]]
   name = "lang#vim"
 [[layers]]
-  name = "lang#go"
-[[layers]]
   name = "lang#markdown"
+[[layers]]
+  name = "lang#ruby"
 [[layers]]
   name = "lang#toml"
 [[layers]]
@@ -54,15 +56,10 @@
 [[layers]]
   name = 'lang#yaml'
 [[layers]]
-  name = "lang#extra"
-[[layers]]
   name = "lsp"
   filetypes = [
-    "go",
     "sh"
   ]
-	[layers.override_cmd]
-		go = ['gopls', '-mode', 'stdio']
 [options]
   filesearching_tools = ['fd', 'fd -H']
   filemanager = "nerdtree"
@@ -80,6 +77,6 @@
   autowite = 1
   autocomplete_method = "coc"
   updatetime=100
-  rainbow_active = 1 
+  rainbow_active = 1
   bootstrap_before = "init#before"
   bootstrap_after = "init#after"

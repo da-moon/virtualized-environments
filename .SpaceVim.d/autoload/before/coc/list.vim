@@ -1,4 +1,3 @@
-
 function! before#coc#list#bootstrap()
   call SpaceVim#logger#info("[ before#coc#list ] bootstrap function called.")
   call SpaceVim#custom#SPC('nore', ['C', 'l'], 'CocList', 'Show CocList',1)

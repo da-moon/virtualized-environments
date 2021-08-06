@@ -14,7 +14,6 @@ let g:spacevim_custom_plugins = [
   \ ['cormacrelf/vim-colors-github'],
   \ ]
 
-
 function! init#before() abort
   call SpaceVim#logger#info("[ init#before ] function called")
   call before#spacevim#generic#bootstrap()
@@ -31,6 +30,7 @@ endfunction
 
 function! init#after() abort
   call SpaceVim#logger#info("[ init#after ] function called")
+  call after#coc#install#bootstrap()
   set showcmd
   nnoremap <silent> [Window]a :cclose<CR>:lclose<CR>
 endfunction
