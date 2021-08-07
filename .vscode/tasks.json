@@ -158,8 +158,18 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-shfmt",
+      "command": "just build-tools-shfmt"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-skim",
       "command": "just build-tools-skim"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-sops",
+      "command": "just build-tools-sops"
     },
     {
       "type": "shell",
@@ -180,6 +190,11 @@
       "type": "shell",
       "label": "build-tools-upx",
       "command": "just build-tools-upx"
+    },
+    {
+      "type": "shell",
+      "label": "build-tools-yq",
+      "command": "just build-tools-yq"
     },
     {
       "type": "shell",

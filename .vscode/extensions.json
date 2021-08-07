@@ -2,7 +2,7 @@
   "recommendations": [
     "bungcip.better-toml",
     "mutantdino.resourcemonitor",
-    "TabNine.tabnine-vscode",
+    "tabnine.tabnine-vscode",
     "github.copilot",
     "redhat.vscode-yaml",
     "znck.grammarly",
@@ -12,11 +12,11 @@
     "yzane.markdown-pdf",
     "yzhang.markdown-all-in-one",
     "aaron-bond.better-comments",
-    "bungcip.better-toml",
-    "EditorConfig.EditorConfig",
+    "editorconfig.editorconfig",
     "kevinkyang.auto-comment-blocks",
     "ms-azuretools.vscode-docker",
     "dracula-theme.theme-dracula",
-    "github.github-vscode-theme"
+    "github.github-vscode-theme",
+    "foxundermoon.shell-format"
   ]
 }
