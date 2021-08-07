@@ -1,9 +1,43 @@
 # syntax = docker/dockerfile-upstream:master-labs
 #-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
-# ─── USAGE ──────────────────────────────────────────────────────────────────────
-# docker run --mount type=bind,source="$PWD",target='/workspace' --rm -it fjolsvin/base-alpine
-# ────────────────────────────────────────────────────────────────────────────────
+# ─── IMAGE DEPENDENCY ALIASES ───────────────────────────────────────────────────
+# hadolint ignore=DL3007
+FROM fjolsvin/jen:latest AS jen
+# hadolint ignore=DL3007
+FROM fjolsvin/tojson:latest AS tojson
+# hadolint ignore=DL3007
+FROM fjolsvin/jsonfmt:latest AS jsonfmt
+# hadolint ignore=DL3007
+FROM fjolsvin/just:latest AS just
+# hadolint ignore=DL3007
+FROM fjolsvin/convco:latest AS convco
+# hadolint ignore=DL3007
+FROM fjolsvin/clog:latest AS clog
+# hadolint ignore=DL3007
+FROM fjolsvin/fd:latest AS fd
+# hadolint ignore=DL3007
+FROM fjolsvin/sd:latest AS sd
+# hadolint ignore=DL3007
+FROM fjolsvin/bat:latest AS bat
+# hadolint ignore=DL3007
+FROM fjolsvin/exa:latest AS exa
+# hadolint ignore=DL3007
+FROM fjolsvin/ripgrep:latest AS ripgrep
+# hadolint ignore=DL3007
+FROM fjolsvin/starship:latest AS starship
+# hadolint ignore=DL3007
+FROM fjolsvin/shfmt:latest AS shfmt
+# hadolint ignore=DL3007
+FROM fjolsvin/tokei:latest AS tokei
+# hadolint ignore=DL3007
+FROM fjolsvin/sad:latest AS sad
+# hadolint ignore=DL3007
+FROM fjolsvin/releez:latest AS releez
+# hadolint ignore=DL3007
+FROM fjolsvin/skim:latest AS skim
+# hadolint ignore=DL3007
+FROM fjolsvin/delta:latest AS delta
 FROM alpine:edge
 USER root
 ARG BASE_PACKAGES="\
@@ -48,8 +82,7 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null ; \
-  apk upgrade --no-cache -U -a \
-  && apk add --update --no-cache ${BASE_PACKAGES} \
+  apk add --update --no-cache ${BASE_PACKAGES} \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --update --no-cache ${BASE_PACKAGES} \
@@ -58,28 +91,25 @@ RUN \
 WORKDIR "/usr/src/neovim"
 RUN \
   git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
-  && make -j`nproc` CMAKE_BUILD_TYPE=RelWithDebInfo  \
+  && make -j"$(nproc)" CMAKE_BUILD_TYPE=RelWithDebInfo  \
   CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
-  && make -j`nproc` install  \
+  && make -j"$(nproc)" install  \
   && rm -r /usr/src/neovim
 WORKDIR "/usr/src/ctags"
 RUN  \
   git clone https://github.com/universal-ctags/ctags.git "/usr/src/ctags" \
   && ./autogen.sh  \
   && ./configure  \
-  && make -j`nproc` \
-  && make -j`nproc` install  \
+  && make -j"$(nproc)" \
+  && make -j"$(nproc)" install  \
   && rm -rf /usr/src/ctags
 ARG IMAGE_SPECIFIC_PACKAGES="\
   aria2 \
   bash \
   bash-completion \
-  bat \
   bzip2 \
   docker \
   docker-compose \
-  exa \
-  fd \
   findutils \
   fontconfig \
   fzf \
@@ -91,8 +121,6 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   grep \
   htop \
   jq \
-  just \
-  just-bash-completion \
   libcap \
   libffi-dev \
   mkfontscale \
@@ -102,13 +130,9 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   ncurses-static \
   nerd-fonts \
   openssl-dev \
-  ripgrep \
-  ripgrep-bash-completion \
   rng-tools-extra \
   shadow \
-  starship \
   sudo \
-  tokei \
   tree \
   util-linux \
   wget \
@@ -191,7 +215,7 @@ RUN \
   $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
   "${USER}" \
   && usermod -aG wheel,root,sudo,docker "${USER}"
-USER ${USER}
+USER "${USER}"
 SHELL ["bash","-c"]
 ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
@@ -218,22 +242,42 @@ RUN \
   && rm -rf \
   /tmp/* \
   /usr/src
-USER ${USER}
+USER "${USER}"
 ENV TERM xterm
 ARG WORKDIR="/workspace"
 ENV WORKDIR $WORKDIR
 WORKDIR $WORKDIR
-COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
+# ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
+COPY --from=jen /workspace /usr/local/bin
+COPY --from=tojson /workspace /usr/local/bin
+COPY --from=jsonfmt /workspace /usr/local/bin
+COPY --from=just /workspace /usr/local/bin
+COPY --from=convco /workspace /usr/local/bin
+COPY --from=clog /workspace /usr/local/bin
+COPY --from=fd /workspace /usr/local/bin
+COPY --from=sd /workspace /usr/local/bin
+COPY --from=bat /workspace /usr/local/bin
+COPY --from=exa /workspace /usr/local/bin
+COPY --from=starship /workspace /usr/local/bin
+COPY --from=ripgrep /workspace /usr/local/bin
+COPY --from=shfmt /workspace /usr/local/bin
+COPY --from=tokei /workspace /usr/local/bin
+COPY --from=sad /workspace /usr/local/bin
+COPY --from=releez /workspace /usr/local/bin
+COPY --from=skim /workspace /usr/local/bin
+COPY --from=delta /workspace /usr/local/bin
+COPY --from=delta /opt/delta /tmp/delta
+USER "$USER"
 ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
 RUN \
   cat /tmp/delta >> "$HOME/.gitconfig" \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
+# ─── CLEAN UP ───────────────────────────────────────────────────────────────────
+USER root
+RUN \
+rm -rf \
+  /tmp/*
+USER "$USER"
 ENTRYPOINT [ "/bin/bash" ]
