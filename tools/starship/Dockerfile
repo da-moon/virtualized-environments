@@ -19,7 +19,10 @@ COPY --from=starship-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 WORKDIR /userspace
 VOLUME /userspace
 COPY --from=compression-layer "/workspace" "/workspace"
+RUN \
+  /workspace/starship --version
 ENTRYPOINT [ "/workspace/starship" ]
