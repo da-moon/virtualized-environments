@@ -1,10 +1,11 @@
 # !/usr/bin/env -S just --justfile
-# vi: ft=just tabstop=2 shiftwidth=2 softtabstop=2 expandtab: format-just
+# vi: ft=just tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 set positional-arguments := true
+set dotenv-load := true
 set shell := ["/bin/bash", "-o", "pipefail", "-c"]
 
-default: format-just
+default:
     @just --choose
 
 # ─── DEPENDENCIES ───────────────────────────────────────────────────────────────
@@ -18,7 +19,7 @@ bootstrap: dependencies build-targets-gen vscode-tasks kary-comments format pre-
 
 alias d := dependencies
 
-dependencies: format-just
+dependencies:
     #!/usr/bin/env bash
     set -euo pipefail
     if command -- sudo pip3 -h > /dev/null 2>&1 ; then
@@ -67,7 +68,7 @@ dependencies: format-just
 
 alias kc := kary-comments
 
-kary-comments: format-just
+kary-comments:
     #!/usr/bin/env bash
     set -euo pipefail
     sed -i.bak \
@@ -81,7 +82,7 @@ kary-comments: format-just
 
 alias vt := vscode-tasks
 
-vscode-tasks: format-just
+vscode-tasks:
     #!/usr/bin/env bash
     set -euo pipefail
     if command -- jq -h > /dev/null 2>&1 ; then
@@ -109,7 +110,7 @@ format: format-json format-just
 alias fj := format-json
 alias json-fmt := format-json
 
-format-json: format-just
+format-json:
     #!/usr/bin/env bash
     set -euo pipefail
     if command -- jsonfmt -h > /dev/null 2>&1 ; then
@@ -152,7 +153,7 @@ pre-commit: format-just
 
 alias c := commit
 
-commit: format-just pre-commit
+commit: pre-commit
     #!/usr/bin/env bash
     set -euo pipefail
     pushd "{{ justfile_directory() }}" > /dev/null 2>&1
@@ -235,49 +236,21 @@ patch-release: format-just
     fi
     popd > /dev/null 2>&1
 
-# ─── DEVCONTAINER SETUP ─────────────────────────────────────────────────────────
-
-alias dcp := dev-container-pull
-
-dev-container-pull: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail
-    docker-compose -f "{{ justfile_directory() }}/.devcontainer/docker-compose.yml" pull
-
 # ────────────────────────────────────────────────────────────────────────────────
 
-alias dcc := dev-container-clean
+alias dc := docker-clean
 
-dev-container-clean: format-just
+docker-clean:
     #!/usr/bin/env bash
     set -euo pipefail
-    docker-compose -f "{{ justfile_directory() }}/.devcontainer/docker-compose.yml" down -v --remove-orphans
-    docker rm -f "$(docker ps -aq)"
+    docker ps -aq | xargs -r docker rm -f
     docker system prune -f -a --volumes
-
-# ────────────────────────────────────────────────────────────────────────────────
-
-alias dcu := dev-container-up
-
-dev-container-up: format-just dev-container-pull dev-container-clean
-    #!/usr/bin/env bash
-    set -euo pipefail
-    docker-compose -f "{{ justfile_directory() }}/.devcontainer/docker-compose.yml" up -d
-
-# ────────────────────────────────────────────────────────────────────────────────
-
-alias dce := dev-container-exec
-
-dev-container-exec: format-just dev-container-up
-    #!/usr/bin/env bash
-    set -euo pipefail
-    docker-compose -f .devcontainer/docker-compose.yml exec workspace /bin/bash
 
 # ─── VAGRANT RELATED TARGETS ────────────────────────────────────────────────────
 
 alias vug := vagrant-up-gcloud
 
-vagrant-up-gcloud: format-just
+vagrant-up-gcloud:
     #!/usr/bin/env bash
     set -euo pipefail
     export NAME="$(basename "{{ justfile_directory() }}")" ;
@@ -324,7 +297,7 @@ vagrant-up-gcloud: format-just
 
 alias vdg := vagrant-down-gcloud
 
-vagrant-down-gcloud: format-just
+vagrant-down-gcloud:
     #!/usr/bin/env bash
     set -euo pipefail ;
     vagrant destroy -f || true ;
@@ -344,7 +317,7 @@ vagrant-down-gcloud: format-just
     sudo rm -rf .vagrant ;
 
 # ─── GITPOD ─────────────────────────────────────────────────────────────────────
-docker-socket-chown: format-just
+docker-socket-chown:
     #!/usr/bin/env bash
     set -euo pipefail
     sudo chown "$(id -u gitpod):$(cut -d: -f3 < <(getent group docker))" /var/run/docker.sock
@@ -357,7 +330,7 @@ fix-ownership: docker-socket-chown
     sudo find "${HOME}/" "/workspace" -not -group `id -g` -not -user `id -u` -print0 | xargs -P 0 -0 --no-run-if-empty sudo chown --no-dereference "`id -u`:`id -g`" || true ;
     # sudo find "/workspace" -not -group `id -g` -not -user `id -u` -print | xargs -I {}  -P `nproc` --no-run-if-empty sudo chown --no-dereference "`id -u`:`id -g`" {} || true ;
 
-docker-login-env: format-just
+docker-login-env:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "*** ensuring current user belongs to docker group" ;
@@ -380,14 +353,7 @@ docker-login: fix-ownership docker-login-env
     echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ;
     just fix-ownership
 
-alias gp := gitpod
-
-gitpod: format-just
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    bash "{{ justfile_directory() }}/.gp/build.sh"
-
-ssh-pub-key-env: format-just
+ssh-pub-key-env:
     #!/usr/bin/env bash
     set -euo pipefail
     while [ -z "$SSH_PUB_KEY" ] ; do \
@@ -453,7 +419,7 @@ ssh-config: ssh-pub-key
 
 RUST_BUILDER_IMAGE := "fjolsvin/rust-builder-alpine"
 
-docker-qemu: format-just
+docker-qemu:
     #!/usr/bin/env bash
     set -euo pipefail
     docker run \
@@ -463,7 +429,7 @@ docker-qemu: format-just
 
 alias rb-amd := rust-builder-amd64
 
-@rust-builder-amd64: format-just
+@rust-builder-amd64:
     #!/usr/bin/env bash
     set -euo pipefail
     mount_path="{{ justfile_directory() }}/tmp/$(basename $0)" ;
@@ -496,11 +462,16 @@ alias rb-arm := rust-builder-arm64
     sudo chown "`id -u`:`id -g`" "$mount_path" -R
 
 # ────────────────────────────────────────────────────────────────────────────────
-build-and-push-changes: format-just
+build-and-push-changes *dir:
     #!/usr/bin/env bash
-    set -euox pipefail
-    docker_files=($(git ls-files --others --exclude-standard | /bin/grep -E '.*Dockerfile.*' | sort -u ))
-    docker_files+=($(git diff --name-only HEAD | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
+    set -eu pipefail
+    if [ -z '{{ dir }}' ]; then
+      docker_files=($(git ls-files --others --exclude-standard | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
+      docker_files+=($(git diff --name-only HEAD | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
+    else
+      docker_files=($(git ls-files --others --exclude-standard | /bin/grep '{{ dir }}' | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
+      docker_files+=($(git diff --name-only HEAD | /bin/grep '{{ dir }}' | /bin/grep -E '.*Dockerfile.*' | sort -u || true))
+    fi
     mkdir -p "{{ justfile_directory() }}/tmp"
     [ -r "{{ justfile_directory() }}/tmp/failed" ] && rm "{{ justfile_directory() }}/tmp/failed"
     for docker_file in "${docker_files[@]}" ; do
@@ -517,7 +488,7 @@ build-and-push-changes: format-just
 
 alias btg := build-targets-gen
 
-build-targets-gen: format-just
+build-targets-gen:
     #!/usr/bin/env bash
     set -euo pipefail
     scripts=()
@@ -533,13 +504,13 @@ build-targets-gen: format-just
     for script in "${scripts[@]}"; do
       target="build-$(dirname ${script} | sed -e 's/\.\///g' -e 's/\//-/g')"
       (
-        echo "$target: format-just" ;
+        echo "$target: " ;
         echo '  #!/usr/bin/env bash'
         echo '  set -euo pipefail ;'
         echo "  bash ${script}"
       ) | tee -a "{{ justfile() }}" > /dev/null
     done
-    just vscode-tasks
+    just format-just
 
 build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-base-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-shfmt build-tools-skim build-tools-sops build-tools-starship build-tools-tojson build-tools-tokei build-tools-upx build-tools-yq
 
