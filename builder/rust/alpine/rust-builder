@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+function help() {
+  echo
+  echo "Usage: [$(basename "$0")] [OPTIONAL ARG] [COMMAND | COMMAND <FLAG> <ARG>]"
+  echo
+  echo
+  echo -e "[Synopsis]:\tstatically builds rust binaries"
+  echo "Flags:"
+  echo
+  echo -e "  --git\t\tbuild from git"
+  echo -e "  --git-nightly\t\tbuild from git against nightly toolchain"
+  echo -e "  --stable\t\tbuilds crate against stable toolchain"
+  echo -e "  --nightly\t\tbuilds crate against nightly toolchain"
+  echo
+  echo
+}
+function main() {
+  if [ $# = 0 ]; then
+    echo >&2 "*** No crates specified"
+    exit 1
+  fi
+  local git=()
+  local git_nightly=()
+  local stable=()
+  local nightly=()
+  while [[ $# -gt 0 ]]; do
+    local key="$1"
+    case "$key" in
+      --git)
+        shift
+        git+=("${1}")
+        ;;
+      --git-nightly)
+        shift
+        git_nightly+=("${1}")
+        ;;
+      --stable)
+        shift
+        stable+=("${1}")
+        ;;
+      --nightly)
+        shift
+        nightly+=("${1}")
+        ;;
+      *)
+        help
+        exit
+        ;;
+    esac
+    shift
+  done
+  apkArch="$(apk --print-arch)"
+    case "$apkArch" in
+    x86_64 | aarch64)
+      true
+      ;;
+    *)
+      echo >&2 "[ WARN ] unsupported architecture: $apkArch"
+      exit 1
+      ;;
+  esac
+  build="cargo install --locked --all-features --root '/workspace' -j $(nproc) --target '${apkArch}-unknown-linux-musl'"
+  if [ ${#git[@]} -ne 0  ];then
+    for crate in "${git[@]}"; do
+    rustup run --install stable ${build} --git ${crate}
+    done
+  fi
+  if [ ${#git_nightly[@]} -ne 0  ];then
+    for crate in "${git_nightly[@]}"; do
+    rustup run --install nightly ${build} --git ${crate}
+    done
+  fi
+  if [ ${#stable[@]} -ne 0  ];then
+    rustup run --install stable ${build} ${crate} ${stable[@]}
+  fi
+  if [ ${#nightly[@]} -ne 0  ];then
+    rustup run --install nightly ${build} ${crate} ${nightly[@]}
+  fi
+  find /workspace/bin \
+    -type f \
+    -executable \
+    -exec sh -c "file -i '{}' | grep -q 'charset=binary'" \; \
+    -print |
+    xargs \
+      -P $(nproc) \
+      -I {} \
+      --no-run-if-empty \
+      mv "{}" /workspace/
+  rm -rf "/workspace/bin"
+  exit
+}
+if [ -z "${BASH_SOURCE+x}" ]; then
+  main "${@}"
+  exit $?
+else
+  if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "${@}"
+    exit $?
+  fi
+fi
