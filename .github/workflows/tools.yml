@@ -38,6 +38,7 @@ jobs:
       hyperfine: ${{ steps.filter.outputs.hyperfine }}
       sd: ${{ steps.filter.outputs.sd }}
       starship: ${{ steps.filter.outputs.starship }}
+      shfmt: ${{ steps.filter.outputs.shfmt }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -92,6 +93,8 @@ jobs:
               - 'tools/sd/**'
             starship:
               - 'tools/starship/**'
+            shfmt:
+              - 'tools/shfmt/**'
 
   upx:
     needs: changes
@@ -688,6 +691,36 @@ jobs:
       run:
         working-directory: ./tools/starship
     name: "build and push starship docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+
+
+  shfmt:
+    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.shfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./tools/shfmt
+    name: "build and push shfmt docker image"
     runs-on: ubuntu-18.04
     steps:
       - name: Check out the repo
