@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#-*-mode:sh;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -euo pipefail
 
 function help() {
@@ -52,7 +54,7 @@ function main() {
     shift
   done
   apkArch="$(apk --print-arch)"
-    case "$apkArch" in
+  case "$apkArch" in
     x86_64 | aarch64)
       true
       ;;
@@ -62,20 +64,20 @@ function main() {
       ;;
   esac
   build="cargo install --locked --all-features --root '/workspace' -j $(nproc) --target '${apkArch}-unknown-linux-musl'"
-  if [ ${#git[@]} -ne 0  ];then
+  if [ ${#git[@]} -ne 0 ]; then
     for crate in "${git[@]}"; do
-    rustup run --install stable ${build} --git ${crate}
+      rustup run --install stable ${build} --git ${crate}
     done
   fi
-  if [ ${#git_nightly[@]} -ne 0  ];then
+  if [ ${#git_nightly[@]} -ne 0 ]; then
     for crate in "${git_nightly[@]}"; do
-    rustup run --install nightly ${build} --git ${crate}
+      rustup run --install nightly ${build} --git ${crate}
     done
   fi
-  if [ ${#stable[@]} -ne 0  ];then
+  if [ ${#stable[@]} -ne 0 ]; then
     rustup run --install stable ${build} ${crate} ${stable[@]}
   fi
-  if [ ${#nightly[@]} -ne 0  ];then
+  if [ ${#nightly[@]} -ne 0 ]; then
     rustup run --install nightly ${build} ${crate} ${nightly[@]}
   fi
   find /workspace/bin \
