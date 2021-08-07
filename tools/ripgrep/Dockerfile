@@ -16,13 +16,19 @@ RUN \
   --root "/workspace" \
   --features simd-accel \
   -j"$(nproc)" \
-  --target "$(apk --print-arch)-unknown-linux-musl" ripgrep
+  --target "$(apk --print-arch)-unknown-linux-musl" ripgrep \
+  && mv /workspace/bin/rg /workspace/rg \
+  && rm -r /workspace/bin
 FROM fjolsvin/upx AS compression-layer
 COPY --from=ripgrep-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 WORKDIR /userspace
 VOLUME /userspace
 COPY --from=compression-layer "/workspace" "/workspace"
+RUN \
+  /workspace/rg --version
 ENTRYPOINT [ "/workspace/rg" ]
+CMD [ "--help"]
