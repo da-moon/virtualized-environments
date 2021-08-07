@@ -541,7 +541,7 @@ build-targets-gen: format-just
     done
     just vscode-tasks
 
-build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-base-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-skim build-tools-starship build-tools-tojson build-tools-tokei build-tools-upx build-tools-shfmt build-tools-yq build-tools-sops
+build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-base-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-shfmt build-tools-skim build-tools-sops build-tools-starship build-tools-tojson build-tools-tokei build-tools-upx build-tools-yq
 
 build-builder-rust-alpine: format-just
     #!/usr/bin/env bash
@@ -678,10 +678,20 @@ build-tools-sd: format-just
     set -euo pipefail ;
     bash ./tools/sd/build.sh
 
+build-tools-shfmt: format-just
+    #!/usr/bin/env bash
+    set -euo pipefail ;
+    bash ./tools/shfmt/build.sh
+
 build-tools-skim: format-just
     #!/usr/bin/env bash
     set -euo pipefail ;
     bash ./tools/skim/build.sh
+
+build-tools-sops: format-just
+    #!/usr/bin/env bash
+    set -euo pipefail ;
+    bash ./tools/sops/build.sh
 
 build-tools-starship: format-just
     #!/usr/bin/env bash
@@ -703,17 +713,7 @@ build-tools-upx: format-just
     set -euo pipefail ;
     bash ./tools/upx/build.sh
 
-build-tools-shfmt: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail ;
-    bash ./tools/shfmt/build.sh
-
 build-tools-yq: format-just
     #!/usr/bin/env bash
     set -euo pipefail ;
     bash ./tools/yq/build.sh
-
-build-tools-sops: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail ;
-    bash ./tools/sops/build.sh
