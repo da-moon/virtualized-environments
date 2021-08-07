@@ -184,6 +184,7 @@ COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/ripgrep:latest /workspace /usr/local/bin
+COPY --from=fjolsvin/shfmt:latest /workspace /usr/local/bin
 # COPY --from=fjolsvin/exa:latest /workspace /usr/local/bin
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 WORKDIR /workspace
