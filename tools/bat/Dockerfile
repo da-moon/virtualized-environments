@@ -8,7 +8,7 @@ RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  build --stable "bat"
+  build --git "https://github.com/sharkdp/bat.git"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=bat-builder "/workspace" "/workspace"
 RUN \
