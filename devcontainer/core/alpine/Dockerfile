@@ -3,9 +3,9 @@
 # vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 # ─── IMAGE DEPENDENCY ALIASES ───────────────────────────────────────────────────
 # hadolint ignore=DL3007
-FROM fjolsvin/jen:latest AS jen
+FROM fjolsvin/cellar:latest AS cellar
 # hadolint ignore=DL3007
-FROM fjolsvin/tojson:latest AS tojson
+FROM fjolsvin/yq:latest AS yq
 # hadolint ignore=DL3007
 FROM fjolsvin/jsonfmt:latest AS jsonfmt
 # hadolint ignore=DL3007
@@ -293,13 +293,13 @@ RUN \
     -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
   echo "alias apk='sudo apk'" ; \
+  echo "alias g='git'" ; \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
-
   echo 'command -- starship --version >/dev/null 2>&1 && eval "$(starship init bash)";' ; \
-  echo 'command -- just --version >/dev/null 2>&1 && eval "$(just --completions bash)"; alias j="just";' ; \
-  echo 'command -- rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
+  echo 'command -- just --version >/dev/null 2>&1 && eval "$(just --completions bash)" && alias j="just";' ; \
+  echo 'command -- rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
   ) | tee /etc/profile.d/alpine.sh > /dev/null ;
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
@@ -311,23 +311,23 @@ RUN \
     /tmp/* \
     /usr/src
 # ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
-COPY --from=jen /workspace /usr/local/bin
-COPY --from=tojson /workspace /usr/local/bin
-COPY --from=jsonfmt /workspace /usr/local/bin
-COPY --from=just /workspace /usr/local/bin
-COPY --from=convco /workspace /usr/local/bin
-COPY --from=fd /workspace /usr/local/bin
-COPY --from=sd /workspace /usr/local/bin
-COPY --from=bat /workspace /usr/local/bin
-COPY --from=exa /workspace /usr/local/bin
-COPY --from=starship /workspace /usr/local/bin
-COPY --from=ripgrep /workspace /usr/local/bin
-COPY --from=shfmt /workspace /usr/local/bin
-COPY --from=tokei /workspace /usr/local/bin
-COPY --from=sad /workspace /usr/local/bin
-COPY --from=releez /workspace /usr/local/bin
-COPY --from=skim /workspace /usr/local/bin
-COPY --from=delta /workspace /usr/local/bin
+ COPY --from=yq /workspace/yq /usr/local/bin/yq
+ COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
+ COPY --from=just /workspace/just /usr/local/bin/just
+ COPY --from=convco /workspace/convco /usr/local/bin/convco
+ COPY --from=fd /workspace/fd /usr/local/bin/fd
+ COPY --from=sd /workspace/sd /usr/local/bin/sd
+ COPY --from=bat /workspace/bat /usr/local/bin/bat
+ COPY --from=exa /workspace/exa /usr/local/bin/exa
+ COPY --from=starship /workspace/starship /usr/local/bin/starship
+ COPY --from=ripgrep /workspace/rg /usr/local/bin/rg
+ COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
+ COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
+ COPY --from=sad /workspace/sad /usr/local/bin/sad
+ COPY --from=releez /workspace/releez /usr/local/bin/releez
+ COPY --from=skim /workspace/sk /usr/local/bin/sk
+ COPY --from=delta /workspace/delta /usr/local/bin/delta
+ COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ARG WORKDIR="/workspace"
