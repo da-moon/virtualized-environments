@@ -4,31 +4,37 @@
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
 # docker run --mount type=bind,source="$PWD",target='/userspace' --rm -it fjolsvin/convco
 # ────────────────────────────────────────────────────────────────────────────────
-FROM fjolsvin/rust-builder-alpine AS clog-builder
+FROM fjolsvin/rust-builder-alpine AS convco-builder
 # [ NOTE ] => for fixing linked issues with atomics on
 # aarch64
 # https://github.com/rust-lang/git2-rs/issues/706#issuecomment-836092166
 RUN \
-  --mount=type=cache,target=/root/.cargo \
-  --mount=type=cache,target=/usr/local/cargo/registry \
+  # --mount=type=cache,target=/root/.cargo \
+  # --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  build --stable "convco"
+  rustup run --install stable cargo install \
+    --all-features \
+    --root /workspace \
+    --target "$(apk --print-arch)-unknown-linux-musl" \
+    --git "https://github.com/convco/convco.git" \
+    --tag "v0.3.5" \
+    && mv /workspace/bin/convco /workspace/convco \
+    && rm -r /workspace/bin
 FROM fjolsvin/upx AS compression-layer
-COPY --from=clog-builder "/workspace" "/workspace"
+COPY --from=convco-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-RUN \
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories \
-  && apk add --no-cache --upgrade openssl-dev git vim gcc
+COPY --from=compression-layer "/workspace" "/workspace"
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/convco --version
 WORKDIR /userspace
 VOLUME /userspace
-ENV EDITOR vim
-ENV VISUAL vim
-COPY --from=compression-layer "/workspace" "/workspace"
 ENTRYPOINT [ "/workspace/convco" ]
 CMD ["--help"]
