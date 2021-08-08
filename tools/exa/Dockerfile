@@ -27,6 +27,3 @@ WORKDIR /userspace
 VOLUME /userspace
 ENTRYPOINT [ "/workspace/exa" ]
 CMD ["--help"]
-# cargo install --features vendored-openssl,git --root /workspace --target "$(apk --print-arch)-unknown-linux-musl" exa \
-# && mv /workspace/bin/exa /workspace/exa \
-# && rm -r /workspace/bin
