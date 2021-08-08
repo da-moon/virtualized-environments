@@ -9,17 +9,10 @@ FROM fjolsvin/rust-builder-alpine AS convco-builder
 # aarch64
 # https://github.com/rust-lang/git2-rs/issues/706#issuecomment-836092166
 RUN \
-  # --mount=type=cache,target=/root/.cargo \
-  # --mount=type=cache,target=/usr/local/cargo/registry \
+  --mount=type=cache,target=/root/.cargo \
+  --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  rustup run --install stable cargo install \
-    --all-features \
-    --root /workspace \
-    --target "$(apk --print-arch)-unknown-linux-musl" \
-    --git "https://github.com/convco/convco.git" \
-    --tag "v0.3.5" \
-    && mv /workspace/bin/convco /workspace/convco \
-    && rm -r /workspace/bin
+  build --git "https://github.com/convco/convco.git=v0.3.6"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=convco-builder "/workspace" "/workspace"
 RUN \
