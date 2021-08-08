@@ -2,3 +2,5 @@ there seems to be a problem with missing symbols
 
 https://github.com/rust-lang/rust/issues/79791
 https://github.com/rust-lang/compiler-builtins/issues/201
+
+it also might be due to --all-features flag
