@@ -9,9 +9,7 @@ RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  build --nightly ripgrep \
-  && mv /workspace/bin/rg /workspace/rg \
-  && rm -r /workspace/bin
+  build --nightly ripgrep
 FROM fjolsvin/upx AS compression-layer
 COPY --from=ripgrep-builder "/workspace" "/workspace"
 RUN \
