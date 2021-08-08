@@ -20,8 +20,8 @@ RUN apk add --update --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=compression-layer "/workspace" "/workspace"
-RUN /workspace/skim --version
+RUN /workspace/sk --version
 WORKDIR /userspace
 VOLUME /userspace
-ENTRYPOINT [ "/workspace/skim" ]
+ENTRYPOINT [ "/workspace/sk" ]
 CMD ["--help"]
