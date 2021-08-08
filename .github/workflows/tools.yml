@@ -130,8 +130,8 @@ jobs:
           set -ex &&
           bash build.sh
   convco:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/convco
@@ -158,8 +158,8 @@ jobs:
           set -ex &&
           bash build.sh
   clog:
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
-    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
     defaults:
       run:
         working-directory: ./tools/clog
@@ -186,8 +186,8 @@ jobs:
           set -ex &&
           bash build.sh
   jen:
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
-    needs: [changes, upx]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
     defaults:
       run:
         working-directory: ./tools/jen
@@ -214,8 +214,8 @@ jobs:
           set -ex &&
           bash build.sh
   petname:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/petname
@@ -242,8 +242,8 @@ jobs:
           set -ex &&
           bash build.sh
   tojson:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/tojson
@@ -270,8 +270,8 @@ jobs:
           set -ex &&
           bash build.sh
   jsonfmt:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/jsonfmt
@@ -298,8 +298,8 @@ jobs:
           set -ex &&
           bash build.sh
   just:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.just == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.just == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/just
@@ -326,8 +326,8 @@ jobs:
           set -ex &&
           bash build.sh
   fd:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.fd == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.fd == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/fd
@@ -354,8 +354,8 @@ jobs:
           set -ex &&
           bash build.sh
   exa:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.exa == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.exa == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/exa
@@ -382,8 +382,8 @@ jobs:
           set -ex &&
           bash build.sh
   bat:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.bat == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.bat == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/bat
@@ -410,8 +410,8 @@ jobs:
           set -ex &&
           bash build.sh
   tokei:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.tokei == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tokei == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/tokei
@@ -438,8 +438,8 @@ jobs:
           set -ex &&
           bash build.sh
   delta:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.delta == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.delta == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/delta
@@ -466,8 +466,8 @@ jobs:
           set -ex &&
           bash build.sh
   skim:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.skim == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.skim == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/skim
@@ -494,8 +494,8 @@ jobs:
           set -ex &&
           bash build.sh
   cellar:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.cellar == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.cellar == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/cellar
@@ -522,8 +522,8 @@ jobs:
           set -ex &&
           bash build.sh
   releez:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.releez == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.releez == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/releez
@@ -550,8 +550,8 @@ jobs:
           set -ex &&
           bash build.sh
   ripgrep:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.ripgrep == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.ripgrep == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/ripgrep
@@ -578,8 +578,8 @@ jobs:
           set -ex &&
           bash build.sh
   sad:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.sad == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sad == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/sad
@@ -606,8 +606,8 @@ jobs:
           set -ex &&
           bash build.sh
   scoob:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.scoob == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.scoob == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/scoob
@@ -634,8 +634,8 @@ jobs:
           set -ex &&
           bash build.sh
   hyperfine:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.hyperfine == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.hyperfine == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/hyperfine
@@ -662,8 +662,8 @@ jobs:
           set -ex &&
           bash build.sh
   sd:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.sd == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sd == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/sd
@@ -690,8 +690,8 @@ jobs:
           set -ex &&
           bash build.sh
   starship:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.rust == 'true' || needs.changes.outputs.starship == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.starship == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/starship
@@ -719,8 +719,8 @@ jobs:
           bash build.sh
 
   shfmt:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.shfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.shfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/shfmt
@@ -747,8 +747,8 @@ jobs:
           set -ex &&
           bash build.sh
   yq:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.yq == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.yq == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/yq
@@ -775,8 +775,8 @@ jobs:
           set -ex &&
           bash build.sh
   sops:
-    needs: [changes, upx]
-    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.sops == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.sops == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./tools/sops
