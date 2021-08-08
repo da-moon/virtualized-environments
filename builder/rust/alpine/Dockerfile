@@ -144,13 +144,26 @@ function main() {
   failed=()
   build="cargo"
   build+=" install"
+  if [ -z ${FEATURES+x} ]  ; then
+    build+=" --all-features"
+  fi
+  if [ ! -z ${FEATURES+x} ] && [ -z ${FEATURES} ]; then
+    build+=' --no-default-features'
+  fi
+  if [ ! -z ${FEATURES+x} ] &&  [ ! -z ${FEATURES} ]; then
+    build+=" --features ${FEATURES}"
+  fi
   build+=" --locked"
-  build+=" --all-features"
+  build+=" --jobs $(nproc)"
   build+=" --root /workspace"
   build+=" --target ${apkArch}-unknown-linux-musl"
   if [ ${#git[@]} -ne 0 ]; then
     for crate in "${git[@]}"; do
-      rustup run --install stable ${build} --git ${crate} ||
+      tag="$(echo "${crate}" | awk 'BEGIN{FS=OFS="=";}{print $2}')"
+      crate="$(echo "${crate}" | awk 'BEGIN{FS=OFS="=";}{print $1}')"
+      cmd="rustup run --install stable ${build} --git ${crate}"
+      [ -n "${tag}" ] && cmd="${cmd} --tag ${tag}" ;
+      $cmd ||
         (
           failed+=("${crate}")
           true
@@ -159,7 +172,11 @@ function main() {
   fi
   if [ ${#git_nightly[@]} -ne 0 ]; then
     for crate in "${git_nightly[@]}"; do
-      rustup run --install nightly ${build} --git ${crate} ||
+      tag="$(echo "${crate}" | awk 'BEGIN{FS=OFS="=";}{print $2}')"
+      crate="$(echo "${crate}" | awk 'BEGIN{FS=OFS="=";}{print $1}')"
+      cmd="rustup run --install nightly ${build} --git ${crate}"
+      [ -n "${tag}" ] && cmd="${cmd} --tag ${tag}" ;
+      $cmd ||
         (
           failed+=("${crate}")
           true
