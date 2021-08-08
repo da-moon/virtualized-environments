@@ -21,23 +21,14 @@ COPY --from=shfmt-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-RUN \
-  ( \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
-  ) | tee /etc/apk/repositories > /dev/null ; \
-  apk add --no-cache --upgrade bash bash-completion
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/shfmt --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-RUN \
-  /workspace/shfmt --version
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENTRYPOINT [ "/workspace/shfmt" ]
 CMD ["--help"]

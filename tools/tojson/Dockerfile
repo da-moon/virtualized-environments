@@ -8,14 +8,20 @@ FROM fjolsvin/rust-builder-alpine AS tojson-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  build "tojson"
+  build --stable tojson
 FROM fjolsvin/upx AS compression-layer
 COPY --from=tojson-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/tojson --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-RUN apk upgrade --no-cache -U -a && apk add --no-cache --upgrade gcc
 ENTRYPOINT [ "/workspace/tojson" ]
+CMD ["--help"]

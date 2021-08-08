@@ -9,13 +9,20 @@ ENV OPENSSL_NO_VENDOR="true"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  build "scoob"
+  build --stable scoob
 FROM fjolsvin/upx AS compression-layer
 COPY --from=scoob-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/scoob --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
 ENTRYPOINT [ "/workspace/scoob" ]
+CMD ["--help"]

@@ -11,10 +11,8 @@ FROM fjolsvin/rust-builder-alpine AS clog-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  if [ "$(apk --print-arch)" == "aarch64" ]; then \
-    export CFLAGS="-mno-outline-atomics" ; \
-  fi ; \
-  build "convco" ;
+  [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
+  build --stable "convco"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=clog-builder "/workspace" "/workspace"
 RUN \
@@ -33,3 +31,4 @@ ENV EDITOR vim
 ENV VISUAL vim
 COPY --from=compression-layer "/workspace" "/workspace"
 ENTRYPOINT [ "/workspace/convco" ]
+CMD ["--help"]

@@ -9,20 +9,21 @@ ENV OPENSSL_NO_VENDOR="true"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  if [ "$(apk --print-arch)" == "aarch64" ]; then \
-    export CFLAGS="-mno-outline-atomics" ; \
-  fi ; \
-  export RUSTFLAGS="-C target-cpu=native" ; \
-  build "starship"
+  [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
+  build --stable starship
 FROM fjolsvin/upx AS compression-layer
 COPY --from=starship-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/starship --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-RUN \
-  /workspace/starship --version
 ENTRYPOINT [ "/workspace/starship" ]
+CMD ["--help"]

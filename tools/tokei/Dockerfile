@@ -7,27 +7,20 @@ FROM fjolsvin/rust-builder-alpine AS tokei-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  build "tokei" ;
+  build --stable "tokei"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=tokei-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-RUN \
-  ( \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
-  ) | tee /etc/apk/repositories > /dev/null ; \
-  apk upgrade --no-cache -U -a \
-  && apk add --no-cache --upgrade bash bash-completion
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/tokei --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-SHELL [ "/bin/bash", "-c" ]
 ENTRYPOINT [ "/workspace/tokei" ]
 CMD ["--help"]

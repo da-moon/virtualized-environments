@@ -23,7 +23,7 @@ RUN \
   "/go/src/${REPO}" \
   && git fetch --all --tags \
   && git checkout \
-    "$(git describe --tags `git rev-list --tags --max-count=1`)" \
+  "$(git describe --tags `git rev-list --tags --max-count=1`)" \
   && mkdir -p /workspace \
   && go build -o "/workspace/yq" "./"
 FROM fjolsvin/upx AS compression-layer
@@ -31,23 +31,14 @@ COPY --from=yq-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-RUN \
-  ( \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.14/community" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
-  ) | tee /etc/apk/repositories > /dev/null ; \
-  apk add --no-cache --upgrade bash bash-completion
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/yq --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-RUN \
-  /workspace/yq --version
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENTRYPOINT [ "/workspace/yq" ]
 CMD ["--help"]

@@ -8,14 +8,21 @@ FROM fjolsvin/rust-builder-alpine AS jsonfmt-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  build "jsonfmt"
+  build --stable "jsonfmt"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=jsonfmt-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/jsonfmt --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
-RUN apk upgrade --no-cache -U -a && apk add --no-cache --upgrade gcc
 ENTRYPOINT [ "/workspace/jsonfmt" ]
+CMD ["--help"]

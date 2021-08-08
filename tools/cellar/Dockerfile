@@ -8,16 +8,22 @@ FROM fjolsvin/rust-builder-alpine AS cellar-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  if [ "$(apk --print-arch)" == "aarch64" ]; then \
-    export CFLAGS="-mno-outline-atomics" ; \
-  fi ; \
-  build "cellar"
+  [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
+  build --stable "cellar"
 FROM fjolsvin/upx AS compression-layer
 COPY --from=cellar-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/cellar --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
 ENTRYPOINT [ "/workspace/cellar" ]
+CMD ["--help"]

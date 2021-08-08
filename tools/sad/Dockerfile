@@ -8,13 +8,21 @@ FROM fjolsvin/rust-builder-alpine AS sad-builder
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
-  cargo install --locked --all-features --root "/workspace" -j `nproc` --target "$(apk --print-arch)-unknown-linux-musl" --git https://github.com/ms-jpq/sad
+  build --git-nightly https://github.com/ms-jpq/sad
 FROM fjolsvin/upx AS compression-layer
 COPY --from=sad-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN apk add --update --no-cache "bash=5.1.8-r0"
+# ────────────────────────────────────────────────────────────────────────────────
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY --from=compression-layer "/workspace" "/workspace"
+RUN /workspace/sad --version
 WORKDIR /userspace
 VOLUME /userspace
-COPY --from=compression-layer "/workspace" "/workspace"
 ENTRYPOINT [ "/workspace/sad" ]
+CMD ["--help"]
