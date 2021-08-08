@@ -51,6 +51,9 @@ ENV RUSTUP_HOME="/usr/local/rustup"
 ENV CARGO_HOME="/usr/local/cargo"
 ENV PATH="${CARGO_HOME}/bin:${PATH}"
 ENV RUST_VERSION "${RUST_VERSION}"
+# && rustup toolchain install "nightly-$(apk --print-arch)-unknown-linux-musl" \
+# && rustup default "stable-$(apk --print-arch)-unknown-linux-musl" \
+# && rustup component add rust-src rustfmt rls clippy \
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
@@ -71,9 +74,6 @@ RUN \
   && rustup --version \
   && cargo --version \
   && rustc --version \
-  && rustup toolchain install "nightly-$(apk --print-arch)-unknown-linux-musl" \
-  && rustup default "stable-$(apk --print-arch)-unknown-linux-musl" \
-  && rustup component add rust-src rustfmt rls clippy \
   && cargo search hello-world
 # ────────────────────────────────────────────────────────────────────────────────
 COPY <<-"EOT" /usr/local/bin/build
