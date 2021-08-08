@@ -4,8 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "devcontainer/golang/**/alpine.Dockerfile"
-      - "devcontainer/golang/build.docker-compose.yml"
+      - "devcontainer/golang/**/alpine/Dockerfile"
       - ".github/workflows/golang-alpine.yml"
   workflow_dispatch:
 jobs:
