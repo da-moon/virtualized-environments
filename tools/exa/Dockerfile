@@ -4,13 +4,12 @@
 # ─── USAGE ──────────────────────────────────────────────────────────────────────
 # docker run --mount type=bind,source="$PWD",target='/userspace'--rm -it fjolsvin/exa
 FROM fjolsvin/rust-builder-alpine AS exa-builder
+ARG FEATURES="vendored-openssl,git"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  cargo install --features vendored-openssl,git --root /workspace --target "$(apk --print-arch)-unknown-linux-musl" exa \
-  && mv /workspace/bin/exa /workspace/exa \
-  && rm -r /workspace/bin
+  build --stable exa
 FROM fjolsvin/upx AS compression-layer
 COPY --from=exa-builder "/workspace" "/workspace"
 RUN \
@@ -28,3 +27,6 @@ WORKDIR /userspace
 VOLUME /userspace
 ENTRYPOINT [ "/workspace/exa" ]
 CMD ["--help"]
+# cargo install --features vendored-openssl,git --root /workspace --target "$(apk --print-arch)-unknown-linux-musl" exa \
+# && mv /workspace/bin/exa /workspace/exa \
+# && rm -r /workspace/bin
