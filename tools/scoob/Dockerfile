@@ -9,6 +9,7 @@ ENV OPENSSL_NO_VENDOR="true"
 RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
+  [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
   build --stable scoob
 FROM fjolsvin/upx AS compression-layer
 COPY --from=scoob-builder "/workspace" "/workspace"
