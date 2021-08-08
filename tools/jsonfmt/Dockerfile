@@ -21,7 +21,7 @@ RUN apk add --update --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=compression-layer "/workspace" "/workspace"
-RUN /workspace/jsonfmt --version
+RUN /workspace/jsonfmt -h
 WORKDIR /userspace
 VOLUME /userspace
 ENTRYPOINT [ "/workspace/jsonfmt" ]
