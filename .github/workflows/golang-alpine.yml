@@ -4,45 +4,17 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "devcontainer/golang/**/alpine/Dockerfile"
+      - "devcontainer/golang/alpine/Dockerfile"
       - ".github/workflows/golang-alpine.yml"
   workflow_dispatch:
 jobs:
   # ────────────────────────────────────────────────────────────────────────────────
-  golang-base-alpine:
+  golang-alpine:
     defaults:
       run:
-        working-directory: ./devcontainer/golang/base/alpine
-    name: "build and push golang-base docker image"
+        working-directory: ./devcontainer/golang/alpine
+    name: "build and push  docker image"
     runs-on: ubuntu-18.04
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - name: "Login to Docker Container Repository"
-        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "build docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          bash build.sh
-  # ────────────────────────────────────────────────────────────────────────────────
-  vscode-golang-alpine:
-    name: "build and push vscode-golang-alpine docker image"
-    runs-on: ubuntu-18.04
-    needs: golang-base-alpine
-    defaults:
-      run:
-        working-directory: ./devcontainer/golang/vscode/alpine
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2

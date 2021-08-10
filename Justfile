@@ -415,6 +415,32 @@ ssh-config: ssh-pub-key
       UserKnownHostsFile /dev/null
     EOF
 
+alias gf := git-fetch
+
+git-fetch:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    pushd "{{ justfile_directory() }}" > /dev/null 2>&1
+    git fetch -p ;
+    for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do
+      git branch -D "$branch";
+    done
+    popd > /dev/null 2>&1
+
+snapshot: format-just git-fetch
+    #!/usr/bin/env bash
+    set -euo pipefail
+    sync
+    snapshot_dir="{{ justfile_directory() }}/tmp/snapshots"
+    mkdir -p "${snapshot_dir}"
+    time="$(date +'%Y-%m-%d-%H-%M')"
+    path="${snapshot_dir}/${time}.tar.gz"
+    tmp="$(mktemp -d)"
+    tar -C {{ justfile_directory() }} -cpzf "$tmp/${time}.tar.gz" .
+    mv "$tmp/${time}.tar.gz" "$path"
+    rm -r "$tmp"
+    echo >&2 "*** snapshot created at ${path}"
+
 # ─── BUILDERS ───────────────────────────────────────────────────────────────────
 
 RUST_BUILDER_IMAGE := "fjolsvin/rust-builder-alpine"

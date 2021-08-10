@@ -102,9 +102,9 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   libffi-dev=3.3-r2 \
   mkfontscale=1.2.1-r1 \
   musl-dev=1.2.2-r5 \
-  ncurses=6.2_p20210731-r0 \
-  ncurses-dev=6.2_p20210731-r0 \
-  ncurses-static=6.2_p20210731-r0 \
+  ncurses=6.2_p20210807-r0 \
+  ncurses-dev=6.2_p20210807-r0 \
+  ncurses-static=6.2_p20210807-r0 \
   nerd-fonts=2.1.0-r6 \
   openssl-dev=1.1.1k-r1 \
   rng-tools-extra=6.12-r0 \
@@ -148,17 +148,15 @@ ARG USER=devel
 ENV USER "${USER}"
 ARG UID="1000"
 ENV UID $UID
-ARG GID=$UID
-ENV GID $GID
 ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
 RUN \
   useradd \
   --no-log-init \
   --create-home \
+  --user-group \
   --home-dir "/home/${USER}" \
   --uid "${UID}" \
-  --gid "${GID}" \
   --groups sudo \
   --shell "/bin/bash" \
   --password \
@@ -219,7 +217,16 @@ RUN \
   CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
   && make -j"$(nproc)" install  \
   && rm -r /usr/src/neovim
+# ─── VSCODE LIVE SHARE ──────────────────────────────────────────────────────────
+USER root
+RUN \
+  for i in {1..5}; do wget -O /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script && break || sleep 15; done && \
+  sed -i 's/libssl1.0/libssl1.1/g' /tmp/vsls-reqs ; \
+  bash /tmp/vsls-reqs || true ; \
+  rm /tmp/vsls-reqs
 # ────────────────────────────────────────────────────────────────────────────────
+VOLUME "${HOME}/.vscode-server"
+VOLUME "${HOME}/.vscode-server-insiders"
 USER root
 RUN \
   find "${HOME}" \
@@ -232,39 +239,39 @@ RUN \
 USER "${USER}"
 RUN \
   rm -rf \
-    ~/.SpaceVim \
-    ~/.vim* \
-    ~/.config/*vim* \
-    ~/.cache/*vim* \
-    ~/.cache/neosnippet \
-    ~/.local/share/*vim* \
-&& curl -sLf https://spacevim.org/install.sh | bash \
-&& sed \
-    -i.bak 's/call dein#add/"call dein#add/g' \
-    "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-&& mkdir -p "${HOME}/.local/share/nvim/shada" \
-&& nvim --headless \
-    -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
-    -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
-    -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
-    -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-    -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
-    -c "qall"
+  ~/.SpaceVim \
+  ~/.vim* \
+  ~/.config/*vim* \
+  ~/.cache/*vim* \
+  ~/.cache/neosnippet \
+  ~/.local/share/*vim* \
+  && curl -sLf https://spacevim.org/install.sh | bash \
+  && sed \
+  -i.bak 's/call dein#add/"call dein#add/g' \
+  "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && mkdir -p "${HOME}/.local/share/nvim/shada" \
+  && nvim --headless \
+  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
+  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
+  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
+  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
+  -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
+  -c "qall"
 RUN \
   mv \
-    "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-    "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim"
+  "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
+  "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim"
 COPY "./.SpaceVim.d/" "${HOME}/.SpaceVim.d"
 RUN \
   nvim --headless \
-    -c "call dein#install()" \
-    -c "call dein#install()" \
-    -c "call dein#update()" \
-    -c "call dein#remote_plugins()" \
-    -c "qall" \
-&& nvim --headless \
-    -c "UpdateRemotePlugins" \
-    -c "qall"
+  -c "call dein#install()" \
+  -c "call dein#install()" \
+  -c "call dein#update()" \
+  -c "call dein#remote_plugins()" \
+  -c "qall" \
+  && nvim --headless \
+  -c "UpdateRemotePlugins" \
+  -c "qall"
 # ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
 USER "${USER}"
 RUN \
@@ -289,8 +296,8 @@ RUN \
   echo '[ -r /etc/profile ] && . /etc/profile' > "/root/.bashrc" \
   && mkdir -p /etc/profile.d/ \
   && curl \
-    -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
-    -o /etc/profile.d/bashrc_fzf.sh \
+  -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
+  -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
   echo "alias apk='sudo apk'" ; \
   echo "alias g='git'" ; \
@@ -305,29 +312,29 @@ RUN \
 USER root
 RUN \
   chmod a+x /usr/local/bin/* \
-&& yarn cache clean --all \
-&& npm -g cache clean --force > /dev/null 2>&1 \
-&& rm -rf \
-    /tmp/* \
-    /usr/src
+  && yarn cache clean --all \
+  && npm -g cache clean --force > /dev/null 2>&1 \
+  && rm -rf \
+  /tmp/* \
+  /usr/src
 # ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
- COPY --from=yq /workspace/yq /usr/local/bin/yq
- COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
- COPY --from=just /workspace/just /usr/local/bin/just
- COPY --from=convco /workspace/convco /usr/local/bin/convco
- COPY --from=fd /workspace/fd /usr/local/bin/fd
- COPY --from=sd /workspace/sd /usr/local/bin/sd
- COPY --from=bat /workspace/bat /usr/local/bin/bat
- COPY --from=exa /workspace/exa /usr/local/bin/exa
- COPY --from=starship /workspace/starship /usr/local/bin/starship
- COPY --from=ripgrep /workspace/rg /usr/local/bin/rg
- COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
- COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
- COPY --from=sad /workspace/sad /usr/local/bin/sad
- COPY --from=releez /workspace/releez /usr/local/bin/releez
- COPY --from=skim /workspace/sk /usr/local/bin/sk
- COPY --from=delta /workspace/delta /usr/local/bin/delta
- COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --from=yq /workspace/yq /usr/local/bin/yq
+COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
+COPY --from=just /workspace/just /usr/local/bin/just
+COPY --from=convco /workspace/convco /usr/local/bin/convco
+COPY --from=fd /workspace/fd /usr/local/bin/fd
+COPY --from=sd /workspace/sd /usr/local/bin/sd
+COPY --from=bat /workspace/bat /usr/local/bin/bat
+COPY --from=exa /workspace/exa /usr/local/bin/exa
+COPY --from=starship /workspace/starship /usr/local/bin/starship
+COPY --from=ripgrep /workspace/rg /usr/local/bin/rg
+COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
+COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
+COPY --from=sad /workspace/sad /usr/local/bin/sad
+COPY --from=releez /workspace/releez /usr/local/bin/releez
+COPY --from=skim /workspace/sk /usr/local/bin/sk
+COPY --from=delta /workspace/delta /usr/local/bin/delta
+COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ARG WORKDIR="/workspace"
