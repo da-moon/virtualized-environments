@@ -377,11 +377,16 @@ COPY --from=compression-layer /workspace /usr/local/bin
 USER root
 RUN \
   chmod a+x /usr/local/bin/* \
-  && yarn cache clean --all \
+  && mkdir /go \
+  && chown -R "$(id -u ${USER}):$(id -g ${USER})" /go
+# ─── CLEAN UP ───────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  yarn cache clean --all \
   && npm -g cache clean --force > /dev/null 2>&1 \
   && rm -rf \
-  /tmp/* \
-  /usr/src
+    /tmp/* \
+    /usr/src
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ENTRYPOINT [ "/bin/bash" ]

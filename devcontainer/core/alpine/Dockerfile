@@ -134,15 +134,6 @@ RUN \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN \
-  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
-RUN \
-  sed -i \
-  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
-  -e '/%sudo.*NOPASSWD:ALL/d' \
-  /etc/sudoers \
-  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
-  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 # ────────────────────────────────────────────────────────────────────────────────
 ARG USER=devel
 ENV USER "${USER}"
@@ -157,11 +148,18 @@ RUN \
   --user-group \
   --home-dir "/home/${USER}" \
   --uid "${UID}" \
-  --groups sudo \
   --shell "/bin/bash" \
   --password \
   $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
-  "${USER}" \
+  "${USER}"
+RUN \
+  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1 \
+  && sed -i \
+    -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
+    -e '/%sudo.*NOPASSWD:ALL/d' \
+  /etc/sudoers \
+  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
+  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && usermod -aG wheel,root,sudo,docker "${USER}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
@@ -225,8 +223,6 @@ RUN \
   bash /tmp/vsls-reqs || true ; \
   rm /tmp/vsls-reqs
 # ────────────────────────────────────────────────────────────────────────────────
-VOLUME "${HOME}/.vscode-server"
-VOLUME "${HOME}/.vscode-server-insiders"
 USER root
 RUN \
   find "${HOME}" \
@@ -234,7 +230,7 @@ RUN \
   -not -user "$(id -u $USER)" \
   -print0 \
   | xargs -0 -r -I {} -P "$(nproc)" \
-  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} ;
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {}
 # ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
 USER "${USER}"
 RUN \

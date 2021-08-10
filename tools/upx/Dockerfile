@@ -68,12 +68,11 @@ RUN \
   rm -rf \
     /tmp/{upx.tar,upx.tar.xz} \
     /usr/local/bin/upx \
+  && echo "$download_url" > /tmp/dl \
   && curl -fsSLo /tmp/upx.tar.xz "${download_url}" \
   && xz -d -c /tmp/upx.tar.xz \
   | tar \
-    -xOf - upx-${version}-${architecture}_linux/upx > /usr/local/bin/upx \
-  && chmod a+x /usr/local/bin/* \
-  upx --version ;
+    -xOf - upx-${version}-${architecture}_linux/upx > /usr/local/bin/upx
 COPY <<-"EOT" /usr/local/bin/compress
 #!/usr/bin/env bash
 set -euo pipefail
@@ -110,7 +109,8 @@ find . \
 find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
 RUN \
-  apk del .deps-upx \
+  chmod a+x /usr/local/bin/* \
+  && apk del .deps-upx \
   && rm -rf \
     /var/cache/apk/* \
     /var/tmp/* \
