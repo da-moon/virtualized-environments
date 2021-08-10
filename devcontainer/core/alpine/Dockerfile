@@ -163,6 +163,7 @@ RUN \
   && usermod -aG wheel,root,sudo,docker "${USER}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
+ENV PATH="${PATH}:${HOME}/.local/bin"
 ARG PYTHON_PACKAGES="\
   notedown \
   pre-commit \
