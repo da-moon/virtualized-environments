@@ -38,6 +38,11 @@
     },
     {
       "type": "shell",
+      "label": "build-devcontainer-rust-base-alpine",
+      "command": "just build-devcontainer-rust-base-alpine"
+    },
+    {
+      "type": "shell",
       "label": "build-devcontainer-rust-base-debian",
       "command": "just build-devcontainer-rust-base-debian"
     },
@@ -188,6 +193,11 @@
     },
     {
       "type": "shell",
+      "label": "build-tools-ttdl",
+      "command": "just build-tools-ttdl"
+    },
+    {
+      "type": "shell",
       "label": "build-tools-upx",
       "command": "just build-tools-upx"
     },
@@ -218,23 +228,8 @@
     },
     {
       "type": "shell",
-      "label": "dev-container-clean",
-      "command": "just dev-container-clean"
-    },
-    {
-      "type": "shell",
-      "label": "dev-container-exec",
-      "command": "just dev-container-exec"
-    },
-    {
-      "type": "shell",
-      "label": "dev-container-pull",
-      "command": "just dev-container-pull"
-    },
-    {
-      "type": "shell",
-      "label": "dev-container-up",
-      "command": "just dev-container-up"
+      "label": "docker-clean",
+      "command": "just docker-clean"
     },
     {
       "type": "shell",
@@ -280,11 +275,6 @@
       "type": "shell",
       "label": "format-just",
       "command": "just format-just"
-    },
-    {
-      "type": "shell",
-      "label": "gitpod",
-      "command": "just gitpod"
     },
     {
       "type": "shell",

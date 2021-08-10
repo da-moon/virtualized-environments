@@ -41,11 +41,11 @@ find . \
 find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
 RUN \
-  apk add --no-cache bash coreutils binutils findutils \
+  apk add --no-cache bash coreutils binutils findutils file \
   && apk add --no-cache --virtual .deps-upx curl jq xz ;
 SHELL ["bash","-c"]
 ARG REPO="upx/upx"
-ARG LATEST_RELEASE_ENDPOINT="https://api.github.com/repos/{REPO}/releases/latest"
+ARG LATEST_RELEASE_ENDPOINT="https://api.github.com/repos/${REPO}/releases/latest"
 RUN \
   tag_name="$(curl -sL ${LATEST_RELEASE_ENDPOINT} | jq -r '.tag_name')"; \
   architecture="$(apk --print-arch)"; \
