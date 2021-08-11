@@ -107,7 +107,9 @@ RUN \
   echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
   echo '[ $(command -v rustup) ] && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
   echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
+  echo 'command -- curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
   ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
+  
 USER gitpod
 RUN \
   sed -i \
