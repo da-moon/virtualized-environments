@@ -305,6 +305,7 @@ RUN \
   echo 'command -- just --version >/dev/null 2>&1 && eval "$(just --completions bash)" && alias j="just";' ; \
   echo 'command -- rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
   echo 'command -- curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
+  echo "command -- nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
   ) | tee /etc/profile.d/alpine.sh > /dev/null ;
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
