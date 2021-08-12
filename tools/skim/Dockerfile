@@ -16,11 +16,16 @@ RUN \
 FROM alpine:edge
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN apk add --update --no-cache "bash=5.1.8-r0"
+RUN apk add --update --no-cache "bash=5.1.8-r0" "curl=7.78.0-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=compression-layer "/workspace" "/workspace"
-RUN /workspace/sk --version
+RUN \
+  /workspace/sk --version \
+  && mkdir -p /etc/bash_completion.d \
+  && curl \
+    -fsSl https://raw.githubusercontent.com/lotabout/skim/master/shell/completion.bash \
+    -o /etc/bash_completion.d/sk
 WORKDIR /userspace
 VOLUME /userspace
 ENTRYPOINT [ "/workspace/sk" ]
