@@ -1,6 +1,43 @@
 # syntax = docker/dockerfile-upstream:master-labs
 #-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
+
+# ─── IMAGE DEPENDENCY ALIASES ───────────────────────────────────────────────────
+# hadolint ignore=DL3007
+FROM fjolsvin/cellar:latest AS cellar
+# hadolint ignore=DL3007
+FROM fjolsvin/yq:latest AS yq
+# hadolint ignore=DL3007
+FROM fjolsvin/jsonfmt:latest AS jsonfmt
+# hadolint ignore=DL3007
+FROM fjolsvin/just:latest AS just
+# hadolint ignore=DL3007
+FROM fjolsvin/convco:latest AS convco
+# hadolint ignore=DL3007
+FROM fjolsvin/fd:latest AS fd
+# hadolint ignore=DL3007
+FROM fjolsvin/sd:latest AS sd
+# hadolint ignore=DL3007
+FROM fjolsvin/bat:latest AS bat
+# hadolint ignore=DL3007
+FROM fjolsvin/exa:latest AS exa
+# hadolint ignore=DL3007
+FROM fjolsvin/starship:latest AS starship
+# hadolint ignore=DL3007
+FROM fjolsvin/shfmt:latest AS shfmt
+# hadolint ignore=DL3007
+FROM fjolsvin/tokei:latest AS tokei
+# hadolint ignore=DL3007
+FROM fjolsvin/sad:latest AS sad
+# hadolint ignore=DL3007
+FROM fjolsvin/releez:latest AS releez
+# hadolint ignore=DL3007
+FROM fjolsvin/skim:latest AS skim
+# hadolint ignore=DL3007
+FROM fjolsvin/delta:latest AS delta
+# hadolint ignore=DL3007
+FROM fjolsvin/ripgrep:latest AS ripgrep
+# ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
 USER root
 SHELL ["/bin/bash","-c"]
@@ -36,6 +73,9 @@ ARG APT_PACKAGES="\
   lmodern \
   "
 RUN install-packages ${APT_PACKAGES}
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+ENV PATH="${PATH}:${HOME}/.local/bin"
 ARG PYTHON_PACKAGES="\
   notedown \
   pre-commit \
@@ -46,11 +86,11 @@ ARG PYTHON_PACKAGES="\
   isort \
   coverage \
   "
-ENV PIP_USER="false"
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  python3 -m pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python -m pip install --no-cache-dir "neovim"
+  python3 -m pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+  && python -m pip install --user --no-cache-dir "neovim"
+# ────────────────────────────────────────────────────────────────────────────────
 ARG NODEJS_PACKAGES="\
   neovim \
   remark \
@@ -69,6 +109,7 @@ RUN \
   IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
   npm install -g "${NODEJS_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
+USER root
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
   && find "${HOME}" \
@@ -77,53 +118,8 @@ RUN \
   -print \
   | xargs -I {} -P `nproc` --no-run-if-empty \
   chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
-ENV EDITOR="nvim"
-ENV VISUAL="nvim"
-ENV PIP_USER="false"
-RUN \
-  sudo curl -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf -o /etc/bashrc_fzf \
-  && sudo sed -i \
-  -e '/^\s*#/d' \
-  -e '/gitpod/d' \
-  -e '/PIP_USER/d' \
-  -e '/nvim/d' \
-  -e '/local/d' \
-  -e '/starship/d' \
-  -e '/^\s*$/d' \
-  /etc/bash.bashrc \
-  && ( \
-  echo "export EDITOR=\"${EDITOR}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo "export PIP_USER=\"${PIP_USER}\"" ; \
-  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
-  echo "[ -d ${HOME}/.cargo/bin ] && export PATH=\"\${PATH}:${HOME}/.cargo/bin\";"; \
-  echo "[ -d ${HOME}/.pyenv/bin ] && export PATH=\"\${PATH}:${HOME}/.pyenv/bin\";"; \
-  echo "[ -d ${HOME}/.pyenv/shims ] && export PATH=\"\${PATH}:${HOME}/.pyenv/shims\";"; \
-  echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
-  echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
-  echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
-  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
-  echo '[ $(command -v starship) ] && eval "$(starship init bash)";' ; \
-  echo '[ $(command -v just) ] && eval "$(just --completions bash)"; alias j="just";' ; \
-  echo '[ $(command -v rustup) ] && eval "$(rustup completions bash rustup)"; eval "$(rustup completions bash cargo)";' ; \
-  echo '[ $(command -v fzf) ] && source /etc/bashrc_fzf ;' ; \
-  echo 'command -- curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
-  ) | sudo tee -a /etc/bash.bashrc > /dev/null ;
-  
-USER gitpod
-RUN \
-  sed -i \
-  -e '/^\s*#/d' \
-  -e '/PIP_USER/d' \
-  -e '/cargo/d' \
-  -e '/^\s*$/d' \
-  "${HOME}/.profile" \
-  && ( \
-  echo "export EDITOR=\"${EDITOR}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo "export PIP_USER=\"${PIP_USER}\"" ; \
-  ) | tee -a "${HOME}/.profile" > /dev/null ;
 # ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
+USER gitpod
 RUN \
   rm -rf \
   ~/.SpaceVim \
@@ -166,6 +162,50 @@ RUN \
   && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
   || true
 
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+ENV EDITOR="nvim"
+ENV VISUAL="nvim"
+RUN \
+  && curl \
+  -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
+  -o /etc/profile.d/bashrc_fzf.sh \
+  && ( \
+  echo "export EDITOR=\"${EDITOR}\"" ; \
+  echo "export VISUAL=\"${VISUAL}\"" ; \
+  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
+  echo 'starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;' ; \
+  echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
+  echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
+  echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
+  echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
+  echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
+  echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
+  echo "[ -d ${HOME}/.cargo/bin ] && export PATH=\"\${PATH}:${HOME}/.cargo/bin\";"; \
+  echo "[ -d ${HOME}/.pyenv/bin ] && export PATH=\"\${PATH}:${HOME}/.pyenv/bin\";"; \
+  ) | tee /etc/profile.d/00-env.sh > /dev/null \
+  && ( \
+  echo "alias apk='sudo apk'" ; \
+  echo "alias g='git'" ; \
+  echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
+  echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
+  ) | tee /etc/profile.d/01-alias.sh > /dev/null \
+  && ( \
+  echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
+  echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
+  ) | tee /etc/profile.d/02-func.sh > /dev/null \
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+RUN \
+  sed -i \
+  -e '/^\s*#/d' \
+  -e '/cargo/d' \
+  -e '/^\s*$/d' \
+  "${HOME}/.profile" \
+  && ( \
+  echo "export EDITOR=\"${EDITOR}\"" ; \
+  echo "export VISUAL=\"${VISUAL}\"" ; \
+  ) | tee -a "${HOME}/.profile" > /dev/null ;
 COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
 ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
@@ -174,19 +214,24 @@ RUN \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
-COPY --from=fjolsvin/just:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/convco:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/clog:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/fd:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/bat:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/tokei:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/jsonfmt:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/tojson:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/sad:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/releez:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/skim:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/ripgrep:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/shfmt:latest /workspace /usr/local/bin
-# COPY --from=fjolsvin/exa:latest /workspace /usr/local/bin
+
+COPY --from=yq /workspace/yq /usr/local/bin/yq
+COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
+COPY --from=just /workspace/just /usr/local/bin/just
+COPY --from=convco /workspace/convco /usr/local/bin/convco
+COPY --from=fd /workspace/fd /usr/local/bin/fd
+COPY --from=sd /workspace/sd /usr/local/bin/sd
+COPY --from=bat /workspace/bat /usr/local/bin/bat
+COPY --from=exa /workspace/exa /usr/local/bin/exa
+COPY --from=starship /workspace/starship /usr/local/bin/starship
+COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
+COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
+COPY --from=sad /workspace/sad /usr/local/bin/sad
+COPY --from=releez /workspace/releez /usr/local/bin/releez
+COPY --from=skim /workspace/sk /usr/local/bin/sk
+COPY --from=delta /workspace/delta /usr/local/bin/delta
+COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --from=ripgrep /workspace /usr/local/bin
+
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 WORKDIR /workspace
