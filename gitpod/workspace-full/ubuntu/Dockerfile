@@ -167,6 +167,7 @@ USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 RUN \
+  mkdir -p /etc/profile.d \
   && curl \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
