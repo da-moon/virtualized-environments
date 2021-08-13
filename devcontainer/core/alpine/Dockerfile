@@ -303,15 +303,13 @@ RUN \
   echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
   echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
   ) | tee /etc/profile.d/00-env.sh > /dev/null \
-  && 
-   ( \
+  && ( \
   echo "alias apk='sudo apk'" ; \
   echo "alias g='git'" ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
   echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
   ) | tee /etc/profile.d/01-alias.sh > /dev/null \
-   && 
-   ( \
+  && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
   ) | tee /etc/profile.d/02-func.sh > /dev/null \
