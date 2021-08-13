@@ -346,11 +346,10 @@ FROM "fjolsvin/base-alpine"
 USER root
 # [ NOTE ] => base essential packages
 ARG BASE_PACKAGES="\
-  go \
+  go=1.16.7-r0 \
   "
 RUN set -ex && \
-  IFS=' ' read -a BASE_PACKAGES <<< $BASE_PACKAGES ; \
-  packages=("${BASE_PACKAGES[@]}") ; \
+  IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
   apk add --update --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
