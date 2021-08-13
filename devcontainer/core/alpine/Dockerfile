@@ -297,7 +297,7 @@ ARG NODEJS_PACKAGES="\
 # installed through Yarn.
 RUN \
   IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
-  npm install -g "${NODEJS_PACKAGES[@]}"
+  /usr/bin/npm install -g "${NODEJS_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 RUN \
