@@ -21,8 +21,6 @@ FROM fjolsvin/bat:latest AS bat
 # hadolint ignore=DL3007
 FROM fjolsvin/exa:latest AS exa
 # hadolint ignore=DL3007
-FROM fjolsvin/ripgrep:latest AS ripgrep
-# hadolint ignore=DL3007
 FROM fjolsvin/starship:latest AS starship
 # hadolint ignore=DL3007
 FROM fjolsvin/shfmt:latest AS shfmt
@@ -107,6 +105,8 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   ncurses-static=6.2_p20210807-r0 \
   nerd-fonts=2.1.0-r6 \
   openssl-dev=1.1.1k-r1 \
+  ripgrep=13.0.0-r0 \
+  ripgrep-bash-completion=13.0.0-r0 \
   rng-tools-extra=6.12-r0 \
   shadow=4.8.1-r0 \
   sudo=1.9.7_p2-r0 \
@@ -296,17 +296,25 @@ RUN \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
-  echo "alias apk='sudo apk'" ; \
-  echo "alias g='git'" ; \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo 'command -- starship --version >/dev/null 2>&1 && eval "$(starship init bash)";' ; \
-  echo 'command -- just --version >/dev/null 2>&1 && eval "$(just --completions bash)" && alias j="just";' ; \
-  echo 'command -- rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
-  echo 'command -- curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
-  echo "command -- nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
-  ) | tee /etc/profile.d/alpine.sh > /dev/null ;
+  echo 'starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;' ; \
+  echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
+  echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
+  echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
+  ) | tee /etc/profile.d/00-env.sh > /dev/null \
+  && 
+   ( \
+  echo "alias apk='sudo apk'" ; \
+  echo "alias g='git'" ; \
+  echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
+  echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
+  ) | tee /etc/profile.d/01-alias.sh > /dev/null \
+   && 
+   ( \
+  echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
+  echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
+  ) | tee /etc/profile.d/02-func.sh > /dev/null \
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
 RUN \
@@ -326,7 +334,6 @@ COPY --from=sd /workspace/sd /usr/local/bin/sd
 COPY --from=bat /workspace/bat /usr/local/bin/bat
 COPY --from=exa /workspace/exa /usr/local/bin/exa
 COPY --from=starship /workspace/starship /usr/local/bin/starship
-COPY --from=ripgrep /workspace/rg /usr/local/bin/rg
 COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
 COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
 COPY --from=sad /workspace/sad /usr/local/bin/sad
