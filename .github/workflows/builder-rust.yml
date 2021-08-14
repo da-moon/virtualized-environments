@@ -4,14 +4,14 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "builder/rust/**/Dockerfile"
+      - "docker/builder/rust/**/Dockerfile"
       - ".github/workflows/builder-rust.yml"
   workflow_dispatch:
 jobs:
   alpine:
     defaults:
       run:
-        working-directory: ./builder/rust/alpine
+        working-directory: ./docker/builder/rust/alpine
     name: "build and push builder-rust-alpine docker image"
     runs-on: ubuntu-18.04
     steps:

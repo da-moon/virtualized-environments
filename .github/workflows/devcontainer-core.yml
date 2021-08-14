@@ -4,14 +4,11 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "devcontainer/core/**/Dockerfile"
+      - "docker/devcontainer/core/**/Dockerfile"
       - ".github/workflows/devcontainer-core.yml"
   workflow_dispatch:
 jobs:
   alpine:
-    # defaults:
-    # run:
-    # working-directory: ./devcontainer/core/alpine
     name: "build and push core-base docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -33,4 +30,4 @@ jobs:
         shell: bash
         run: >
           set -ex &&
-          bash devcontainer/core/alpine/build.sh
+          bash docker/devcontainer/core/alpine/build.sh

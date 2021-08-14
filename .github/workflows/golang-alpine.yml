@@ -4,7 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "devcontainer/golang/alpine/Dockerfile"
+      - "docker/devcontainer/golang/alpine/*"
       - ".github/workflows/golang-alpine.yml"
   workflow_dispatch:
 jobs:
@@ -12,7 +12,7 @@ jobs:
   golang-alpine:
     defaults:
       run:
-        working-directory: ./devcontainer/golang/alpine
+        working-directory: ./docker/devcontainer/golang/alpine
     name: "build and push  docker image"
     runs-on: ubuntu-18.04
     steps:

@@ -6,9 +6,9 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "tools/**/Dockerfile"
+      - "docker/tools/**/Dockerfile"
       - ".github/workflows/tools.yml"
-      - "builder/rust/alpine/*"
+      - "docker/builder/rust/alpine/*"
   workflow_dispatch:
 jobs:
   changes:
@@ -53,63 +53,63 @@ jobs:
             workflows:
               - '.github/workflows/*.yml'
             rust:
-              - 'builder/rust/alpine/**'
+              - 'docker/builder/rust/alpine/**'
             upx:
-              - 'tools/upx/**'
+              - 'docker/tools/upx/**'
             clog:
-              - 'tools/clog/**'
+              - 'docker/tools/clog/**'
             convco:
-              - 'tools/convco/**'
+              - 'docker/tools/convco/**'
             jen:
-              - 'tools/jen/**'
+              - 'docker/tools/jen/**'
             petname:
-              - 'tools/petname/**'
+              - 'docker/tools/petname/**'
             tojson:
-              - 'tools/tojson/**'
+              - 'docker/tools/tojson/**'
             just:
-              - 'tools/just/**'
+              - 'docker/tools/just/**'
             fd:
-              - 'tools/fd/**'
+              - 'docker/tools/fd/**'
             exa:
-              - 'tools/exa/**'
+              - 'docker/tools/exa/**'
             bat:
-              - 'tools/bat/**'
+              - 'docker/tools/bat/**'
             tokei:
-              - 'tools/tokei/**'
+              - 'docker/tools/tokei/**'
             delta:
-              - 'tools/delta/**'
+              - 'docker/tools/delta/**'
             skim:
-              - 'tools/skim/**'
+              - 'docker/tools/skim/**'
             cellar:
-              - 'tools/cellar/**'
+              - 'docker/tools/cellar/**'
             releez:
-              - 'tools/releez/**'
+              - 'docker/tools/releez/**'
             ripgrep:
-              - 'tools/ripgrep/**'
+              - 'docker/tools/ripgrep/**'
             sad:
-              - 'tools/sad/**'
+              - 'docker/tools/sad/**'
             scoob:
-              - 'tools/scoob/**'
+              - 'docker/tools/scoob/**'
             hyperfine:
-              - 'tools/hyperfine/**'
+              - 'docker/tools/hyperfine/**'
             sd:
-              - 'tools/sd/**'
+              - 'docker/tools/sd/**'
             starship:
-              - 'tools/starship/**'
+              - 'docker/tools/starship/**'
             shfmt:
-              - 'tools/shfmt/**'
+              - 'docker/tools/shfmt/**'
             yq:
-              - 'tools/yq/**'
+              - 'docker/tools/yq/**'
             sops:
-              - 'tools/sops/**'
+              - 'docker/tools/sops/**'
             ttdl:
-              - 'tools/ttdl/**'
+              - 'docker/tools/ttdl/**'
   upx:
     needs: changes
     if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/upx
+        working-directory: ./docker/tools/upx
     name: "build and push upx docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -137,7 +137,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/convco
+        working-directory: ./docker/tools/convco
     name: "build and push convco docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -165,7 +165,7 @@ jobs:
     needs: [changes]
     defaults:
       run:
-        working-directory: ./tools/clog
+        working-directory: ./docker/tools/clog
     name: "build and push clog docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -193,7 +193,7 @@ jobs:
     needs: [changes]
     defaults:
       run:
-        working-directory: ./tools/jen
+        working-directory: ./docker/tools/jen
     name: "build and push jen docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -221,7 +221,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/petname
+        working-directory: ./docker/tools/petname
     name: "build and push petname docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -249,7 +249,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/tojson
+        working-directory: ./docker/tools/tojson
     name: "build and push tojson docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -277,7 +277,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/jsonfmt
+        working-directory: ./docker/tools/jsonfmt
     name: "build and push jsonfmt docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -305,7 +305,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.just == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/just
+        working-directory: ./docker/tools/just
     name: "build and push just docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -333,7 +333,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.fd == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/fd
+        working-directory: ./docker/tools/fd
     name: "build and push fd docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -361,7 +361,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.exa == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/exa
+        working-directory: ./docker/tools/exa
     name: "build and push exa docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -389,7 +389,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.bat == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/bat
+        working-directory: ./docker/tools/bat
     name: "build and push bat docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -417,7 +417,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tokei == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/tokei
+        working-directory: ./docker/tools/tokei
     name: "build and push tokei docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -445,7 +445,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.delta == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/delta
+        working-directory: ./docker/tools/delta
     name: "build and push delta docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -473,7 +473,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.skim == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/skim
+        working-directory: ./docker/tools/skim
     name: "build and push skim docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -501,7 +501,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.cellar == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/cellar
+        working-directory: ./docker/tools/cellar
     name: "build and push cellar docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -529,7 +529,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.releez == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/releez
+        working-directory: ./docker/tools/releez
     name: "build and push releez docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -557,7 +557,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.ripgrep == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/ripgrep
+        working-directory: ./docker/tools/ripgrep
     name: "build and push ripgrep docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -585,7 +585,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sad == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/sad
+        working-directory: ./docker/tools/sad
     name: "build and push sad docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -613,7 +613,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.scoob == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/scoob
+        working-directory: ./docker/tools/scoob
     name: "build and push scoob docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -641,7 +641,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.hyperfine == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/hyperfine
+        working-directory: ./docker/tools/hyperfine
     name: "build and push hyperfine docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -669,7 +669,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sd == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/sd
+        working-directory: ./docker/tools/sd
     name: "build and push sd docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -697,7 +697,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.starship == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/starship
+        working-directory: ./docker/tools/starship
     name: "build and push starship docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -726,7 +726,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.shfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/shfmt
+        working-directory: ./docker/tools/shfmt
     name: "build and push shfmt docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -754,7 +754,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.yq == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/yq
+        working-directory: ./docker/tools/yq
     name: "build and push yq docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -782,7 +782,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.sops == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/sops
+        working-directory: ./docker/tools/sops
     name: "build and push sops docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -810,7 +810,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.ttdl == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
-        working-directory: ./tools/ttdl
+        working-directory: ./docker/tools/ttdl
     name: "build and push ttdl docker image"
     runs-on: ubuntu-18.04
     steps:

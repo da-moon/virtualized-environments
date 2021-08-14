@@ -4,7 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "devcontainer/rust/**/alpine/Dockerfile"
+      - "docker/devcontainer/rust/**/alpine/Dockerfile"
       - ".github/workflows/rust-alpine.yml"
   workflow_dispatch:
 jobs:
@@ -12,7 +12,7 @@ jobs:
   rust-base-alpine:
     defaults:
       run:
-        working-directory: ./devcontainer/rust/base/alpine
+        working-directory: ./docker/devcontainer/rust/base/alpine
     name: "build and push rust-base docker image"
     runs-on: ubuntu-18.04
     steps:

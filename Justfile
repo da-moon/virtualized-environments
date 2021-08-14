@@ -538,184 +538,184 @@ build-targets-gen:
     done
     just format-just
 
-build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-alpine build-devcontainer-rust-base-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-shfmt build-tools-skim build-tools-sops build-tools-starship build-tools-tojson build-tools-tokei build-tools-ttdl build-tools-upx build-tools-yq
+build: build-docker-builder-rust-alpine build-docker-devcontainer-core-alpine build-docker-devcontainer-golang-alpine build-docker-devcontainer-rust-base-alpine build-docker-devcontainer-rust-base-debian build-docker-devcontainer-rust-vscode-debian build-docker-gitpod-workspace-full-alpine build-docker-gitpod-workspace-full-archlinux build-docker-gitpod-workspace-full-ubuntu build-docker-stacks-hashicorp build-docker-tools-bat build-docker-tools-cellar build-docker-tools-clog build-docker-tools-convco build-docker-tools-delta build-docker-tools-exa build-docker-tools-fd build-docker-tools-hyperfine build-docker-tools-jen build-docker-tools-jsonfmt build-docker-tools-just build-docker-tools-petname build-docker-tools-releez build-docker-tools-ripgrep build-docker-tools-sad build-docker-tools-scoob build-docker-tools-sd build-docker-tools-shfmt build-docker-tools-skim build-docker-tools-sops build-docker-tools-starship build-docker-tools-tojson build-docker-tools-tokei build-docker-tools-ttdl build-docker-tools-upx build-docker-tools-yq
 
-build-builder-rust-alpine:
+build-docker-builder-rust-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./builder/rust/alpine/build.sh
+    bash ./docker/builder/rust/alpine/build.sh
 
-build-devcontainer-core-alpine:
+build-docker-devcontainer-core-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/core/alpine/build.sh
+    bash ./docker/devcontainer/core/alpine/build.sh
 
-build-devcontainer-golang-alpine:
+build-docker-devcontainer-golang-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/golang/alpine/build.sh
+    bash ./docker/devcontainer/golang/alpine/build.sh
 
-build-devcontainer-rust-base-alpine:
+build-docker-devcontainer-rust-base-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/rust/base/alpine/build.sh
+    bash ./docker/devcontainer/rust/base/alpine/build.sh
 
-build-devcontainer-rust-base-debian:
+build-docker-devcontainer-rust-base-debian:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/rust/base/debian/build.sh
+    bash ./docker/devcontainer/rust/base/debian/build.sh
 
-build-devcontainer-rust-vscode-debian:
+build-docker-devcontainer-rust-vscode-debian:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/rust/vscode/debian/build.sh
+    bash ./docker/devcontainer/rust/vscode/debian/build.sh
 
-build-gitpod-workspace-full-alpine:
+build-docker-gitpod-workspace-full-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./gitpod/workspace-full/alpine/build.sh
+    bash ./docker/gitpod/workspace-full/alpine/build.sh
 
-build-gitpod-workspace-full-archlinux:
+build-docker-gitpod-workspace-full-archlinux:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./gitpod/workspace-full/archlinux/build.sh
+    bash ./docker/gitpod/workspace-full/archlinux/build.sh
 
-build-gitpod-workspace-full-ubuntu:
+build-docker-gitpod-workspace-full-ubuntu:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./gitpod/workspace-full/ubuntu/build.sh
+    bash ./docker/gitpod/workspace-full/ubuntu/build.sh
 
-build-stacks-hashicorp:
+build-docker-stacks-hashicorp:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./stacks/hashicorp/build.sh
+    bash ./docker/stacks/hashicorp/build.sh
 
-build-tools-bat:
+build-docker-tools-bat:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/bat/build.sh
+    bash ./docker/tools/bat/build.sh
 
-build-tools-cellar:
+build-docker-tools-cellar:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/cellar/build.sh
+    bash ./docker/tools/cellar/build.sh
 
-build-tools-clog:
+build-docker-tools-clog:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/clog/build.sh
+    bash ./docker/tools/clog/build.sh
 
-build-tools-convco:
+build-docker-tools-convco:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/convco/build.sh
+    bash ./docker/tools/convco/build.sh
 
-build-tools-delta:
+build-docker-tools-delta:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/delta/build.sh
+    bash ./docker/tools/delta/build.sh
 
-build-tools-exa:
+build-docker-tools-exa:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/exa/build.sh
+    bash ./docker/tools/exa/build.sh
 
-build-tools-fd:
+build-docker-tools-fd:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/fd/build.sh
+    bash ./docker/tools/fd/build.sh
 
-build-tools-hyperfine:
+build-docker-tools-hyperfine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/hyperfine/build.sh
+    bash ./docker/tools/hyperfine/build.sh
 
-build-tools-jen:
+build-docker-tools-jen:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/jen/build.sh
+    bash ./docker/tools/jen/build.sh
 
-build-tools-jsonfmt:
+build-docker-tools-jsonfmt:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/jsonfmt/build.sh
+    bash ./docker/tools/jsonfmt/build.sh
 
-build-tools-just:
+build-docker-tools-just:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/just/build.sh
+    bash ./docker/tools/just/build.sh
 
-build-tools-petname:
+build-docker-tools-petname:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/petname/build.sh
+    bash ./docker/tools/petname/build.sh
 
-build-tools-releez:
+build-docker-tools-releez:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/releez/build.sh
+    bash ./docker/tools/releez/build.sh
 
-build-tools-ripgrep:
+build-docker-tools-ripgrep:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/ripgrep/build.sh
+    bash ./docker/tools/ripgrep/build.sh
 
-build-tools-sad:
+build-docker-tools-sad:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/sad/build.sh
+    bash ./docker/tools/sad/build.sh
 
-build-tools-scoob:
+build-docker-tools-scoob:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/scoob/build.sh
+    bash ./docker/tools/scoob/build.sh
 
-build-tools-sd:
+build-docker-tools-sd:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/sd/build.sh
+    bash ./docker/tools/sd/build.sh
 
-build-tools-shfmt:
+build-docker-tools-shfmt:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/shfmt/build.sh
+    bash ./docker/tools/shfmt/build.sh
 
-build-tools-skim:
+build-docker-tools-skim:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/skim/build.sh
+    bash ./docker/tools/skim/build.sh
 
-build-tools-sops:
+build-docker-tools-sops:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/sops/build.sh
+    bash ./docker/tools/sops/build.sh
 
-build-tools-starship:
+build-docker-tools-starship:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/starship/build.sh
+    bash ./docker/tools/starship/build.sh
 
-build-tools-tojson:
+build-docker-tools-tojson:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/tojson/build.sh
+    bash ./docker/tools/tojson/build.sh
 
-build-tools-tokei:
+build-docker-tools-tokei:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/tokei/build.sh
+    bash ./docker/tools/tokei/build.sh
 
-build-tools-ttdl:
+build-docker-tools-ttdl:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/ttdl/build.sh
+    bash ./docker/tools/ttdl/build.sh
 
-build-tools-upx:
+build-docker-tools-upx:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/upx/build.sh
+    bash ./docker/tools/upx/build.sh
 
-build-tools-yq:
+build-docker-tools-yq:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./tools/yq/build.sh
+    bash ./docker/tools/yq/build.sh

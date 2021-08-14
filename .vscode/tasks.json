@@ -18,188 +18,188 @@
     },
     {
       "type": "shell",
-      "label": "build-builder-rust-alpine",
-      "command": "just build-builder-rust-alpine"
+      "label": "build-docker-builder-rust-alpine",
+      "command": "just build-docker-builder-rust-alpine"
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-core-alpine",
-      "command": "just build-devcontainer-core-alpine"
+      "label": "build-docker-devcontainer-core-alpine",
+      "command": "just build-docker-devcontainer-core-alpine"
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-golang-alpine",
-      "command": "just build-devcontainer-golang-alpine"
+      "label": "build-docker-devcontainer-golang-alpine",
+      "command": "just build-docker-devcontainer-golang-alpine"
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-rust-base-alpine",
-      "command": "just build-devcontainer-rust-base-alpine"
+      "label": "build-docker-devcontainer-rust-base-alpine",
+      "command": "just build-docker-devcontainer-rust-base-alpine"
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-rust-base-debian",
-      "command": "just build-devcontainer-rust-base-debian"
+      "label": "build-docker-devcontainer-rust-base-debian",
+      "command": "just build-docker-devcontainer-rust-base-debian"
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-rust-vscode-debian",
-      "command": "just build-devcontainer-rust-vscode-debian"
+      "label": "build-docker-devcontainer-rust-vscode-debian",
+      "command": "just build-docker-devcontainer-rust-vscode-debian"
     },
     {
       "type": "shell",
-      "label": "build-gitpod-workspace-full-alpine",
-      "command": "just build-gitpod-workspace-full-alpine"
+      "label": "build-docker-gitpod-workspace-full-alpine",
+      "command": "just build-docker-gitpod-workspace-full-alpine"
     },
     {
       "type": "shell",
-      "label": "build-gitpod-workspace-full-archlinux",
-      "command": "just build-gitpod-workspace-full-archlinux"
+      "label": "build-docker-gitpod-workspace-full-archlinux",
+      "command": "just build-docker-gitpod-workspace-full-archlinux"
     },
     {
       "type": "shell",
-      "label": "build-gitpod-workspace-full-ubuntu",
-      "command": "just build-gitpod-workspace-full-ubuntu"
+      "label": "build-docker-gitpod-workspace-full-ubuntu",
+      "command": "just build-docker-gitpod-workspace-full-ubuntu"
     },
     {
       "type": "shell",
-      "label": "build-stacks-hashicorp",
-      "command": "just build-stacks-hashicorp"
+      "label": "build-docker-stacks-hashicorp",
+      "command": "just build-docker-stacks-hashicorp"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-bat",
+      "command": "just build-docker-tools-bat"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-cellar",
+      "command": "just build-docker-tools-cellar"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-clog",
+      "command": "just build-docker-tools-clog"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-convco",
+      "command": "just build-docker-tools-convco"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-delta",
+      "command": "just build-docker-tools-delta"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-exa",
+      "command": "just build-docker-tools-exa"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-fd",
+      "command": "just build-docker-tools-fd"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-hyperfine",
+      "command": "just build-docker-tools-hyperfine"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-jen",
+      "command": "just build-docker-tools-jen"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-jsonfmt",
+      "command": "just build-docker-tools-jsonfmt"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-just",
+      "command": "just build-docker-tools-just"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-petname",
+      "command": "just build-docker-tools-petname"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-releez",
+      "command": "just build-docker-tools-releez"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-ripgrep",
+      "command": "just build-docker-tools-ripgrep"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-sad",
+      "command": "just build-docker-tools-sad"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-scoob",
+      "command": "just build-docker-tools-scoob"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-sd",
+      "command": "just build-docker-tools-sd"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-shfmt",
+      "command": "just build-docker-tools-shfmt"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-skim",
+      "command": "just build-docker-tools-skim"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-sops",
+      "command": "just build-docker-tools-sops"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-starship",
+      "command": "just build-docker-tools-starship"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-tojson",
+      "command": "just build-docker-tools-tojson"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-tokei",
+      "command": "just build-docker-tools-tokei"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-ttdl",
+      "command": "just build-docker-tools-ttdl"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-upx",
+      "command": "just build-docker-tools-upx"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-yq",
+      "command": "just build-docker-tools-yq"
     },
     {
       "type": "shell",
       "label": "build-targets-gen",
       "command": "just build-targets-gen"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-bat",
-      "command": "just build-tools-bat"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-cellar",
-      "command": "just build-tools-cellar"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-clog",
-      "command": "just build-tools-clog"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-convco",
-      "command": "just build-tools-convco"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-delta",
-      "command": "just build-tools-delta"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-exa",
-      "command": "just build-tools-exa"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-fd",
-      "command": "just build-tools-fd"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-hyperfine",
-      "command": "just build-tools-hyperfine"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-jen",
-      "command": "just build-tools-jen"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-jsonfmt",
-      "command": "just build-tools-jsonfmt"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-just",
-      "command": "just build-tools-just"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-petname",
-      "command": "just build-tools-petname"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-releez",
-      "command": "just build-tools-releez"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-ripgrep",
-      "command": "just build-tools-ripgrep"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-sad",
-      "command": "just build-tools-sad"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-scoob",
-      "command": "just build-tools-scoob"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-sd",
-      "command": "just build-tools-sd"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-shfmt",
-      "command": "just build-tools-shfmt"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-skim",
-      "command": "just build-tools-skim"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-sops",
-      "command": "just build-tools-sops"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-starship",
-      "command": "just build-tools-starship"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-tojson",
-      "command": "just build-tools-tojson"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-tokei",
-      "command": "just build-tools-tokei"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-ttdl",
-      "command": "just build-tools-ttdl"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-upx",
-      "command": "just build-tools-upx"
-    },
-    {
-      "type": "shell",
-      "label": "build-tools-yq",
-      "command": "just build-tools-yq"
     },
     {
       "type": "shell",

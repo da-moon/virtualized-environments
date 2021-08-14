@@ -4,7 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "stacks/*"
+      - "docker/stacks/*"
       - .github/workflows/stacks.yml
   workflow_dispatch:
 jobs:
@@ -12,7 +12,7 @@ jobs:
   hashicorp:
     defaults:
       run:
-        working-directory: ./stacks/hashicorp
+        working-directory: ./docker/stacks/hashicorp
     name: "build and push hashicorp docker image"
     runs-on: ubuntu-18.04
     steps:
