@@ -21,8 +21,6 @@ FROM fjolsvin/bat:latest AS bat
 # hadolint ignore=DL3007
 FROM fjolsvin/exa:latest AS exa
 # hadolint ignore=DL3007
-FROM fjolsvin/starship:latest AS starship
-# hadolint ignore=DL3007
 FROM fjolsvin/shfmt:latest AS shfmt
 # hadolint ignore=DL3007
 FROM fjolsvin/tokei:latest AS tokei
@@ -68,7 +66,7 @@ ARG NEOVIM_BUILD_DEPENDENCIES="\
   libtool=2.4.6-r7 \
   pkgconf=1.8.0-r0 \
   unzip=6.0-r9 \
-"
+  "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
   apk add --virtual .neovim-build-deps --update --no-cache "${packages[@]}" \
@@ -95,7 +93,7 @@ ARG CTAGS_BUILD_DEPENDENCIES="\
   build-base=0.5-r2 \
   git=2.32.0-r2 \
   pkgconf=1.8.0-r0 \
-"
+  "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
   apk add --virtual .ctags-build-deps --update --no-cache "${packages[@]}" \
@@ -122,7 +120,7 @@ ARG PYTHON_DEPENDENCIES="\
   py3-pip=20.3.4-r1 \
   py3-setuptools=52.0.0-r4 \
   py3-pyzmq=19.0.2-r1 \
-"
+  "
 RUN \
   IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
   apk add --update --no-cache "${packages[@]}" \
@@ -176,6 +174,7 @@ RUN \
 #  openssl-dev=1.1.1k-r1 \
 #  perl=5.34.0-r0 \
 #  shadow=4.8.1-r0 \
+#  starship=0.56.0-r0 \
 #  sudo=1.9.7_p2-r0 \
 #  tmux=3.2a-r0 \
 #  tree=1.8.0-r0 \
@@ -377,7 +376,6 @@ RUN \
 #COPY --from=sd /workspace/sd /usr/local/bin/sd
 #COPY --from=bat /workspace/bat /usr/local/bin/bat
 #COPY --from=exa /workspace/exa /usr/local/bin/exa
-#COPY --from=starship /workspace/starship /usr/local/bin/starship
 #COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
 #COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
 #COPY --from=sad /workspace/sad /usr/local/bin/sad

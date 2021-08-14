@@ -1,4 +1,4 @@
-# !/usr/bin/env -S just --justfile
+#! /usr/bin/env -S just --justfile
 # vi: ft=just tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
 set positional-arguments := true

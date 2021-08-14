@@ -36,7 +36,6 @@ FROM fjolsvin/skim:latest AS skim
 # hadolint ignore=DL3007
 FROM fjolsvin/delta:latest AS delta
 # hadolint ignore=DL3007
-FROM fjolsvin/ripgrep:latest AS ripgrep
 # ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
 USER root
@@ -46,7 +45,8 @@ RUN \
   yes | add-apt-repository ppa:neovim-ppa/unstable  > /dev/null 2>&1 \
   && apt-get update -qq \
   && curl https://i.jpillora.com/chisel! | bash  > /dev/null 2>&1 \
-  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1
+  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1 \
+  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force
 ARG APT_PACKAGES="\
   tmux \
   dropbear \
@@ -64,6 +64,7 @@ ARG APT_PACKAGES="\
   librsvg2-bin \
   pdftk \
   poppler-utils \
+  ripgrep \
   texmaker \
   texlive-xetex \
   texlive-fonts-recommended \
@@ -131,8 +132,8 @@ RUN \
   ~/.local/share/*vim* \
   && curl -sLf https://spacevim.org/install.sh | bash \
   && sed \
-    -i.bak 's/call dein#add/"call dein#add/g' \
-    "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  -i.bak 's/call dein#add/"call dein#add/g' \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
   && mkdir -p "$HOME/.local/share/nvim/shada" \
   && nvim --headless \
   -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
@@ -143,8 +144,8 @@ RUN \
   -c "qall"
 RUN \
   mv \
-    "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-    "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim"
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim"
 COPY "./.SpaceVim.d/" "${HOME}/.SpaceVim.d"
 RUN \
   nvim --headless \
@@ -153,7 +154,7 @@ RUN \
   -c "call dein#update()" \
   -c "call dein#remote_plugins()" \
   -c "qall" \
-&& nvim --headless \
+  && nvim --headless \
   -c "UpdateRemotePlugins" \
   -c "qall"
 # ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
@@ -197,7 +198,7 @@ RUN \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
   ) | tee /etc/profile.d/02-func.sh > /dev/null \
-  && [ -d /etc/profile.d ] && while read i; do source "$i"; done < <(find /etc/profile.d/ -name '*.sh')
+  && [ -r /etc/bash.bashrc ] && echo 'while read i; do source "$i"; done < <(find /etc/profile.d/ -name "*.sh")' >> /etc/bash.bashrc
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 RUN \
@@ -227,7 +228,6 @@ COPY --from=fd /workspace/fd /usr/local/bin/fd
 COPY --from=sd /workspace/sd /usr/local/bin/sd
 COPY --from=bat /workspace/bat /usr/local/bin/bat
 COPY --from=exa /workspace/exa /usr/local/bin/exa
-COPY --from=starship /workspace/starship /usr/local/bin/starship
 COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
 COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
 COPY --from=sad /workspace/sad /usr/local/bin/sad
@@ -236,6 +236,5 @@ COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 COPY --from=ripgrep /workspace /usr/local/bin
-
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 WORKDIR /workspace
