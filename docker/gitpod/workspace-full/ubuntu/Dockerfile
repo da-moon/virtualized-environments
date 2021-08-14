@@ -220,7 +220,9 @@ RUN \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
-
+ENV DOCKER_BUILDKIT=0
+ENV BUILDKIT_PROGRESS="auto"
+ENV COMPOSE_DOCKER_CLI_BUILD=0
 COPY --from=yq /workspace/yq /usr/local/bin/yq
 COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
 COPY --from=just /workspace/just /usr/local/bin/just
