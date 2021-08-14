@@ -235,6 +235,5 @@ COPY --from=releez /workspace/releez /usr/local/bin/releez
 COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
-COPY --from=ripgrep /workspace /usr/local/bin
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 WORKDIR /workspace
