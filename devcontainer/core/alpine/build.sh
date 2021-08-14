@@ -18,30 +18,27 @@ if [[ $(docker buildx version 2>/dev/null) ]]; then
   docker buildx use "${builder}" || docker buildx create --use --name "${builder}"
   # ────────────────────────────────────────────────────────────────────────────────
   BUILD+=" buildx build"
-  BUILD+=" --file $DOCKER_FILE"
   BUILD+=" --platform linux/amd64,linux/arm64"
-  BUILD+=" --cache-from type=registry,ref=${CACHE_NAME}"
   BUILD+=" --cache-to type=registry,mode=max,ref=${CACHE_NAME}"
-  BUILD+=" --tag ${IMAGE_NAME}:latest"
-  BUILD+=" --progress=plain"
   BUILD+=" --push"
 else
   BUILD+=" build"
-  BUILD+=" --file $DOCKER_FILE"
-  BUILD+=" --tag ${IMAGE_NAME}:latest"
-  BUILD+=" --cache-from type=registry,ref=${CACHE_NAME}"
-  BUILD+=" --progress=plain"
-  BUILD+=" --pull"
+  # BUILD+=" --pull"
 fi
+BUILD+=" --file $DOCKER_FILE"
+BUILD+=" --tag ${IMAGE_NAME}:latest"
+BUILD+=" --cache-from type=registry,ref=${CACHE_NAME}"
+# BUILD+=" --progress=plain"
+BUILD+=" --progress=auto"
 BUILD+=" --build-arg USER=devel"
 BUILD+=" --build-arg UID=1000"
 # ────────────────────────────────────────────────────────────────────────────────
 $BUILD $WD
 # ────────────────────────────────────────────────────────────────────────────────
-if [[ $(docker buildx version 2>/dev/null) ]]; then
-  docker buildx use default
-else
-  PUSH="docker push"
-  PUSH+=" ${IMAGE_NAME}:latest"
-  $PUSH
-fi
+# if [[ $(docker buildx version 2>/dev/null) ]]; then
+# docker buildx use default
+# else
+# PUSH="docker push"
+# PUSH+=" ${IMAGE_NAME}:latest"
+# $PUSH
+# fi

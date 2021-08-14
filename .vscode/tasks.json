@@ -28,13 +28,8 @@
     },
     {
       "type": "shell",
-      "label": "build-devcontainer-golang-base-alpine",
-      "command": "just build-devcontainer-golang-base-alpine"
-    },
-    {
-      "type": "shell",
-      "label": "build-devcontainer-golang-vscode-alpine",
-      "command": "just build-devcontainer-golang-vscode-alpine"
+      "label": "build-devcontainer-golang-alpine",
+      "command": "just build-devcontainer-golang-alpine"
     },
     {
       "type": "shell",
@@ -278,6 +273,11 @@
     },
     {
       "type": "shell",
+      "label": "git-fetch",
+      "command": "just git-fetch"
+    },
+    {
+      "type": "shell",
       "label": "kary-comments",
       "command": "just kary-comments"
     },
@@ -310,6 +310,11 @@
       "type": "shell",
       "label": "rust-builder-arm64",
       "command": "just rust-builder-arm64"
+    },
+    {
+      "type": "shell",
+      "label": "snapshot",
+      "command": "just snapshot"
     },
     {
       "type": "shell",

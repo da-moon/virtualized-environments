@@ -30,7 +30,7 @@
 [[layers]]
   name = 'shell'
   default_position = 'bottom'
-  default_height = 30
+  default_height = 20
 [[layers]]
   name = "checkers"
   lint_on_save="true"

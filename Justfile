@@ -24,7 +24,7 @@ dependencies:
     set -euo pipefail
     if command -- sudo pip3 -h > /dev/null 2>&1 ; then
       if ! command -- pre-commit -h > /dev/null 2>&1 ; then
-        sudo pip3 install pre-commit
+        python3 -m pip install --user --nocache pre-commit
       fi
     fi
     if command -- cargo -h > /dev/null 2>&1 ; then
@@ -538,7 +538,7 @@ build-targets-gen:
     done
     just format-just
 
-build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-base-alpine build-devcontainer-golang-vscode-alpine build-devcontainer-rust-base-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-shfmt build-tools-skim build-tools-sops build-tools-starship build-tools-tojson build-tools-tokei build-tools-ttdl build-tools-upx build-tools-yq
+build: build-builder-rust-alpine build-devcontainer-core-alpine build-devcontainer-golang-alpine build-devcontainer-rust-base-alpine build-devcontainer-rust-base-debian build-devcontainer-rust-vscode-debian build-gitpod-workspace-full-alpine build-gitpod-workspace-full-archlinux build-gitpod-workspace-full-ubuntu build-stacks-hashicorp build-tools-bat build-tools-cellar build-tools-clog build-tools-convco build-tools-delta build-tools-exa build-tools-fd build-tools-hyperfine build-tools-jen build-tools-jsonfmt build-tools-just build-tools-petname build-tools-releez build-tools-ripgrep build-tools-sad build-tools-scoob build-tools-sd build-tools-shfmt build-tools-skim build-tools-sops build-tools-starship build-tools-tojson build-tools-tokei build-tools-ttdl build-tools-upx build-tools-yq
 
 build-builder-rust-alpine:
     #!/usr/bin/env bash
@@ -550,15 +550,10 @@ build-devcontainer-core-alpine:
     set -euo pipefail ;
     bash ./devcontainer/core/alpine/build.sh
 
-build-devcontainer-golang-base-alpine:
+build-devcontainer-golang-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./devcontainer/golang/base/alpine/build.sh
-
-build-devcontainer-golang-vscode-alpine:
-    #!/usr/bin/env bash
-    set -euo pipefail ;
-    bash ./devcontainer/golang/vscode/alpine/build.sh
+    bash ./devcontainer/golang/alpine/build.sh
 
 build-devcontainer-rust-base-alpine:
     #!/usr/bin/env bash

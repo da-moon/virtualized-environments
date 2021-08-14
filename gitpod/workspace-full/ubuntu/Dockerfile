@@ -76,9 +76,9 @@ RUN install-packages ${APT_PACKAGES}
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 ENV PATH="${PATH}:${HOME}/.local/bin"
+ENV PATH="${PATH}:${HOME}/bin"
 ARG PYTHON_PACKAGES="\
   notedown \
-  pre-commit \
   neovim \
   pylint \
   yapf \
@@ -88,8 +88,9 @@ ARG PYTHON_PACKAGES="\
   "
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  python3 -m pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python -m pip install --user --no-cache-dir "neovim"
+  PIP_USER="false" sudo python3 -m pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+  && python -m pip install --user --no-cache-dir "neovim" \
+  && curl https://pre-commit.com/install-local.py | python3 -
 # ────────────────────────────────────────────────────────────────────────────────
 ARG NODEJS_PACKAGES="\
   neovim \
@@ -166,6 +167,7 @@ RUN \
 USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
+ENV PATH="${PATH}:/usr/local/bin"
 RUN \
   mkdir -p /etc/profile.d \
   && curl \
@@ -195,6 +197,7 @@ RUN \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
   ) | tee /etc/profile.d/02-func.sh > /dev/null \
+  && [ -d /etc/profile.d ] && while read i; do source "$i"; done < <(find /etc/profile.d/ -name '*.sh')
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 RUN \
