@@ -62,7 +62,7 @@
   ]
 [options]
   filesearching_tools = ['fd', 'fd -H']
-  filemanager = "nerdtree"
+  filemanager = "defx"
   sidebar_direction = 'left'
   default_indent = 2
   shiftwidth=2
