@@ -2,14 +2,16 @@
 #-*-mode:sh;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -xeuo pipefail
-if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
-  IMAGE_NAME="fjolsvin/gitpod-workspace-full-archlinux"
-fi
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
-DOCKER_FILE="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/Dockerfile)"
-DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
+FROM_ROOT="$(readlink -f $(dirname "${BASH_SOURCE[0]}") | sed -e "s/$ESC_WD\///g")"
+DOCKER_FILE="${FROM_ROOT}/Dockerfile"
+if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
+  IMAGE_NAME="fjolsvin/$(echo ${FROM_ROOT} | sed -e 's/docker\///g' -e 's/\//-/g')"
+fi
 CACHE_NAME="${IMAGE_NAME}:cache"
+echo "$IMAGE_NAME"
+echo "${DOCKER_FILE}"
 if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
   export DOCKER_BUILDKIT=1
 fi
