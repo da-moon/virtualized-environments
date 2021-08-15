@@ -2,19 +2,19 @@
 #-*-mode:sh;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 set -xeuo pipefail
-if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
-  IMAGE_NAME="fjolsvin/$(basename $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
-fi
-# ────────────────────────────────────────────────────────────────────────────────
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
-DOCKER_FILE="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/Dockerfile)"
-DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
-CACHE_NAME="${IMAGE_NAME}:cache"
-if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
-  export DOCKER_BUILDKIT=1
+FROM_ROOT="$(readlink -f $(dirname "${BASH_SOURCE[0]}") | sed -e "s/$ESC_WD\///g")"
+DOCKER_FILE="${FROM_ROOT}/Dockerfile"
+if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
+  IMAGE_NAME="fjolsvin/$(echo ${FROM_ROOT} \
+    | sed \
+      -e 's/docker\///g' \
+      -e 's/tools\///g' \
+      -e 's/\//-/g')"
 fi
+CACHE_NAME="${IMAGE_NAME}:cache"
+export DOCKER_BUILDKIT=1
 pushd "$WD" >/dev/null 2>&1
 BUILD="docker"
 if [ ! -z "${DOCKER_BUILDKIT+x}" ] && [ "${DOCKER_BUILDKIT}" == "0" ]; then
@@ -36,7 +36,8 @@ fi
 BUILD+=" --file ${DOCKER_FILE}"
 BUILD+=" --tag ${IMAGE_NAME}:latest"
 $BUILD $WD
-if [[ $(docker buildx version 2>/dev/null) ]]; then
+if ([[ $(docker buildx version 2>/dev/null) ]] \
+  && [ -z "${DOCKER_BUILDKIT+x}" ] || [ "${DOCKER_BUILDKIT}" == "1" ]); then
   docker buildx use default
 else
   PUSH="docker push"

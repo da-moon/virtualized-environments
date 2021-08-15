@@ -14,7 +14,9 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
       -e 's/\//-/g')"
 fi
 CACHE_NAME="${IMAGE_NAME}:cache"
-export DOCKER_BUILDKIT=1
+if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
+  export DOCKER_BUILDKIT=1
+fi
 pushd "$WD" >/dev/null 2>&1
 BUILD="docker"
 if [ ! -z "${DOCKER_BUILDKIT+x}" ] && [ "${DOCKER_BUILDKIT}" == "0" ]; then
@@ -23,7 +25,7 @@ else
   if [[ $(docker buildx version 2>/dev/null) ]]; then
     builder="$(echo "$IMAGE_NAME" | cut -d/ -f2)"
     BUILD+=" buildx build"
-    BUILD+=" --platform linux/amd64,linux/arm64"
+    BUILD+=" --platform linux/amd64"
     BUILD+=" --cache-to type=registry,mode=max,ref=${CACHE_NAME}"
     BUILD+=" --push"
     docker buildx use "${builder}" || docker buildx create --use --name "${builder}"
