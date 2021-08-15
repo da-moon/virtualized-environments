@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "docker/tools/**/Dockerfile"
+      - "docker/tools/**/*"
       - ".github/workflows/tools.yml"
       - "docker/builder/rust/alpine/*"
   workflow_dispatch:
