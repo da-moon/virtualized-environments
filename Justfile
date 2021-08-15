@@ -126,14 +126,6 @@ format-just:
     set -euo pipefail
     just --unstable --fmt 2>/dev/null
 
-# ─── GIT ────────────────────────────────────────────────────────────────────────
-# Variables
-
-MASTER_BRANCH_NAME := 'master'
-MAJOR_VERSION := `[[ $(git tag -l) -ne '' ]] && convco version --major 2>/dev/null || echo '0.0.1'`
-MINOR_VERSION := `[[ $(git tag -l) -ne '' ]] && convco version --minor 2>/dev/null || echo '0.0.1'`
-PATCH_VERSION := `[[ $(git tag -l) -ne '' ]] && convco version --patch 2>/dev/null || echo '0.0.1'`
-
 # ────────────────────────────────────────────────────────────────────────────────
 
 alias pc := pre-commit
@@ -164,77 +156,6 @@ commit: pre-commit
     fi
     popd > /dev/null 2>&1
 
-# ────────────────────────────────────────────────────────────────────────────────
-
-alias mar := major-release
-
-major-release: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail
-    pushd "{{ justfile_directory() }}" > /dev/null 2>&1
-    git checkout "{{ MASTER_BRANCH_NAME }}"
-    git pull
-    git tag -a "v{{ MAJOR_VERSION }}" -m 'major release {{ MAJOR_VERSION }}'
-    git push origin --tags
-    if command -- convco -h > /dev/null 2>&1 ; then
-      convco changelog > CHANGELOG.md
-      git add CHANGELOG.md
-      if command -- pre-commit -h > /dev/null 2>&1 ; then
-        pre-commit || true
-        git add CHANGELOG.md
-      fi
-      git commit -m 'docs(changelog): updated changelog for v{{ MAJOR_VERSION }}'
-      git push
-    fi
-    popd > /dev/null 2>&1
-
-# ────────────────────────────────────────────────────────────────────────────────
-
-alias mir := minor-release
-
-minor-release: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail
-    pushd "{{ justfile_directory() }}" > /dev/null 2>&1
-    git checkout "{{ MASTER_BRANCH_NAME }}"
-    git pull
-    git tag -a "v{{ MINOR_VERSION }}" -m 'minor release {{ MINOR_VERSION }}'
-    git push origin --tags
-    if command -- convco -h > /dev/null 2>&1 ; then
-      convco changelog > CHANGELOG.md
-      git add CHANGELOG.md
-      if command -- pre-commit -h > /dev/null 2>&1 ; then
-        pre-commit || true
-        git add CHANGELOG.md
-      fi
-      git commit -m 'docs(changelog): updated changelog for v{{ MINOR_VERSION }}'
-      git push
-    fi
-    popd > /dev/null 2>&1
-
-# ────────────────────────────────────────────────────────────────────────────────
-
-alias pr := patch-release
-
-patch-release: format-just
-    #!/usr/bin/env bash
-    set -euo pipefail
-    pushd "{{ justfile_directory() }}" > /dev/null 2>&1
-    git checkout "{{ MASTER_BRANCH_NAME }}"
-    git pull
-    git tag -a "v{{ PATCH_VERSION }}" -m 'patch release {{ PATCH_VERSION }}'
-    git push origin --tags
-    if command -- convco -h > /dev/null 2>&1 ; then
-      convco changelog > CHANGELOG.md
-      git add CHANGELOG.md
-      if command -- pre-commit -h > /dev/null 2>&1 ; then
-        pre-commit || true
-        git add CHANGELOG.md
-      fi
-      git commit -m 'docs(changelog): updated changelog for v{{ MINOR_VERSION }}'
-      git push
-    fi
-    popd > /dev/null 2>&1
 
 # ────────────────────────────────────────────────────────────────────────────────
 
