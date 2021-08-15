@@ -156,7 +156,6 @@ commit: pre-commit
     fi
     popd > /dev/null 2>&1
 
-
 # ────────────────────────────────────────────────────────────────────────────────
 
 alias dc := docker-clean
@@ -459,7 +458,7 @@ build-targets-gen:
     done
     just format-just
 
-build: build-docker-builder-rust-alpine build-docker-devcontainer-core-alpine build-docker-devcontainer-golang-alpine build-docker-devcontainer-rust-base-alpine build-docker-devcontainer-rust-base-debian build-docker-devcontainer-rust-vscode-debian build-docker-gitpod-workspace-full-alpine build-docker-gitpod-workspace-full-archlinux build-docker-gitpod-workspace-full-ubuntu build-docker-stacks-hashicorp build-docker-tools-bat build-docker-tools-cellar build-docker-tools-clog build-docker-tools-convco build-docker-tools-delta build-docker-tools-exa build-docker-tools-fd build-docker-tools-hyperfine build-docker-tools-jen build-docker-tools-jsonfmt build-docker-tools-just build-docker-tools-petname build-docker-tools-releez build-docker-tools-ripgrep build-docker-tools-sad build-docker-tools-scoob build-docker-tools-sd build-docker-tools-shfmt build-docker-tools-skim build-docker-tools-sops build-docker-tools-starship build-docker-tools-tojson build-docker-tools-tokei build-docker-tools-ttdl build-docker-tools-upx build-docker-tools-yq
+build: build-docker-builder-rust-alpine build-docker-devcontainer-core-alpine build-docker-devcontainer-golang-alpine build-docker-devcontainer-rust-base-alpine build-docker-devcontainer-rust-base-debian build-docker-devcontainer-rust-vscode-debian build-docker-gitpod-alpine build-docker-gitpod-archlinux build-docker-gitpod-ubuntu build-docker-stacks-hashicorp build-docker-tools-bat build-docker-tools-cellar build-docker-tools-clog build-docker-tools-convco build-docker-tools-delta build-docker-tools-exa build-docker-tools-fd build-docker-tools-hyperfine build-docker-tools-jen build-docker-tools-jsonfmt build-docker-tools-just build-docker-tools-petname build-docker-tools-releez build-docker-tools-ripgrep build-docker-tools-sad build-docker-tools-scoob build-docker-tools-sd build-docker-tools-shfmt build-docker-tools-skim build-docker-tools-sops build-docker-tools-starship build-docker-tools-tojson build-docker-tools-tokei build-docker-tools-ttdl build-docker-tools-upx build-docker-tools-yq
 
 build-docker-builder-rust-alpine:
     #!/usr/bin/env bash
@@ -491,20 +490,20 @@ build-docker-devcontainer-rust-vscode-debian:
     set -euo pipefail ;
     bash ./docker/devcontainer/rust/vscode/debian/build.sh
 
-build-docker-gitpod-workspace-full-alpine:
+build-docker-gitpod-alpine:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./docker/gitpod/workspace-full/alpine/build.sh
+    bash ./docker/gitpod/alpine/build.sh
 
-build-docker-gitpod-workspace-full-archlinux:
+build-docker-gitpod-archlinux:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./docker/gitpod/workspace-full/archlinux/build.sh
+    bash ./docker/gitpod/archlinux/build.sh
 
-build-docker-gitpod-workspace-full-ubuntu:
+build-docker-gitpod-ubuntu:
     #!/usr/bin/env bash
     set -euo pipefail ;
-    bash ./docker/gitpod/workspace-full/ubuntu/build.sh
+    bash ./docker/gitpod/ubuntu/build.sh
 
 build-docker-stacks-hashicorp:
     #!/usr/bin/env bash
