@@ -192,6 +192,11 @@ RUN \
   && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
   || true
 # ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
+RUN \
+  rustup component add clippy
+# ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/tmp/rust-analyzer"
 RUN \
