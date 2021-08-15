@@ -6,6 +6,7 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
   IMAGE_NAME="fjolsvin/$(basename $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
 fi
 # ────────────────────────────────────────────────────────────────────────────────
+WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/Dockerfile)"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
