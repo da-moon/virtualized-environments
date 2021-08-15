@@ -210,9 +210,12 @@ RUN \
   && ( \
   echo "alias apt='sudo apt'" ; \
   echo "alias g='git'" ; \
+  echo 'exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";' ; \
+  echo 'bat --version >/dev/null 2>&1 && alias cat="bat -pp";' ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
-  echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
+  echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless -c \"call call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
   ) | tee /etc/profile.d/01-alias.sh > /dev/null \
+  nvim --headless  \
   && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
