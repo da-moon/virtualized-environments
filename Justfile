@@ -24,7 +24,7 @@ dependencies:
     set -euo pipefail
     if command -- sudo pip3 -h > /dev/null 2>&1 ; then
       if ! command -- pre-commit -h > /dev/null 2>&1 ; then
-        python3 -m pip install --user --nocache pre-commit
+        python3 -m pip install --user --no-cache pre-commit
       fi
     fi
     if command -- cargo -h > /dev/null 2>&1 ; then
