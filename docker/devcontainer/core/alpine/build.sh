@@ -7,7 +7,6 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME+x} ]; then
 fi
 # ────────────────────────────────────────────────────────────────────────────────
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
-pushd "$WD" >/dev/null 2>&1
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
@@ -15,6 +14,7 @@ CACHE_NAME="${IMAGE_NAME}:cache"
 if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
   export DOCKER_BUILDKIT=1
 fi
+pushd "$WD" >/dev/null 2>&1
 BUILD="docker"
 if [ ! -z "${DOCKER_BUILDKIT+x}" ] && [ "${DOCKER_BUILDKIT}" == "0" ]; then
   BUILD+=" build"

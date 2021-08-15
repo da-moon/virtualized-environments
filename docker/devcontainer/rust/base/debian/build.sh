@@ -13,6 +13,7 @@ CACHE_NAME="${IMAGE_NAME}:cache"
 if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
   export DOCKER_BUILDKIT=1
 fi
+pushd "$WD" >/dev/null 2>&1
 BUILD="docker"
 if [ ! -z "${DOCKER_BUILDKIT+x}" ] && [ "${DOCKER_BUILDKIT}" == "0" ]; then
   BUILD+=" build"
