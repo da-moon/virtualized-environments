@@ -234,6 +234,7 @@ RUN \
   && chmod +x rust-analyzer \
   && mv ./rust-analyzer /usr/local/bin/rust-analyzer
 WORKDIR /workspace
+RUN \
   rust-analyzer --version \
   && rm -r /tmp/rust-analyzer
 # ────────────────────────────────────────────────────────────────────────────────
