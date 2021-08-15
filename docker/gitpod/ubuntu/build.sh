@@ -7,7 +7,7 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
 fi
 WD="$(cd "$(dirname "${BASH_SOURCE[1]}")/../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
-DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
+DOCKER_FILE="$(readlink -f $(dirname "${BASH_SOURCE[0]}")/Dockerfile)"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
 CACHE_NAME="${IMAGE_NAME}:cache"
 if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
