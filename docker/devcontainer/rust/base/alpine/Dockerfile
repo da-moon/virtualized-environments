@@ -88,6 +88,7 @@ RUN \
   && rustup component add rust-src rustfmt rls clippy
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
+WORKDIR "/tmp/rust-analyzer"
 RUN \
   rust-analyzer --version > /dev/null 2>&1 && exit 0 || true; \
   REPO="rust-analyzer/rust-analyzer" ; \
@@ -105,9 +106,7 @@ RUN \
       exit 0 \
       ;; \
   esac ; \
-  rm -rf /tmp/rust-analyzer \
-  && mkdir /tmp/rust-analyzer \
-  && curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
+  curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
   | jq -r "\
   .assets[]|select(\
   .browser_download_url \
@@ -118,18 +117,22 @@ RUN \
   and contains(\"gz\") \
   and (contains(\"sha256\") | not))).browser_download_url" \
   | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
-  && pushd /tmp/rust-analyzer > /dev/null 2>&1 \
   && gzip -d rust-analyzer.gz \
   && chmod +x rust-analyzer \
-  && mv ./rust-analyzer /usr/local/bin/rust-analyzer \
-  && popd > /dev/null 2>&1 \
-  && rm -r /tmp/rust-analyzer \
-  && rust-analyzer --version ;
+  && mv ./rust-analyzer /usr/local/bin/rust-analyzer
+WORKDIR /workspace
+RUN \
+  rust-analyzer --version \
+  && rm -r /tmp/rust-analyzer
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
 ARG CARGO_PACKAGES="\
   cargo-watch \
   cargo-make \
   "
 RUN \
+  rustup default stable ; \
   IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
   cargo install --locked --all-features --root /usr/local "${packages[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
