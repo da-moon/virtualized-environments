@@ -75,9 +75,23 @@ ARG APT_PACKAGES="\
   "
 RUN install-packages ${APT_PACKAGES}
 # ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
+  && python2 --version > /dev/null 2>&1 \
+  && curl \
+    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
+  || true ;
+# ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 ENV PATH="${PATH}:${HOME}/.local/bin"
 ENV PATH="${PATH}:${HOME}/bin"
+RUN \
+  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
+  && python2 --version > /dev/null 2>&1 \
+  && curl \
+    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
+  || true ;
 ARG PYTHON_PACKAGES="\
   notedown \
   neovim \
@@ -163,7 +177,6 @@ RUN \
   [ "${#coc_extensions[@]}" -ne 0  ] \
   && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
   || true
-
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ENV EDITOR="nvim"
@@ -178,7 +191,12 @@ RUN \
   echo 'export PATH="${PATH}:/usr/local/bin"' ; \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo '[ $(command -v gp) ] && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
+  echo 'export DOCKER_BUILDKIT="0"' ; \
+  echo 'export BUILDKIT_PROGRESS="auto"' ; \
+  echo 'export COMPOSE_DOCKER_CLI_BUILD="0"' ; \
+  echo 'npm --version >/dev/null 2>&1 && export PATH="${PATH}:$(npm -g bin)" ;' ; \
+  echo 'yarn --version >/dev/null 2>&1 && export PATH="${PATH}:$(yarn global bin)" ;' ; \
+  echo 'gp --help >/dev/null 2>&1 && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
   echo 'starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;' ; \
   echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
   echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
@@ -190,7 +208,7 @@ RUN \
   echo "[ -d ${HOME}/.pyenv/bin ] && export PATH=\"\${PATH}:${HOME}/.pyenv/bin\";"; \
   ) | tee /etc/profile.d/00-env.sh > /dev/null \
   && ( \
-  echo "alias apk='sudo apk'" ; \
+  echo "alias apt='sudo apt'" ; \
   echo "alias g='git'" ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
   echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless +\"call dein#recache_runtimepath()\" +qall && nvim'" ; \
@@ -220,9 +238,6 @@ RUN \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
-ENV DOCKER_BUILDKIT=0
-ENV BUILDKIT_PROGRESS="auto"
-ENV COMPOSE_DOCKER_CLI_BUILD=0
 COPY --from=yq /workspace/yq /usr/local/bin/yq
 COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
 COPY --from=just /workspace/just /usr/local/bin/just
