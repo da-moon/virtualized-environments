@@ -41,3 +41,4 @@ else
   $PUSH
 fi
 popd >/dev/null 2>&1
+exit 0
