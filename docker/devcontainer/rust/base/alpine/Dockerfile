@@ -87,6 +87,52 @@ RUN \
   && rustup default "stable-$(apk --print-arch)-unknown-linux-musl" \
   && rustup component add rust-src rustfmt rls clippy
 # ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  rust-analyzer --version > /dev/null 2>&1 && exit 0 || true; \
+  REPO="rust-analyzer/rust-analyzer" ; \
+  architecture="$(uname -m)"; \
+  toolchain="gnu"; \
+  case "$architecture" in \
+    x86_64 | amd64) \
+      architecture="x86_64" ; \
+      grep -qF 'alpine' /etc/os-release && toolchain="musl" \
+      ;; \
+    aarch64) \
+      true \
+      ;; \
+    *) \
+      exit 0 \
+      ;; \
+  esac ; \
+  rm -rf /tmp/rust-analyzer \
+  && mkdir /tmp/rust-analyzer \
+  && curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
+  | jq -r "\
+  .assets[]|select(\
+  .browser_download_url \
+  | (\
+  contains(\"${architecture}\") \
+  and contains(\"${toolchain}\") \
+  and contains(\"linux\") \
+  and contains(\"gz\") \
+  and (contains(\"sha256\") | not))).browser_download_url" \
+  | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
+  && pushd /tmp/rust-analyzer > /dev/null 2>&1 \
+  && gzip -d rust-analyzer.gz \
+  && chmod +x rust-analyzer \
+  && mv ./rust-analyzer /usr/local/bin/rust-analyzer \
+  && popd > /dev/null 2>&1 \
+  && rm -r /tmp/rust-analyzer \
+  && rust-analyzer --version ;
+ARG CARGO_PACKAGES="\
+  cargo-watch \
+  cargo-make \
+  "
+RUN \
+  IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
+  cargo install --locked --all-features --root /usr/local "${packages[@]}"
+# ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ARG WORKDIR="/workspace"
 ENV WORKDIR "${WORKDIR}"
