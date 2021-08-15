@@ -107,7 +107,7 @@ RUN \
     $(pyenv which python) -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
     && pyenv rehash ; \
   ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python2 -m pip install --user --no-cache-dir "neovim" \
+  && python2 -m pip install --user --no-cache-dir "neovim"
 # ────────────────────────────────────────────────────────────────────────────────
 ARG NODEJS_PACKAGES="\
   neovim \
