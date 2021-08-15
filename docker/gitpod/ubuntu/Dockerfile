@@ -275,7 +275,7 @@ RUN \
   echo 'exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";' ; \
   echo 'bat --version >/dev/null 2>&1 && alias cat="bat -pp";' ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
-  echo "alias nvim='nvim --headless -c \"call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
+  echo "alias nvim='nvim --headless -c \"call dein#recache_runtimepath()\" -c \"qall\" && nvim'" ; \
   ) | tee 01-alias.sh > /dev/null \
   && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
