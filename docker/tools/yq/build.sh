@@ -4,6 +4,7 @@
 set -xeuo pipefail
 if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
   IMAGE_NAME="fjolsvin/$(basename $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
+pushd "$WD" >/dev/null 2>&1
 fi
 # ────────────────────────────────────────────────────────────────────────────────
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"

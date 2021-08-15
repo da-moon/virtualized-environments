@@ -7,6 +7,7 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
 fi
 # ────────────────────────────────────────────────────────────────────────────────
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+pushd "$WD" >/dev/null 2>&1
 
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"

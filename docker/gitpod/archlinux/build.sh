@@ -6,6 +6,7 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
   IMAGE_NAME="fjolsvin/gitpod-workspace-full-archlinux"
 fi
 WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+pushd "$WD" >/dev/null 2>&1
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
@@ -41,4 +42,3 @@ else
   $PUSH
 fi
 popd >/dev/null 2>&1
-exit 0
