@@ -46,36 +46,34 @@ RUN \
   grep gawk perl curl
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ─── CREATING USER ──────────────────────────────────────────────────────────────
+USER root
 RUN \
   getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1
-RUN \
-  sed -i \
-  -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
-  -e '/%sudo.*NOPASSWD:ALL/d' \
-  /etc/sudoers \
-  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
-  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-ARG USER=devel
-ENV USER $USER
-ARG UID="1000"
+ARG USER=gitpod
+ENV USER "${USER}"
+ARG UID="33333"
 ENV UID $UID
+ENV SHELL="/bin/bash"
 ENV HOME="/home/${USER}"
 RUN \
-! getent group "${USER}" > /dev/null \
-&& groupadd --gid "${UID}" "${USER}" > /dev/null > /dev/null \
-&& useradd \
+  useradd \
   --no-log-init \
   --create-home \
-  --home-dir "${HOME}" \
-  --gid "${UID}" \
+  --user-group \
+  --home-dir "/home/${USER}" \
   --uid "${UID}" \
-  --groups sudo \
   --shell "/bin/bash" \
   --password \
-  $(perl \
-    -e 'print crypt($ARGV[0], "password")' \
-      "${USER}_${UID}" 2>/dev/null) \
-"${USER}"  \
+  $(perl -e 'print crypt($ARGV[0], "password")' "${USER}_${UID}" 2>/dev/null) \
+  "${USER}"
+RUN \
+  getent group sudo > /dev/null || addgroup sudo > /dev/null 2>&1 \
+  && sed -i \
+    -e '/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/d' \
+    -e '/%sudo.*NOPASSWD:ALL/d' \
+  /etc/sudoers \
+  && echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers \
+  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && usermod -aG wheel,root,sudo "${USER}"
 # ─── GLOBAL PROFILE SETUP ───────────────────────────────────────────────────────
 USER root
