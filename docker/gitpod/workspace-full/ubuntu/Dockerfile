@@ -85,7 +85,6 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 ENV PATH="${PATH}:${HOME}/.local/bin"
-ENV PATH="${PATH}:${HOME}/bin"
 RUN \
   curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
   && python2 --version > /dev/null 2>&1 \
@@ -93,6 +92,8 @@ RUN \
     -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
   || true ;
 ARG PYTHON_PACKAGES="\
+  pre-commit \
+  neovim \
   notedown \
   pylint \
   yapf \
@@ -102,10 +103,11 @@ ARG PYTHON_PACKAGES="\
   "
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  PIP_USER="false" sudo python3 -m pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python3 -m pip install --user --no-cache-dir "neovim" \
+  pyenv --version > /dev/null 2>&1 && ( \
+    $(pyenv which python) -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+    && pyenv rehash ; \
+  ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
   && python2 -m pip install --user --no-cache-dir "neovim" \
-  && curl https://pre-commit.com/install-local.py | python3 -
 # ────────────────────────────────────────────────────────────────────────────────
 ARG NODEJS_PACKAGES="\
   neovim \
@@ -215,7 +217,6 @@ RUN \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
   echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless -c \"call call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
   ) | tee /etc/profile.d/01-alias.sh > /dev/null \
-  nvim --headless  \
   && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
