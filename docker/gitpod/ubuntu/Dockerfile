@@ -195,7 +195,7 @@ RUN \
 USER gitpod
 WORKDIR "${HOME}"
 RUN \
-  rustup component add clippy
+  rustup component add clippy rustfmt
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/tmp/rust-analyzer"
