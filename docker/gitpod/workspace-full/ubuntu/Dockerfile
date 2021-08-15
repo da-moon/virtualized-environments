@@ -94,7 +94,6 @@ RUN \
   || true ;
 ARG PYTHON_PACKAGES="\
   notedown \
-  neovim \
   pylint \
   yapf \
   autoflake \
@@ -104,7 +103,8 @@ ARG PYTHON_PACKAGES="\
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
   PIP_USER="false" sudo python3 -m pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python -m pip install --user --no-cache-dir "neovim" \
+  && python3 -m pip install --user --no-cache-dir "neovim" \
+  && python2 -m pip install --user --no-cache-dir "neovim" \
   && curl https://pre-commit.com/install-local.py | python3 -
 # ────────────────────────────────────────────────────────────────────────────────
 ARG NODEJS_PACKAGES="\
