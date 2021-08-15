@@ -10,11 +10,7 @@ if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME} ]; then
   IMAGE_NAME="fjolsvin/$(echo ${FROM_ROOT} | sed -e 's/docker\///g' -e 's/\//-/g')"
 fi
 CACHE_NAME="${IMAGE_NAME}:cache"
-echo "$IMAGE_NAME"
-echo "${DOCKER_FILE}"
-if [ -z "${DOCKER_BUILDKIT+x}" ] || [ -z "${DOCKER_BUILDKIT}" ]; then
-  export DOCKER_BUILDKIT=1
-fi
+export DOCKER_BUILDKIT=1
 pushd "$WD" >/dev/null 2>&1
 BUILD="docker"
 if [ ! -z "${DOCKER_BUILDKIT+x}" ] && [ "${DOCKER_BUILDKIT}" == "0" ]; then
@@ -36,7 +32,8 @@ fi
 BUILD+=" --file ${DOCKER_FILE}"
 BUILD+=" --tag ${IMAGE_NAME}:latest"
 $BUILD $WD
-if [[ $(docker buildx version 2>/dev/null) ]]; then
+if ([[ $(docker buildx version 2>/dev/null) ]] \
+  && [ -z "${DOCKER_BUILDKIT+x}" ] || [ "${DOCKER_BUILDKIT}" == "1" ]); then
   docker buildx use default
 else
   PUSH="docker push"

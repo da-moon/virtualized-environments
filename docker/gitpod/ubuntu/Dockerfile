@@ -43,9 +43,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 ENV DEBIAN_FRONTEND=noninteractive
 RUN \
-  yes | add-apt-repository ppa:neovim-ppa/unstable  > /dev/null 2>&1 \
-  && apt-get update -qq \
-  && curl https://i.jpillora.com/chisel! | bash  > /dev/null 2>&1 \
+  add-apt-repository -y ppa:neovim-ppa/unstable > /dev/null 2>&1 \
+  && apt-get update -qq > /dev/null 2>&1 \
+  && curl -fsSl https://i.jpillora.com/chisel! | bash > /dev/null 2>&1 \
   && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1
 ARG APT_PACKAGES="\
   tmux \
@@ -158,13 +158,14 @@ RUN \
   "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
   && mkdir -p "$HOME/.local/share/nvim/shada" \
   && nvim --headless \
+  -c "call dein#direct_install('fatih/vim-go')" \
   -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
   -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
   -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
   -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
   -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-  -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
-  -c "qall"
+  -c "qall" ;
+  # -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
 RUN \
   mv \
   "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
@@ -176,21 +177,12 @@ USER gitpod
 WORKDIR "${HOME}"
 RUN \
   nvim --headless \
-  -c "call dein#install()" \
-  -c "call dein#install()" \
-  -c "call dein#update()" \
-  -c "call dein#remote_plugins()" \
-  -c "qall" \
-  && nvim --headless \
-  -c "UpdateRemotePlugins" \
-  -c "qall" ; \
-  if go version > /dev/null 2>&1 ; then \
-    nvim --headless \
-    -c "GoInstallBinaries" \
-    -c "GoUpdateBinaries" \
-    -c "qall" ; \
-  fi
-
+    -c "call dein#install()" \
+    -c "call dein#update()" \
+    -c "call dein#remote_plugins()" \
+    -c "call dein#recache_runtimepath()" \
+    -c "UpdateRemotePlugins" \
+    -c "qall"
 # ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
 USER gitpod
 WORKDIR "${HOME}"
@@ -219,7 +211,7 @@ RUN \
       exit 0 \
       ;; \
   esac ; \
-  && curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
+  curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
   | jq -r "\
   .assets[]|select(\
   .browser_download_url \
@@ -244,6 +236,7 @@ ARG CARGO_PACKAGES="\
   cargo-make \
   "
 RUN \
+  rustup default stable ; \
   IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
   cargo install --locked --all-features --root /usr/local "${packages[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
@@ -330,6 +323,21 @@ COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+RUN \
+  find "${HOME}" \
+    -not -group "$(id -g gitpod)" \
+    -not -user "$(id -u gitpod)" \
+    -print \
+  | xargs -I {} -P `nproc` --no-run-if-empty \
+  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ; \
+  [ -d /workspace ] && chown "$(id -u gitpod):$(id -g gitpod)" "/workspace" ; \
+  yarn cache clean --all \
+  && npm -g cache clean --force > /dev/null 2>&1 \
+  && rm -rf \
+    /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 WORKDIR /workspace
