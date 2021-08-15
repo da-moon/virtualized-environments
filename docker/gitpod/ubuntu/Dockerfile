@@ -1,7 +1,6 @@
 # syntax = docker/dockerfile-upstream:master-labs
 #-*-mode:dockerfile;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: ft=dockerfile tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
-
 # ─── IMAGE DEPENDENCY ALIASES ───────────────────────────────────────────────────
 # hadolint ignore=DL3007
 FROM fjolsvin/cellar:latest AS cellar
@@ -34,6 +33,7 @@ FROM fjolsvin/skim:latest AS skim
 # hadolint ignore=DL3007
 FROM fjolsvin/delta:latest AS delta
 # hadolint ignore=DL3007
+FROM fjolsvin/ttdl:latest AS ttdl
 # ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
 # ────────────────────────────────────────────────────────────────────────────────
@@ -322,6 +322,7 @@ COPY --from=releez /workspace/releez /usr/local/bin/releez
 COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
