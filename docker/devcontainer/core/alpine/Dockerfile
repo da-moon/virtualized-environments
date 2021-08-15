@@ -115,35 +115,6 @@ RUN  \
   && rm -rf /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-ARG PYTHON_DEPENDENCIES="\
-  python3-dev=3.9.6-r0 \
-  py3-pip=20.3.4-r1 \
-  py3-setuptools=52.0.0-r4 \
-  py3-pyzmq=19.0.2-r1 \
-  "
-RUN \
-  IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
-  apk add --update --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
-  )
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-ARG NODEJS_DEPENDENCIES="\
-  nodejs=14.17.4-r0 \
-  npm=7.20.5-r0 \
-  yarn=1.22.11-r0 \
-"
-RUN \
-  IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
-  apk add --update --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
-  )
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
 #   autoconf=2.71-r0 \
 #   automake=1.16.4-r0 \
 #   libtool=2.4.6-r7 \
@@ -167,9 +138,9 @@ ARG BASE_PACKAGES="\
   less=590-r0 \
   make=4.3-r0 \
   mkfontscale=1.2.1-r1 \
-  ncurses=6.2_p20210807-r0 \
-  ncurses-dev=6.2_p20210807-r0 \
-  ncurses-static=6.2_p20210807-r0 \
+  ncurses=6.2_p20210109-r0 \
+  ncurses-dev=6.2_p20210109-r0 \
+  ncurses-static=6.2_p20210109-r0 \
   openssl=1.1.1k-r1 \
   openssl-dev=1.1.1k-r1 \
   perl=5.34.0-r0 \
@@ -178,6 +149,7 @@ ARG BASE_PACKAGES="\
   sudo=1.9.7_p2-r0 \
   tmux=3.2a-r0 \
   tree=1.8.0-r0 \
+  tzdata=2021a-r0 \
   util-linux=2.37.1-r0 \
   wget=1.21.1-r1 \
   unzip=6.0-r9 \
@@ -190,7 +162,7 @@ RUN \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --update --no-cache "${packages[@]}") \
-  && mkdir -p /etc/profile.d/ \
+  && cat '/usr/share/zoneinfo/Canada/Eastern' > /etc/localtime \
   && echo '[ -r /etc/profile ] && . /etc/profile' > "/root/.bashrc"
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -262,6 +234,21 @@ RUN \
   && apk add --update --no-cache "${packages[@]}" ) \
   && usermod -aG docker "${USER}"
 # ────────────────────────────────────────────────────────────────────────────────
+USER root
+ARG PYTHON_DEPENDENCIES="\
+  python3-dev=3.9.6-r0 \
+  py3-pip=20.3.4-r1 \
+  py3-setuptools=52.0.0-r4 \
+  py3-pyzmq=19.0.2-r1 \
+  "
+RUN \
+  IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
+  apk add --update --no-cache "${packages[@]}" \
+  || ( \
+  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
+  && apk add --update --no-cache "${packages[@]}" \
+  )
+# ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ENV PATH="${PATH}:${HOME}/.local/bin"
 ARG PYTHON_PACKAGES="\
@@ -280,6 +267,18 @@ RUN \
   python3 -m pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
+ARG NODEJS_DEPENDENCIES="\
+  nodejs=14.17.4-r0 \
+  npm=7.20.5-r0 \
+  yarn=1.22.11-r0 \
+"
+RUN \
+  IFS=' ' read -a packages <<< $NODEJS_DEPENDENCIES ; \
+  apk add --update --no-cache "${packages[@]}" \
+  || ( \
+  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
+  && apk add --update --no-cache "${packages[@]}" \
+  )
 ARG NODEJS_PACKAGES="\
   neovim \
   remark \
@@ -327,7 +326,6 @@ RUN \
   -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
   -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
   -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-  -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
   -c "qall"
 RUN \
   mv \
@@ -389,9 +387,9 @@ USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PATH="${PATH}:/usr/local/bin"
+WORKDIR "/etc/profile.d"
 RUN \
-  mkdir -p /etc/profile.d \
-  && curl \
+  curl \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
@@ -404,24 +402,36 @@ RUN \
   echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
   echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
   echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
-  ) | tee /etc/profile.d/00-env.sh > /dev/null \
+  ) | tee 00-env.sh > /dev/null \
   && ( \
-  echo "alias apt='sudo apt'" ; \
+  echo "alias apk='sudo apk'" ; \
   echo "alias g='git'" ; \
   echo 'exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";' ; \
   echo 'bat --version >/dev/null 2>&1 && alias cat="bat -pp";' ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
   echo "alias nvim='nvim --headless -c \"call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
-  ) | tee /etc/profile.d/01-alias.sh > /dev/null \
+  ) | tee 01-alias.sh > /dev/null \
   && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
-  ) | tee /etc/profile.d/02-func.sh > /dev/null \
-  && [ -r /etc/bash.bashrc ] && echo 'while read i; do source "$i"; done < <(find /etc/profile.d/ -name "*.sh")' >> /etc/bash.bashrc
- ────────────────────────────────────────────────────────────────────────────────
-USER "${USER}"
+  ) | tee 02-func.sh > /dev/null
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
 ARG WORKDIR="/workspace"
 ENV WORKDIR "${WORKDIR}"
 WORKDIR "${WORKDIR}"
-VOLUME "${WORKDIR}"
+RUN \
+  find "${HOME}" \
+    -not -group "$(id -g ${USER})" \
+    -not -user "$(id -u ${USER})" \
+    -print \
+  | xargs -I {} -P `nproc` --no-run-if-empty \
+  chown --no-dereference "$(id -u ${USER}):$(id -g ${USER})" {} \
+  && chown "$(id -u ${USER}):$(id -g ${USER})" "${WORKDIR}" -R \
+  && yarn cache clean --all \
+  && npm -g cache clean --force > /dev/null 2>&1 \
+  && rm -rf \
+    /tmp/*
+# ────────────────────────────────────────────────────────────────────────────────
+USER "${USER}"
 ENTRYPOINT [ "/bin/bash" ]
