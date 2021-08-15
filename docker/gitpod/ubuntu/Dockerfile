@@ -22,8 +22,6 @@ FROM fjolsvin/bat:latest AS bat
 # hadolint ignore=DL3007
 FROM fjolsvin/exa:latest AS exa
 # hadolint ignore=DL3007
-FROM fjolsvin/starship:latest AS starship
-# hadolint ignore=DL3007
 FROM fjolsvin/shfmt:latest AS shfmt
 # hadolint ignore=DL3007
 FROM fjolsvin/tokei:latest AS tokei
@@ -38,15 +36,17 @@ FROM fjolsvin/delta:latest AS delta
 # hadolint ignore=DL3007
 # ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
+# ────────────────────────────────────────────────────────────────────────────────
 USER root
-SHELL ["/bin/bash","-c"]
+WORKDIR "/root"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# ────────────────────────────────────────────────────────────────────────────────
 ENV DEBIAN_FRONTEND=noninteractive
 RUN \
   yes | add-apt-repository ppa:neovim-ppa/unstable  > /dev/null 2>&1 \
   && apt-get update -qq \
   && curl https://i.jpillora.com/chisel! | bash  > /dev/null 2>&1 \
-  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1 \
-  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force
+  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1
 ARG APT_PACKAGES="\
   tmux \
   dropbear \
@@ -58,10 +58,9 @@ ARG APT_PACKAGES="\
   xfonts-utils \
   libssl-dev \
   fonts-symbola \
-  xsel \
-  xclip \
   pandoc \
   librsvg2-bin \
+  ncdu \
   pdftk \
   poppler-utils \
   ripgrep \
@@ -72,10 +71,13 @@ ARG APT_PACKAGES="\
   texlive-latex-extra \
   ttf-mscorefonts-installer \
   lmodern \
+  xsel \
+  xclip \
   "
 RUN install-packages ${APT_PACKAGES}
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
+WORKDIR "/root"
 RUN \
   curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
   && python2 --version > /dev/null 2>&1 \
@@ -85,6 +87,7 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 ENV PATH="${PATH}:${HOME}/.local/bin"
+WORKDIR "${HOME}"
 RUN \
   curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
   && python2 --version > /dev/null 2>&1 \
@@ -109,6 +112,7 @@ RUN \
   ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
   && python2 -m pip install --user --no-cache-dir "neovim"
 # ────────────────────────────────────────────────────────────────────────────────
+WORKDIR "/tmp"
 ARG NODEJS_PACKAGES="\
   neovim \
   remark \
@@ -128,6 +132,7 @@ RUN \
   npm install -g "${NODEJS_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
+WORKDIR "${HOME}"
 RUN \
   curl -sLf https://spacevim.org/install.sh | bash \
   && find "${HOME}" \
@@ -138,6 +143,7 @@ RUN \
   chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
 # ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
 USER gitpod
+WORKDIR "${HOME}"
 RUN \
   rm -rf \
   ~/.SpaceVim \
@@ -153,6 +159,7 @@ RUN \
   && mkdir -p "$HOME/.local/share/nvim/shada" \
   && nvim --headless \
   -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
+  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
   -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
   -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
   -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
@@ -162,7 +169,11 @@ RUN \
   mv \
   "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
   "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim"
+# ────────────────────────────────────────────────────────────────────────────────
 COPY "./.SpaceVim.d/" "${HOME}/.SpaceVim.d"
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
 RUN \
   nvim --headless \
   -c "call dein#install()" \
@@ -172,8 +183,17 @@ RUN \
   -c "qall" \
   && nvim --headless \
   -c "UpdateRemotePlugins" \
-  -c "qall"
+  -c "qall" ; \
+  if go version > /dev/null 2>&1 ; then \
+    nvim --headless \
+    -c "GoInstallBinaries" \
+    -c "GoUpdateBinaries" \
+    -c "qall" ; \
+  fi
+
 # ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
 RUN \
   IFS=' ' read -a coc_extensions <<< "$(nvim --headless -c "call PrintCocExtensions()"  -c "qall" 2>&1)" ; \
   [ "${#coc_extensions[@]}" -ne 0  ] \
@@ -181,12 +201,58 @@ RUN \
   || true
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
+WORKDIR "/tmp/rust-analyzer"
+RUN \
+  rust-analyzer --version > /dev/null 2>&1 && exit 0 || true; \
+  REPO="rust-analyzer/rust-analyzer" ; \
+  architecture="$(uname -m)"; \
+  toolchain="gnu"; \
+  case "$architecture" in \
+    x86_64 | amd64) \
+      architecture="x86_64" ; \
+      grep -qF 'alpine' /etc/os-release && toolchain="musl" \
+      ;; \
+    aarch64) \
+      true \
+      ;; \
+    *) \
+      exit 0 \
+      ;; \
+  esac ; \
+  && curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
+  | jq -r "\
+  .assets[]|select(\
+  .browser_download_url \
+  | (\
+  contains(\"${architecture}\") \
+  and contains(\"${toolchain}\") \
+  and contains(\"linux\") \
+  and contains(\"gz\") \
+  and (contains(\"sha256\") | not))).browser_download_url" \
+  | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
+  && gzip -d rust-analyzer.gz \
+  && chmod +x rust-analyzer \
+  && mv ./rust-analyzer /usr/local/bin/rust-analyzer
+WORKDIR /workspace
+  rust-analyzer --version \
+  && rm -r /tmp/rust-analyzer
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+ARG CARGO_PACKAGES="\
+  cargo-make \
+  "
+RUN \
+  IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
+  cargo install --locked --all-features --root /usr/local "${packages[@]}"
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PATH="${PATH}:/usr/local/bin"
+WORKDIR "/etc/profile.d"
 RUN \
-  mkdir -p /etc/profile.d \
-  && curl \
+  curl \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
@@ -208,22 +274,23 @@ RUN \
   echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
   echo "[ -d ${HOME}/.cargo/bin ] && export PATH=\"\${PATH}:${HOME}/.cargo/bin\";"; \
   echo "[ -d ${HOME}/.pyenv/bin ] && export PATH=\"\${PATH}:${HOME}/.pyenv/bin\";"; \
-  ) | tee /etc/profile.d/00-env.sh > /dev/null \
+  ) | tee 00-env.sh > /dev/null \
   && ( \
   echo "alias apt='sudo apt'" ; \
   echo "alias g='git'" ; \
   echo 'exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";' ; \
   echo 'bat --version >/dev/null 2>&1 && alias cat="bat -pp";' ; \
   echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
-  echo "nvim --version >/dev/null 2>&1 && alias nvim='nvim --headless -c \"call call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
-  ) | tee /etc/profile.d/01-alias.sh > /dev/null \
+  echo "alias nvim='nvim --headless -c \"call dein#recache_runtimepath()\" -c \"UpdateRemotePlugins\" -c \"qall\" && nvim'" ; \
+  ) | tee 01-alias.sh > /dev/null \
   && ( \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
-  ) | tee /etc/profile.d/02-func.sh > /dev/null \
+  ) | tee 02-func.sh > /dev/null \
   && [ -r /etc/bash.bashrc ] && echo 'while read i; do source "$i"; done < <(find /etc/profile.d/ -name "*.sh")' >> /etc/bash.bashrc
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
+WORKDIR "${HOME}"
 RUN \
   sed -i \
   -e '/^\s*#/d' \
@@ -234,14 +301,18 @@ RUN \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
   ) | tee -a "${HOME}/.profile" > /dev/null ;
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
 COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
 COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
+WORKDIR "${HOME}"
 ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
 RUN \
   cat /tmp/delta >> "$HOME/.gitconfig" \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
+# ────────────────────────────────────────────────────────────────────────────────
 COPY --from=yq /workspace/yq /usr/local/bin/yq
 COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
 COPY --from=just /workspace/just /usr/local/bin/just
@@ -258,4 +329,6 @@ COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
 WORKDIR /workspace

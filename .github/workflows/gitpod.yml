@@ -4,7 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "docker/gitpod/workspace-full/**/*"
+      - "docker/gitpod/**/*"
       - .github/workflows/gitpod.yml
   workflow_dispatch:
 jobs:
@@ -12,7 +12,7 @@ jobs:
   workspace-full-archlinux:
     defaults:
       run:
-        working-directory: ./docker/gitpod/workspace-full/archlinux
+        working-directory: ./docker/gitpod/archlinux
     name: "build and push workspace-full-archlinux docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -36,7 +36,7 @@ jobs:
   workspace-full-ubuntu:
     defaults:
       run:
-        working-directory: ./docker/gitpod/workspace-full/ubuntu
+        working-directory: ./docker/gitpod/ubuntu
     name: "build and push workspace-full-ubuntu docker image"
     runs-on: ubuntu-18.04
     steps:
@@ -60,7 +60,7 @@ jobs:
   workspace-full-alpine:
     defaults:
       run:
-        working-directory: ./docker/gitpod/workspace-full/alpine
+        working-directory: ./docker/gitpod/alpine
     name: "build and push workspace-full-alpine docker image"
     runs-on: ubuntu-18.04
     steps:

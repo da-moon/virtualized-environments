@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #-*-mode:sh;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
-set -euxo pipefail
+set -xeuo pipefail
 if [ -z ${IMAGE_NAME+x} ] || [ -z ${IMAGE_NAME+x} ]; then
   IMAGE_NAME="fjolsvin/gitpod-workspace-full-alpine"
 fi
 # ────────────────────────────────────────────────────────────────────────────────
-WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ESC_WD="$(echo "$WD" | sed 's/\//\\\//g')"
 DOCKER_FILE="$(dirname "${BASH_SOURCE[0]}")/Dockerfile"
 DOCKER_FILE=$(echo "${DOCKER_FILE}" | sed -e "s/$ESC_WD\///g")
