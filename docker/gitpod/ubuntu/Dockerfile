@@ -95,7 +95,6 @@ RUN \
     -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
   || true ;
 ARG PYTHON_PACKAGES="\
-  pre-commit \
   neovim \
   notedown \
   pylint \
@@ -104,13 +103,16 @@ ARG PYTHON_PACKAGES="\
   isort \
   coverage \
   "
+ENV PIP_USER="false"
+ENV PATH="${PATH}:${HOME}/bin"
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
   pyenv --version > /dev/null 2>&1 && ( \
-    $(pyenv which python) -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+    $(pyenv which python) -m  pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
     && pyenv rehash ; \
-  ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python2 -m pip install --user --no-cache-dir "neovim"
+  ) || python3 -m  pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+  && python2 -m pip install --no-cache-dir "neovim" \
+  && curl -fSsl https://pre-commit.com/install-local.py | python3 -
 # ────────────────────────────────────────────────────────────────────────────────
 WORKDIR "/tmp"
 ARG NODEJS_PACKAGES="\
@@ -255,6 +257,7 @@ RUN \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
+  echo 'PIP_USER="false"' ; \
   echo 'export PATH="${PATH}:/usr/local/bin"' ; \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
