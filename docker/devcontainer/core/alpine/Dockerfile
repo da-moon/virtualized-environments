@@ -32,6 +32,8 @@ FROM fjolsvin/releez:latest AS releez
 FROM fjolsvin/skim:latest AS skim
 # hadolint ignore=DL3007
 FROM fjolsvin/delta:latest AS delta
+# hadolint ignore=DL3007
+FROM fjolsvin/clog:latest AS clog
 # ────────────────────────────────────────────────────────────────────────────────
 FROM alpine:edge
 # ────────────────────────────────────────────────────────────────────────────────
@@ -382,6 +384,7 @@ COPY --from=releez /workspace/releez /usr/local/bin/releez
 COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --from=cellar /workspace/clog /usr/local/bin/clog
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ENV EDITOR="nvim"
