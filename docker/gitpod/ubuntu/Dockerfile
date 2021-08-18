@@ -34,6 +34,8 @@ FROM fjolsvin/skim:latest AS skim
 FROM fjolsvin/delta:latest AS delta
 # hadolint ignore=DL3007
 FROM fjolsvin/ttdl:latest AS ttdl
+# hadolint ignore=DL3007
+FROM fjolsvin/clog:latest AS clog
 # ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
 # ────────────────────────────────────────────────────────────────────────────────
@@ -331,6 +333,7 @@ COPY --from=skim /workspace/sk /usr/local/bin/sk
 COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 COPY --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
+COPY --from=clog /workspace/clog /usr/local/bin/clog
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
