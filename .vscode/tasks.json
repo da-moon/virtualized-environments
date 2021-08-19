@@ -48,18 +48,18 @@
     },
     {
       "type": "shell",
-      "label": "build-docker-gitpod-workspace-full-alpine",
-      "command": "just build-docker-gitpod-workspace-full-alpine"
+      "label": "build-docker-gitpod-alpine",
+      "command": "just build-docker-gitpod-alpine"
     },
     {
       "type": "shell",
-      "label": "build-docker-gitpod-workspace-full-archlinux",
-      "command": "just build-docker-gitpod-workspace-full-archlinux"
+      "label": "build-docker-gitpod-archlinux",
+      "command": "just build-docker-gitpod-archlinux"
     },
     {
       "type": "shell",
-      "label": "build-docker-gitpod-workspace-full-ubuntu",
-      "command": "just build-docker-gitpod-workspace-full-ubuntu"
+      "label": "build-docker-gitpod-ubuntu",
+      "command": "just build-docker-gitpod-ubuntu"
     },
     {
       "type": "shell",
@@ -85,6 +85,11 @@
       "type": "shell",
       "label": "build-docker-tools-convco",
       "command": "just build-docker-tools-convco"
+    },
+    {
+      "type": "shell",
+      "label": "build-docker-tools-curl",
+      "command": "just build-docker-tools-curl"
     },
     {
       "type": "shell",
@@ -280,21 +285,6 @@
       "type": "shell",
       "label": "kary-comments",
       "command": "just kary-comments"
-    },
-    {
-      "type": "shell",
-      "label": "major-release",
-      "command": "just major-release"
-    },
-    {
-      "type": "shell",
-      "label": "minor-release",
-      "command": "just minor-release"
-    },
-    {
-      "type": "shell",
-      "label": "patch-release",
-      "command": "just patch-release"
     },
     {
       "type": "shell",
