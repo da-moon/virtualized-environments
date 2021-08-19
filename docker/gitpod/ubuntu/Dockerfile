@@ -188,7 +188,8 @@ RUN \
     -c "call dein#remote_plugins()" \
     -c "call dein#recache_runtimepath()" \
     -c "UpdateRemotePlugins" \
-    -c "qall"
+    -c "qall" ; \
+  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
 # ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
 USER gitpod
 WORKDIR "${HOME}"
