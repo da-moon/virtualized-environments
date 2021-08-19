@@ -97,29 +97,31 @@ RUN \
   case "$architecture" in \
     x86_64 | amd64) \
       architecture="x86_64" ; \
-      grep -qF 'alpine' /etc/os-release && toolchain="musl" \
+      grep -qF 'alpine' /etc/os-release && toolchain="musl" ; \
+      curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
+      | jq -r "\
+      .assets[]|select(\
+      .browser_download_url \
+      | (\
+      contains(\"${architecture}\") \
+      and contains(\"${toolchain}\") \
+      and contains(\"linux\") \
+      and contains(\"gz\") \
+      and (contains(\"sha256\") | not))).browser_download_url" \
+      | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
+      && gzip -d rust-analyzer.gz \
+      && chmod +x rust-analyzer \
+      && mv ./rust-analyzer /usr/local/bin/rust-analyzer \
+      && exit 0 \
       ;; \
     aarch64) \
-      true \
+      git clone https://github.com/rust-analyzer/rust-analyzer.git /tmp/rust-analyzer \
+      && cargo xtask install \
       ;; \
     *) \
-      exit 0 \
+      exit 1 \
       ;; \
   esac ; \
-  curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
-  | jq -r "\
-  .assets[]|select(\
-  .browser_download_url \
-  | (\
-  contains(\"${architecture}\") \
-  and contains(\"${toolchain}\") \
-  and contains(\"linux\") \
-  and contains(\"gz\") \
-  and (contains(\"sha256\") | not))).browser_download_url" \
-  | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
-  && gzip -d rust-analyzer.gz \
-  && chmod +x rust-analyzer \
-  && mv ./rust-analyzer /usr/local/bin/rust-analyzer
 WORKDIR /workspace
 RUN \
   rust-analyzer --version \
@@ -140,5 +142,4 @@ USER "${USER}"
 ARG WORKDIR="/workspace"
 ENV WORKDIR "${WORKDIR}"
 WORKDIR "${WORKDIR}"
-VOLUME "${WORKDIR}"
 ENTRYPOINT [ "/bin/bash" ]
