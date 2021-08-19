@@ -344,23 +344,54 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 FROM "fjolsvin/base-alpine"
 USER root
-# [ NOTE ] => base essential packages
-ARG BASE_PACKAGES="\
-  go=1.16.7-r0 \
-  "
-RUN set -ex && \
-  IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
-  apk add --update --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" )
+ENV PATH /usr/local/go/bin:$PATH
+ARG GOLANG_VERSION="1.17"
+RUN \
+  --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=tmpfs,target=/go/src/ \
+  set -ex ; \
+	apkArch="$(apk --print-arch)"; \
+	case "$apkArch" in \
+		'x86_64') \
+			export GOARCH='amd64' GOOS='linux'; \
+			;; \
+		'aarch64') \
+			export GOARCH='arm64' GOOS='linux'; \
+			;; \
+		*) exit 1 ;; \
+	esac; \
+	apk add --no-cache --virtual .build-deps \
+		bash \
+		gcc \
+		gnupg \
+		go \
+		musl-dev \
+		openssl \
+  && wget -qO "/tmp/go.tgz" "https://dl.google.com/go/go${GOLANG_VERSION}.src.tar.gz" \
+  && tar -C /usr/local -xzf /tmp/go.tgz \
+	&& rm /tmp/go.tgz \
+	&& ( \
+		cd /usr/local/go/src; \
+		export GOROOT_BOOTSTRAP="$(go env GOROOT)" GOHOSTOS="$GOOS" GOHOSTARCH="$GOARCH"; \
+		./make.bash; \
+	) \
+  && go install -race std \
+  && apk del --no-network .build-deps \
+  && go version
+ENV GOPATH="/go"
+ENV PATH="${GOPATH}/bin:${PATH}"
+RUN \
+  mkdir -p \
+    "${GOPATH}/src" \
+    "${GOPATH}/bin" \
+  && chmod -R 777 "${GOPATH}" \
+  && chown -R "$(id -u ${USER}):$(id -g ${USER})" "${GOPATH}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN set -ex && \
-  git \
-  clone https://github.com/gokultp/go-tprof.git \
-  /tmp/go-tprof && \
-  make -C /tmp/go-tprof config || true ; \
+RUN  \
+  git clone https://github.com/gokultp/go-tprof.git /tmp/go-tprof \
+  && make -C /tmp/go-tprof config || true ; \
   make -C /tmp/go-tprof || true ; \
   rm -rf /tmp/go-tprof
 # ────────────────────────────────────────────────────────────────────────────────
@@ -376,16 +407,17 @@ COPY --from=compression-layer /workspace /usr/local/bin
 USER root
 RUN \
   chmod a+x /usr/local/bin/* \
-  && mkdir /go \
-  && chown -R "$(id -u ${USER}):$(id -g ${USER})" /go
-# ─── CLEAN UP ───────────────────────────────────────────────────────────────────
-USER root
-RUN \
-  yarn cache clean --all \
+  && yarn cache clean --all \
   && npm -g cache clean --force > /dev/null 2>&1 \
   && rm -rf \
     /tmp/* \
-    /usr/src
+    /usr/src \
+		/usr/local/go/pkg/*/cmd \
+		/usr/local/go/pkg/bootstrap \
+		/usr/local/go/pkg/obj \
+		/usr/local/go/pkg/tool/*/api \
+		/usr/local/go/pkg/tool/*/go_bootstrap \
+		/usr/local/go/src/cmd/dist/dist
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
 ENTRYPOINT [ "/bin/bash" ]
