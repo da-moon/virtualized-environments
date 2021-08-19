@@ -32,8 +32,8 @@ fi
 BUILD+=" --file ${DOCKER_FILE}"
 BUILD+=" --tag ${IMAGE_NAME}:latest"
 $BUILD $WD
-if ([[ $(docker buildx version 2>/dev/null) ]] \
-  && [ -z "${DOCKER_BUILDKIT+x}" ] || [ "${DOCKER_BUILDKIT}" == "1" ]); then
+if [[ $(docker buildx version 2>/dev/null) ]] \
+  && ([ -z "${DOCKER_BUILDKIT+x}" ] || [ "${DOCKER_BUILDKIT}" == "1" ]); then
   docker buildx use default
 else
   PUSH="docker push"
