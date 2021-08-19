@@ -116,7 +116,7 @@ RUN \
   || true ;
 ENV PATH="${PATH}:${HOME}/bin"
 RUN \
-  curl -fSsl https://pre-commit.com/install-local.py | python3 -
+  curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python3) -
 # ────────────────────────────────────────────────────────────────────────────────
 WORKDIR "/tmp"
 ARG NODEJS_PACKAGES="\
