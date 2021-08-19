@@ -115,8 +115,8 @@ RUN \
     -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
   || true ;
 ENV PATH="${PATH}:${HOME}/bin"
-RUN \
-  curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python3) -
+# RUN \
+  # curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python3) -
 # ────────────────────────────────────────────────────────────────────────────────
 WORKDIR "/tmp"
 ARG NODEJS_PACKAGES="\
