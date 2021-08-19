@@ -86,16 +86,6 @@ RUN \
   && curl \
     -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
   || true ;
-# ────────────────────────────────────────────────────────────────────────────────
-USER gitpod
-ENV PATH="${PATH}:${HOME}/.local/bin"
-WORKDIR "${HOME}"
-RUN \
-  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
-  && python2 --version > /dev/null 2>&1 \
-  && curl \
-    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
-  || true ;
 ARG PYTHON_PACKAGES="\
   neovim \
   notedown \
@@ -106,7 +96,6 @@ ARG PYTHON_PACKAGES="\
   coverage \
   "
 ENV PIP_USER="false"
-ENV PATH="${PATH}:${HOME}/bin"
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
   pyenv --version > /dev/null 2>&1 && ( \
@@ -115,6 +104,19 @@ RUN \
   ) || python3 -m  pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
   && python2 -m pip install --no-cache-dir "neovim" \
   && curl -fSsl https://pre-commit.com/install-local.py | python3 -
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+ENV PATH="${PATH}:${HOME}/.local/bin"
+WORKDIR "${HOME}"
+RUN \
+  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
+  && python2 --version > /dev/null 2>&1 \
+  && curl \
+    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
+  || true ;
+ENV PATH="${PATH}:${HOME}/bin"
+RUN \
+  curl -fSsl https://pre-commit.com/install-local.py | python3 -
 # ────────────────────────────────────────────────────────────────────────────────
 WORKDIR "/tmp"
 ARG NODEJS_PACKAGES="\
