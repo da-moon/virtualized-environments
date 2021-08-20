@@ -1,0 +1,11 @@
+version = 1
+
+exclude_patterns = ["legacy/"]
+
+[[analyzers]]
+name = "shell"
+enabled = true
+
+[[analyzers]]
+name = "docker"
+enabled = true
