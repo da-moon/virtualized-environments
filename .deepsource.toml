@@ -1,5 +1,7 @@
 version = 1
 
+test_patterns = ["docker/**"]
+
 exclude_patterns = ["legacy/"]
 
 [[analyzers]]
