@@ -252,13 +252,38 @@ RUN \
   +qall || true ;
 USER "$USER"
 RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && timeout 40 \
-  nvim --headless \
-  +VimProcInstall \
-  +'call dein#install()'  \
-  +UpdateRemotePlugins  \
-  +qall || true ;
+  rm -rf \
+  ~/.SpaceVim \
+  ~/.vim* \
+  ~/.config/*vim* \
+  ~/.cache/*vim* \
+  ~/.cache/neosnippet \
+  ~/.local/share/*vim* \
+  && curl -sLf https://spacevim.org/install.sh | bash \
+  && sed \
+  -i.bak 's/call dein#add/"call dein#add/g' \
+  "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && mkdir -p "${HOME}/.local/share/nvim/shada" \
+  && nvim --headless \
+  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
+  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
+  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
+  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
+  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
+  -c "qall"
+RUN \
+  mv \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
+  && nvim --headless \
+    -c "call dein#install()" \
+    -c "call dein#update()" \
+    -c "call dein#remote_plugins()" \
+    -c "call dein#recache_runtimepath()" \
+    -c "UpdateRemotePlugins" \
+    -c "qall" ; \
+  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
 # ─── RUST TOOLCHAIN SETUP ───────────────────────────────────────────────────────
 USER root
 RUN \
