@@ -175,14 +175,9 @@ RUN \
 RUN \
   mv \
   "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim"
-# ────────────────────────────────────────────────────────────────────────────────
-COPY "./.SpaceVim.d/" "${HOME}/.SpaceVim.d"
-# ────────────────────────────────────────────────────────────────────────────────
-USER gitpod
-WORKDIR "${HOME}"
-RUN \
-  nvim --headless \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
+  && nvim --headless \
     -c "call dein#install()" \
     -c "call dein#update()" \
     -c "call dein#remote_plugins()" \
