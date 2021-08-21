@@ -4,35 +4,12 @@ on:
     - cron: "0 0 * * *"
   push:
     paths:
-      - "docker/gitpod/**/*"
+      # - "docker/gitpod/**/*"
+      - "docker/gitpod/ubuntu/*"
       - .github/workflows/gitpod.yml
   workflow_dispatch:
 jobs:
   # ────────────────────────────────────────────────────────────────────────────────
-  workspace-full-archlinux:
-    defaults:
-      run:
-        working-directory: ./docker/gitpod/archlinux
-    name: "build and push workspace-full-archlinux docker image"
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - name: "Login to Docker Container Repository"
-        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "build docker and push the docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          bash build.sh
   workspace-full-ubuntu:
     defaults:
       run:
@@ -57,27 +34,51 @@ jobs:
         run: >
           set -ex &&
           bash build.sh
-  workspace-full-alpine:
-    defaults:
-      run:
-        working-directory: ./docker/gitpod/alpine
-    name: "build and push workspace-full-alpine docker image"
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - name: "Login to Docker Container Repository"
-        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "build docker and push the docker image"
-        shell: bash
-        run: >
-          set -ex &&
-          bash build.sh
+  #  workspace-full-archlinux:
+  #    defaults:
+  #      run:
+  #        working-directory: ./docker/gitpod/archlinux
+  #    name: "build and push workspace-full-archlinux docker image"
+  #    runs-on: ubuntu-18.04
+  #    steps:
+  #      - name: Check out the repo
+  #        uses: actions/checkout@v2
+  #      - name: Set up Docker Buildx
+  #        id: buildx
+  #        uses: docker/setup-buildx-action@v1
+  #        with:
+  #          install: true
+  #      - name: "Login to Docker Container Repository"
+  #        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+  #        env:
+  #          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  #          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  #      - name: "build docker and push the docker image"
+  #        shell: bash
+  #        run: >
+  #          set -ex &&
+  #          bash build.sh
+  #  workspace-full-alpine:
+  #    defaults:
+  #      run:
+  #        working-directory: ./docker/gitpod/alpine
+  #    name: "build and push workspace-full-alpine docker image"
+  #    runs-on: ubuntu-18.04
+  #    steps:
+  #      - name: Check out the repo
+  #        uses: actions/checkout@v2
+  #      - name: Set up Docker Buildx
+  #        id: buildx
+  #        uses: docker/setup-buildx-action@v1
+  #        with:
+  #          install: true
+  #      - name: "Login to Docker Container Repository"
+  #        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+  #        env:
+  #          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  #          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  #      - name: "build docker and push the docker image"
+  #        shell: bash
+  #        run: >
+  #          set -ex &&
+  #          bash build.sh
