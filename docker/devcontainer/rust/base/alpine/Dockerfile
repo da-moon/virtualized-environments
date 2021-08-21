@@ -88,46 +88,6 @@ RUN \
   && rustup component add rust-src rustfmt rls clippy
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-WORKDIR "/tmp/rust-analyzer"
-RUN \
-  rust-analyzer --version > /dev/null 2>&1 && exit 0 || true; \
-  REPO="rust-analyzer/rust-analyzer" ; \
-  architecture="$(uname -m)"; \
-  toolchain="gnu"; \
-  case "$architecture" in \
-    x86_64 | amd64) \
-      architecture="x86_64" ; \
-      grep -qF 'alpine' /etc/os-release && toolchain="musl" ; \
-      curl -sL "https://api.github.com/repos/${REPO}/releases/latest" \
-      | jq -r "\
-      .assets[]|select(\
-      .browser_download_url \
-      | (\
-      contains(\"${architecture}\") \
-      and contains(\"${toolchain}\") \
-      and contains(\"linux\") \
-      and contains(\"gz\") \
-      and (contains(\"sha256\") | not))).browser_download_url" \
-      | xargs -r -I {} curl -fsSLo /tmp/rust-analyzer/rust-analyzer.gz {} \
-      && gzip -d rust-analyzer.gz \
-      && chmod +x rust-analyzer \
-      && mv ./rust-analyzer /usr/local/bin/rust-analyzer \
-      && exit 0 \
-      ;; \
-    aarch64) \
-      git clone https://github.com/rust-analyzer/rust-analyzer.git /tmp/rust-analyzer \
-      && cargo xtask install \
-      ;; \
-    *) \
-      exit 1 \
-      ;; \
-  esac ; \
-WORKDIR /workspace
-RUN \
-  rust-analyzer --version \
-  && rm -r /tmp/rust-analyzer
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
 WORKDIR "/root"
 ARG CARGO_PACKAGES="\
   cargo-watch \
