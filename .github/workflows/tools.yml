@@ -113,6 +113,7 @@ jobs:
         working-directory: ./docker/tools/upx
     name: "build and push upx docker image"
     runs-on: ubuntu-18.04
+    steps:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Set up QEMU
