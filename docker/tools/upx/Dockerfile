@@ -8,7 +8,7 @@ FROM alpine:edge
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN apk add --update --no-cache "bash=5.1.8-r0"
+RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
@@ -29,10 +29,10 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null  \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   )
 ARG UPX_DEPS="\
   curl=7.78.0-r0 \
@@ -41,10 +41,10 @@ ARG UPX_DEPS="\
   "
 RUN \
   IFS=' ' read -a packages <<< $UPX_DEPS ; \
-  apk add --update --no-cache --virtual .deps-upx "${packages[@]}" \
+  apk add --no-cache --virtual .deps-upx "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache --virtual .deps-upx "${packages[@]}" \
+  && apk add --no-cache --virtual .deps-upx "${packages[@]}" \
   )
 ARG REPO="upx/upx"
 ARG LATEST_RELEASE_ENDPOINT="https://api.github.com/repos/${REPO}/releases/latest"

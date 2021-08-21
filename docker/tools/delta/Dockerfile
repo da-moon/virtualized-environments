@@ -17,7 +17,7 @@ FROM alpine:edge
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN apk add --update --no-cache "bash=5.1.8-r0"
+RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=compression-layer "/workspace" "/workspace"

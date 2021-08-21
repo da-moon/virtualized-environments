@@ -70,5 +70,5 @@ RUN set -ex && \
     make -j$(nproc)
 
 # FROM alpine:latest
-# RUN apk add --update openssl && apk --no-cache add ca-certificates
+# RUN apk add openssl && apk --no-cache add ca-certificates
 # COPY --from=builder /wrk2/wrk /bin
