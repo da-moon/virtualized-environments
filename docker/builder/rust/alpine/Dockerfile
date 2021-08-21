@@ -217,8 +217,10 @@ function main() {
   || true ;
   for exe in "${executables[@]}"; do
     if [[ ! -z $(readelf -d "${exe}" | grep NEED) ]]; then
-      echo >&2 "*** '${exe}' was not linked statically";
-      exit 1;
+      if ldd ${exe} > /dev/null 2>&1
+        echo >&2 "*** '${exe}' was not linked statically";
+        exit 1;
+      fi
     else
       true
     fi
