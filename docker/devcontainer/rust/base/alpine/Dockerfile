@@ -89,9 +89,9 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/root"
+# cargo-make : fails to build on aarch64
 ARG CARGO_PACKAGES="\
   cargo-watch \
-  cargo-make \
   "
 RUN \
   rustup default stable ; \
