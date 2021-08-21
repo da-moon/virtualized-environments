@@ -4,7 +4,7 @@
 FROM golang:alpine AS go-builder
 USER root
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-RUN apk add --update --no-cache "bash=5.1.4-r0"
+RUN apk add --no-cache "bash=5.1.4-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
@@ -25,10 +25,10 @@ RUN  \
   go env -w "GO111MODULE=on" \
   && go env -w "CGO_ENABLED=0" \
   && go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'" \
-  && apk add --update --no-cache "${BASE_PACKAGES[@]}" \
+  && apk add --no-cache "${BASE_PACKAGES[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${BASE_PACKAGES[@]}" \
+  && apk add --no-cache "${BASE_PACKAGES[@]}" \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 FROM go-builder AS go-releaser-downloader

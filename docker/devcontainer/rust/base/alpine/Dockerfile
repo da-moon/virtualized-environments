@@ -5,20 +5,6 @@
 FROM fjolsvin/base-alpine:latest
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-# build-base=0.5-r2 \
-# ca-certificates=20191127-r5 \
-# cmake=3.21.1-r0 \
-# coreutils=8.32-r2 \
-# curl=7.78.0-r0 \
-# findutils=4.8.0-r1 \
-# gcc=10.3.1_git20210625-r0 \
-# git=2.32.0-r2 \
-# make=4.3-r0 \
-# musl-dev=1.2.2-r5 \
-# ncurses-static=6.2_p20210731-r0 \
-# openssl-dev=1.1.1k-r1 \
-# openssl-libs-static=1.1.1k-r1 \
-# perl=5.34.0-r0 \
 ARG BASE_PACKAGES="\
   gcc=10.3.1_git20210625-r0 \
   openssl-libs-static=1.1.1k-r1 \
@@ -34,10 +20,10 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null  \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 COPY <<-"EOT" /usr/local/cargo/config
@@ -45,8 +31,6 @@ COPY <<-"EOT" /usr/local/cargo/config
   rustflags = ["-C", "target-feature=+crt-static"]
 [target.aarch64-unknown-linux-musl]
   rustflags = ["-C", "target-feature=+crt-static"]
-[target.armv7-unknown-linux-musleabihf]
-  linker = "arm-linux-gnueabihf-gcc"
 EOT
 # ────────────────────────────────────────────────────────────────────────────────
 USER root

@@ -41,7 +41,7 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null \
-  && apk add --update --no-cache \
+  && apk add --no-cache \
   sudo bash util-linux coreutils findutils util-linux shadow \
   grep gawk perl curl
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -143,10 +143,10 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null \
-  && apk add --update --no-cache ${BASE_PACKAGES} \
+  && apk add --no-cache ${BASE_PACKAGES} \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache ${BASE_PACKAGES} \
+  && apk add --no-cache ${BASE_PACKAGES} \
   ) \
   && curl https://i.jpillora.com/chisel! | sudo bash -s --
 
@@ -193,10 +193,10 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null \
-  && apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
+  && apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
+  && apk add --no-cache ${IMAGE_SPECIFIC_PACKAGES} \
   )
 RUN \
   usermod -aG docker "${USER}"

@@ -51,7 +51,7 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null  \
-  && apk add --update --no-cache "bash=5.1.8-r0"
+  && apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
@@ -71,10 +71,10 @@ ARG NEOVIM_BUILD_DEPENDENCIES="\
   "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
-  apk add --virtual .neovim-build-deps --update --no-cache "${packages[@]}" \
+  apk add --virtual .neovim-build-deps --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --virtual .neovim-build-deps --update --no-cache "${packages[@]}" \
+  && apk add --virtual .neovim-build-deps --no-cache "${packages[@]}" \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
@@ -98,10 +98,10 @@ ARG CTAGS_BUILD_DEPENDENCIES="\
   "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
-  apk add --virtual .ctags-build-deps --update --no-cache "${packages[@]}" \
+  apk add --virtual .ctags-build-deps --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --virtual .ctags-build-deps --update --no-cache "${packages[@]}" \
+  && apk add --virtual .ctags-build-deps --no-cache "${packages[@]}" \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
@@ -160,10 +160,10 @@ ARG BASE_PACKAGES="\
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
-  apk add --update --no-cache "${packages[@]}" \
+  apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}") \
+  && apk add --no-cache "${packages[@]}") \
   && cat '/usr/share/zoneinfo/Canada/Eastern' > /etc/localtime \
   && echo '[ -r /etc/profile ] && . /etc/profile' > "/root/.bashrc"
 
@@ -230,10 +230,10 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   "
 RUN \
   IFS=' ' read -a packages <<< $IMAGE_SPECIFIC_PACKAGES ; \
-  apk add --update --no-cache "${packages[@]}" \
+  apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" ) \
+  && apk add --no-cache "${packages[@]}" ) \
   && usermod -aG docker "${USER}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
@@ -245,10 +245,10 @@ ARG PYTHON_DEPENDENCIES="\
   "
 RUN \
   IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
-  apk add --update --no-cache "${packages[@]}" \
+  apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   )
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
@@ -276,10 +276,10 @@ ARG NODEJS_DEPENDENCIES="\
 "
 RUN \
   IFS=' ' read -a packages <<< $NODEJS_DEPENDENCIES ; \
-  apk add --update --no-cache "${packages[@]}" \
+  apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --update --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   )
 ARG NODEJS_PACKAGES="\
   neovim \
