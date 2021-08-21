@@ -1,0 +1,210 @@
+#-*-mode:yaml;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
+# vi: ft=yaml tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
+# docker run -e "USER=$USER" -e "PASSWD=$(openssl passwd -1 -salt SaltSalt '$USER' )" -w "/workspace" -v "$PWD:/workspace" -v "${HOME}/.ssh/id_rsa.pub:/id_rsa.pub:ro" --rm -it hairyhenderson/gomplate -f /workspace/lxd/debian/bullseye/devel.yml.tmpl
+description: {{ or (.Env.profile) "golang" }} Debian Bullseye LXD profile
+name: {{ or (.Env.profile) "bullseye" }}
+used_by: []
+devices:
+  workdir:
+    source: {{ .Env.PWD }}
+    path: /workspace
+    type: disk
+{{ if (.Env.SHIFT_FS | strings.Contains "true") }}    shift: true
+{{end}}
+config:
+  limits.memory.swap: "false"
+  security.nesting: "true"
+  security.privileged: "true"
+  raw.lxc: |
+    lxc.console.path=none
+    lxc.apparmor.profile=unconfined
+    lxc.apparmor.allow_nesting=1
+    lxc.apparmor.allow_incomplete=1
+    lxc.mount.auto=proc:rw sys:rw cgroup:rw:force
+    lxc.cgroup.devices.allow=a
+    lxc.cap.drop=
+  user.user-data: |
+    #cloud-config
+    output: {all: '| tee -a /var/log/cloud-init-output.log'}
+    # lxc exec  {{ (or (.Env.profile) "bullseye") }} -- tail -f /var/log/cloud-init-output.log
+    users:
+      - default
+      - name: {{ or (.Env.USER) "bullseye" }}
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+        groups: sudo,docker
+        shell: /bin/bash
+        lock_passwd: false
+        passwd: {{ or (.Env.PASSWD) "$1$SaltSalt$nSHHaXziL63h20MjLVtVP0" }}
+        ssh_authorized_keys:
+          - {{ "/id_rsa.pub" | file.Read }}
+    groups:
+        - docker
+    system_info:
+        default_user:
+            groups: [docker]
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
+    apt:
+      primary:
+      sources_list: |
+        deb $PRIMARY $RELEASE main contrib non-free
+        deb http://cdn-fastly.deb.debian.org/debian $RELEASE main contrib non-free
+        deb $PRIMARY $RELEASE-backports main contrib non-free
+        deb http://cdn-fastly.deb.debian.org/debian $RELEASE-backports main contrib non-free
+        deb $PRIMARY $RELEASE-updates main contrib non-free
+        deb http://cdn-fastly.deb.debian.org/debian $RELEASE-updates main contrib non-free
+        deb http://deb.debian.org/debian-security/ $RELEASE-security main contrib non-free
+      sources:
+        docker.list:
+          source: deb [arch=amd64] https://download.docker.com/linux/debian $RELEASE stable
+          keyid: 7EA0A9C3F273FCD8
+        yarn.list:
+          source: deb https://dl.yarnpkg.com/debian/ stable main
+          keyid: 23E7166788B63E1E
+        node.list:
+          source: deb https://deb.nodesource.com/node_16.x $RELEASE main
+          keyid: 1655A0AB68576280
+        hashicorp.list:
+          source: deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main
+          keyid: DA418C88A3219F7B
+      conf: |
+        APT {
+          Get {
+            Assume-Yes "true";
+            Fix-Broken "true";
+          };
+        };
+    packages:
+      - openssh-server
+      - apt-utils
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - sudo
+      - curl
+      - wget
+      - fzf
+      - ripgrep
+      - bat
+      - exa
+      - jq
+      - build-essential
+      - pkg-config
+      - bash-completion
+      - gnupg2
+      - gnupg-agent
+      - ca-certificates
+      - libssl-dev
+      - fontconfig
+      - xfonts-utils
+      - python3-dev
+      - nodejs
+      - yarn
+      - tmux
+      - cmake
+      - apt-transport-https
+      - software-properties-common
+      - lsb-release
+      - snapd
+      - squashfuse
+      - fuse
+      - apparmor-utils
+      - snapd
+
+    write_files:
+      - path: /etc/sysctl.d/enabled_ipv4_forwarding.conf
+        content: |
+          net.ipv4.conf.all.forwarding=1
+      - path: /etc/ssh/sshd_config
+        content: |
+          ChallengeResponseAuthentication no
+          # UsePAM yes
+          UsePAM no
+          X11Forwarding yes
+          PrintMotd no
+          AcceptEnv LANG LC_*
+          Subsystem       sftp    /usr/lib/openssh/sftp-server
+          PubkeyAuthentication yes
+          PermitRootLogin no
+          PasswordAuthentication no
+      - path: /etc/profile.d/00-env.sh
+        permissions: '0755'
+        content: |
+          export EDITOR="nvim" ;
+          export VISUAL="nvim" ;
+          export DOCKER_BUILDKIT="1" ;
+          export BUILDKIT_PROGRESS="auto" ;
+          export COMPOSE_DOCKER_CLI_BUILD="1" ;
+          export GOROOT="/usr/local/go" ;
+          export GO111MODULE="on" ;
+          export CGO_ENABLED="0" ;
+          export CGO_LDFLAGS="-s -w -extldflags \"-static\"" ;
+          export GOPATH="/go" ;
+          export CARGO_HOME="/usr/local/cargo" ;
+          export RUSTUP_HOME="/usr/local/rustup" ;
+          export PATH="${PATH}:/usr/local/bin"
+          npm --version >/dev/null 2>&1 && export PATH="${PATH}:$(npm -g bin)" ;
+          yarn --version >/dev/null 2>&1 && export PATH="${PATH}:$(yarn global bin)" ;
+          starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;
+          just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;
+          rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";
+          curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;
+          [ -d "${GOROOT}/bin" ] && export PATH="${GOROOT}/bin:${PATH}" ;
+          [ -d "${GOPATH}/bin" ] && export PATH="${GOPATH}/bin:${PATH}" ;
+          [ -d "${CARGO_HOME}/bin" ] && export PATH="${CARGO_HOME}/bin:${PATH}" ;
+          [ -d "${HOME}/bin" ] && export PATH="${HOME}/bin:${PATH}" ;
+          [ -d "${HOME}/.local/bin" ] && export PATH="${HOME}/.local/bin:${PATH}" ;
+      - path: /etc/profile.d/01-alias.sh
+        permissions: '0755'
+        content: |
+          alias apt='sudo apt'
+          alias g='git'
+          exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";
+          bat --version >/dev/null 2>&1 && alias cat="bat -pp";
+          just --version >/dev/null 2>&1 && alias j="just";
+          alias nvim='nvim --headless -c "call dein#recache_runtimepath()" -c "qall" && nvim'
+      - path: /etc/profile.d/02-func.sh
+        permissions: '0755'
+        content: |
+          (rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }
+          (rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }
+    runcmd:
+      - printenv > /tmp/env.txt
+      - systemctl restart sshd
+      - systemctl enable sshd
+      - docker run --rm -i hello-world
+      - curl -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf -o /etc/profile.d/bashrc_fzf.sh
+      - [/bin/bash,-xc,"[ -r /usr/bin/batcat ] && ln -sf /usr/bin/batcat /usr/local/bin/bat"]
+      - [/bin/bash,-xc,"wget -q -O - https://starship.rs/install.sh | bash -s -- --force"]
+      - [/bin/bash,-xc,"wget -q -O - https://just.systems/install.sh | bash -s -- --to /usr/local/bin" ]
+      - [/bin/bash,-xc,"wget -q -O - https://bootstrap.pypa.io/get-pip.py | python3 -"]
+      - [/bin/bash,-xc,"wget -q -O - https://aka.ms/vsls-linux-prereq-script | bash"]
+      - snap install nvim --edge --classic
+      - |
+        set -xeu ;
+        echo "========= cloud-init =========" > /tmp/cloud-init ;
+        export GOROOT=/usr/local/go ;
+        export "PATH=$GOROOT/bin:$PATH" ;
+        if ! go version > /dev/null 2>&1 ; then
+          export GOPATH=/go ;
+          wget -q -O - https://git.io/vQhTU | bash -s -- --version 1.17 ;
+          chown "$(id -u {{ or (.Env.USER) "bullseye" }}):$(id -g {{ or (.Env.USER) "bullseye" }})" "${GOPATH}" -R ;
+          chown "$(id -u {{ or (.Env.USER) "bullseye" }}):$(id -g {{ or (.Env.USER) "bullseye" }})" "${GOROOT}" -R ;
+        fi
+        export CARGO_HOME="/usr/local/cargo" ;
+        export PATH="${CARGO_HOME}/bin:${PATH}" ;
+        if ! cargo --version > /dev/null 2>&1;then
+          export RUST_VERSION="1.54.0" ;
+          export RUSTUP_URL="https://sh.rustup.rs" ;
+          export RUSTUP_HOME="/usr/local/rustup" ;
+          curl --proto '=https' --tlsv1.2 -fSsl "${RUSTUP_URL}" | bash -s -- -y \
+          --no-modify-path \
+          --profile default \
+          --default-toolchain "${RUST_VERSION}" ;
+          chmod -R a+w "${RUSTUP_HOME}" "${CARGO_HOME}" ;
+          chown "$(id -u {{ or (.Env.USER) "bullseye" }}):$(id -g {{ or (.Env.USER) "bullseye" }})" "${CARGO_HOME}" -R ;
+          chown "$(id -u {{ or (.Env.USER) "bullseye" }}):$(id -g {{ or (.Env.USER) "bullseye" }})" "${RUSTUP_HOME}" -R ;
+        fi
+        chown "$(id -u {{ or (.Env.USER) "bullseye" }}):$(id -g {{ or (.Env.USER) "bullseye" }})" /home/{{ or (.Env.USER) "bullseye" }} -R ;
+        exit 0 ;
