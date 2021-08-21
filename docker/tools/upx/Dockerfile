@@ -110,6 +110,7 @@ find . -mindepth 1 -maxdepth 1 -type d -exec rm -r "{}" \;
 EOT
 RUN \
   chmod a+x /usr/local/bin/* \
+  && upx --version \
   && apk del .deps-upx \
   && rm -rf \
     /var/cache/apk/* \
