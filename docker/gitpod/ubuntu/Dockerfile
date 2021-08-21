@@ -36,6 +36,8 @@ FROM fjolsvin/delta:latest AS delta
 FROM fjolsvin/ttdl:latest AS ttdl
 # hadolint ignore=DL3007
 FROM fjolsvin/clog:latest AS clog
+# hadolint ignore=DL3007
+FROM fjolsvin/git-governance:latest AS git-governance
 # ────────────────────────────────────────────────────────────────────────────────
 FROM gitpod/workspace-full:build-branch-master
 # ────────────────────────────────────────────────────────────────────────────────
@@ -332,6 +334,7 @@ COPY --from=delta /workspace/delta /usr/local/bin/delta
 COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
 COPY --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
 COPY --from=clog /workspace/clog /usr/local/bin/clog
+COPY --from=git-governance /workspace/gg /usr/local/bin/gg
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
