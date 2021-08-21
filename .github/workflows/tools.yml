@@ -1,111 +1,55 @@
-name: tools
-true:
+---
+# [ TODO ] => move upx to a seperate workflow
+name: "tools"
+on:
+  schedule:
+    - cron: "0 0 * * *"
   push:
     paths:
-      - docker/tools/**/*
-      - .github/workflows/tools.yml
-      - docker/builder/rust/alpine/*
-  schedule:
-    - cron: '0 0 * * *'
+      - "docker/tools/**/*"
+      - ".github/workflows/tools.yml"
+      - "docker/builder/rust/alpine/*"
   workflow_dispatch:
 jobs:
-  bat:
-    defaults:
-      run:
-        working-directory: ./docker/tools/bat
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.bat == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push bat docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  cellar:
-    defaults:
-      run:
-        working-directory: ./docker/tools/cellar
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.cellar == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push cellar docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
   changes:
-    outputs:
-      bat: '${{ steps.filter.outputs.bat }}'
-      cellar: '${{ steps.filter.outputs.cellar }}'
-      clog: '${{ steps.filter.outputs.clog }}'
-      convco: '${{ steps.filter.outputs.convco }}'
-      delta: '${{ steps.filter.outputs.delta }}'
-      exa: '${{ steps.filter.outputs.exa }}'
-      fd: '${{ steps.filter.outputs.fd }}'
-      gg: '${{ steps.filter.outputs.gg }}'
-      hyperfine: '${{ steps.filter.outputs.hyperfine }}'
-      jen: '${{ steps.filter.outputs.jen }}'
-      jsonfmt: '${{ steps.filter.outputs.jsonfmt }}'
-      just: '${{ steps.filter.outputs.just }}'
-      petname: '${{ steps.filter.outputs.petname }}'
-      releez: '${{ steps.filter.outputs.releez }}'
-      ripgrep: '${{ steps.filter.outputs.ripgrep }}'
-      rust: '${{ steps.filter.outputs.rust }}'
-      sad: '${{ steps.filter.outputs.sad }}'
-      scoob: '${{ steps.filter.outputs.scoob }}'
-      sd: '${{ steps.filter.outputs.sd }}'
-      shfmt: '${{ steps.filter.outputs.shfmt }}'
-      skim: '${{ steps.filter.outputs.skim }}'
-      sops: '${{ steps.filter.outputs.sops }}'
-      starship: '${{ steps.filter.outputs.starship }}'
-      tojson: '${{ steps.filter.outputs.tojson }}'
-      tokei: '${{ steps.filter.outputs.tokei }}'
-      ttdl: '${{ steps.filter.outputs.ttdl }}'
-      upx: '${{ steps.filter.outputs.upx }}'
-      workflows: '${{ steps.filter.outputs.workflows }}'
-      yq: '${{ steps.filter.outputs.yq }}'
     runs-on: ubuntu-latest
+    outputs:
+      workflows: ${{ steps.filter.outputs.workflows }}
+      upx: ${{ steps.filter.outputs.upx }}
+      rust: ${{ steps.filter.outputs.rust }}
+      clog: ${{ steps.filter.outputs.clog }}
+      convco: ${{ steps.filter.outputs.convco }}
+      jen: ${{ steps.filter.outputs.jen }}
+      petname: ${{ steps.filter.outputs.petname }}
+      tojson: ${{ steps.filter.outputs.tojson }}
+      jsonfmt: ${{ steps.filter.outputs.jsonfmt }}
+      just: ${{ steps.filter.outputs.just }}
+      fd: ${{ steps.filter.outputs.fd }}
+      exa: ${{ steps.filter.outputs.exa }}
+      bat: ${{ steps.filter.outputs.bat }}
+      tokei: ${{ steps.filter.outputs.tokei }}
+      delta: ${{ steps.filter.outputs.delta }}
+      cellar: ${{ steps.filter.outputs.cellar }}
+      releez: ${{ steps.filter.outputs.releez }}
+      ripgrep: ${{ steps.filter.outputs.ripgrep }}
+      sad: ${{ steps.filter.outputs.sad }}
+      scoob: ${{ steps.filter.outputs.scoob }}
+      skim: ${{ steps.filter.outputs.skim }}
+      hyperfine: ${{ steps.filter.outputs.hyperfine }}
+      sd: ${{ steps.filter.outputs.sd }}
+      starship: ${{ steps.filter.outputs.starship }}
+      shfmt: ${{ steps.filter.outputs.shfmt }}
+      yq: ${{ steps.filter.outputs.yq }}
+      sops: ${{ steps.filter.outputs.sops }}
+      ttdl: ${{ steps.filter.outputs.ttdl }}
+      gg: ${{ steps.filter.outputs.gg }}
     steps:
-      - name: 'Check out the repo'
+      - name: Check out the repo
         uses: actions/checkout@v2
-      - id: filter
-        uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
         with:
-          base: '${{ github.ref }}'
+          base: ${{ github.ref }}
           filters: |
             workflows:
               - '.github/workflows/*.yml'
@@ -161,723 +105,760 @@ jobs:
               - 'docker/tools/sops/**'
             ttdl:
               - 'docker/tools/ttdl/**'
-            gg:
-              - 'docker/tools/git-governance/**'
-  clog:
-    defaults:
-      run:
-        working-directory: ./docker/tools/clog
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.clog == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push clog docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  convco:
-    defaults:
-      run:
-        working-directory: ./docker/tools/convco
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.convco == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push convco docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  delta:
-    defaults:
-      run:
-        working-directory: ./docker/tools/delta
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.delta == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push delta docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  exa:
-    defaults:
-      run:
-        working-directory: ./docker/tools/exa
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.exa == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push exa docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  fd:
-    defaults:
-      run:
-        working-directory: ./docker/tools/fd
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.fd == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push fd docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  gg:
-    defaults:
-      run:
-        working-directory: ./docker/tools/git-governance
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.git-governance
-      == ''true''  || needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push git-governance docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  hyperfine:
-    defaults:
-      run:
-        working-directory: ./docker/tools/hyperfine
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.hyperfine == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push hyperfine docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  jen:
-    defaults:
-      run:
-        working-directory: ./docker/tools/jen
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.jen == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push jen docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  jsonfmt:
-    defaults:
-      run:
-        working-directory: ./docker/tools/jsonfmt
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.jsonfmt == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push jsonfmt docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  just:
-    defaults:
-      run:
-        working-directory: ./docker/tools/just
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.just == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push just docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  petname:
-    defaults:
-      run:
-        working-directory: ./docker/tools/petname
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.petname == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push petname docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  releez:
-    defaults:
-      run:
-        working-directory: ./docker/tools/releez
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.releez == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push releez docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  ripgrep:
-    defaults:
-      run:
-        working-directory: ./docker/tools/ripgrep
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.ripgrep == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push ripgrep docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  sad:
-    defaults:
-      run:
-        working-directory: ./docker/tools/sad
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.sad == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push sad docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  scoob:
-    defaults:
-      run:
-        working-directory: ./docker/tools/scoob
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.scoob == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push scoob docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  sd:
-    defaults:
-      run:
-        working-directory: ./docker/tools/sd
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.sd == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push sd docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  shfmt:
-    defaults:
-      run:
-        working-directory: ./docker/tools/shfmt
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.shfmt ==
-      ''true''  || needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push shfmt docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  skim:
-    defaults:
-      run:
-        working-directory: ./docker/tools/skim
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.skim == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push skim docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  sops:
-    defaults:
-      run:
-        working-directory: ./docker/tools/sops
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.sops == ''true''  ||
-      needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push sops docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  starship:
-    defaults:
-      run:
-        working-directory: ./docker/tools/starship
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.starship == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push starship docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  tojson:
-    defaults:
-      run:
-        working-directory: ./docker/tools/tojson
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.tojson == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push tojson docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  tokei:
-    defaults:
-      run:
-        working-directory: ./docker/tools/tokei
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.rust == ''true''
-      || needs.changes.outputs.tokei == ''true''  || needs.changes.outputs.workflows
-      == ''true'' }}'
-    name: 'build and push tokei docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
-  ttdl:
-    defaults:
-      run:
-        working-directory: ./docker/tools/ttdl
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.ttdl == ''true''  ||
-      needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push ttdl docker image'
-    needs:
-      - changes
-    runs-on: ubuntu-18.04
-    steps:
-      - name: 'Check out the repo'
-        uses: actions/checkout@v2
-      - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
-        shell: bash
   upx:
+    needs: changes
+    if: ${{ github.event_name == 'schedule' || needs.changes.outputs.upx == 'true' || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./docker/tools/upx
-    if: '${{ github.event_name == ''schedule'' || needs.changes.outputs.upx == ''true''
-      || needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push upx docker image'
-    needs: changes
+    name: "build and push upx docker image"
     runs-on: ubuntu-18.04
     steps:
-      - name: 'Check out the repo'
+      - name: Check out the repo
         uses: actions/checkout@v2
-      - name: 'Set up QEMU'
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
+      - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${OCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
         shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  convco:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.convco == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/convco
+    name: "build and push convco docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  clog:
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.clog == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    defaults:
+      run:
+        working-directory: ./docker/tools/clog
+    name: "build and push clog docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  jen:
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.jen == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    needs: [changes]
+    defaults:
+      run:
+        working-directory: ./docker/tools/jen
+    name: "build and push jen docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  petname:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.petname == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/petname
+    name: "build and push petname docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  tojson:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tojson == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/tojson
+    name: "build and push tojson docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  jsonfmt:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.jsonfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/jsonfmt
+    name: "build and push jsonfmt docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  just:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.just == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/just
+    name: "build and push just docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  fd:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.fd == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/fd
+    name: "build and push fd docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  exa:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.exa == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/exa
+    name: "build and push exa docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  bat:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.bat == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/bat
+    name: "build and push bat docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  tokei:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.tokei == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/tokei
+    name: "build and push tokei docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  delta:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.delta == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/delta
+    name: "build and push delta docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  skim:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.skim == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/skim
+    name: "build and push skim docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  cellar:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.cellar == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/cellar
+    name: "build and push cellar docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  releez:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.releez == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/releez
+    name: "build and push releez docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  ripgrep:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.ripgrep == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/ripgrep
+    name: "build and push ripgrep docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  sad:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sad == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/sad
+    name: "build and push sad docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  scoob:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.scoob == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/scoob
+    name: "build and push scoob docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  hyperfine:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.hyperfine == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/hyperfine
+    name: "build and push hyperfine docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  sd:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.sd == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/sd
+    name: "build and push sd docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  starship:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.rust == 'true' || needs.changes.outputs.starship == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/starship
+    name: "build and push starship docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+
+  shfmt:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.shfmt == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/shfmt
+    name: "build and push shfmt docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
   yq:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.yq == 'true'  || needs.changes.outputs.workflows == 'true' }}
     defaults:
       run:
         working-directory: ./docker/tools/yq
-    if: '${{ github.event_name == ''schedule'' ||  needs.changes.outputs.yq == ''true''  ||
-      needs.changes.outputs.workflows == ''true'' }}'
-    name: 'build and push yq docker image'
-    needs:
-      - changes
+    name: "build and push yq docker image"
     runs-on: ubuntu-18.04
     steps:
-      - name: 'Check out the repo'
+      - name: Check out the repo
         uses: actions/checkout@v2
-      - name: 'Set up QEMU'
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      - id: buildx
-        name: 'Set up Docker Buildx'
+      - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           install: true
-      - env:
-          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
-          DOCKER_USERNAME: '${{ secrets.DOCKER_USERNAME }}'
-        name: 'Login to Docker Container Repository'
-        run: 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
-      - name: 'build docker image'
-        run: 'set -ex && bash build.sh'
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
         shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  sops:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.sops == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/sops
+    name: "build and push sops docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  ttdl:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.ttdl == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/ttdl
+    name: "build and push ttdl docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
+  gg:
+    needs: [changes]
+    if: ${{ github.event_name == 'schedule' ||  needs.changes.outputs.git-governance == 'true'  || needs.changes.outputs.workflows == 'true' }}
+    defaults:
+      run:
+        working-directory: ./docker/tools/git-governance
+    name: "build and push git-governance docker image"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: "Login to Docker Container Repository"
+        run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: "build docker image"
+        shell: bash
+        run: >
+          set -ex &&
+          bash build.sh
