@@ -50,151 +50,21 @@ RUN \
   add-apt-repository -y ppa:neovim-ppa/unstable > /dev/null 2>&1 \
   && apt-get update -qq > /dev/null 2>&1 \
   && curl -fsSl https://i.jpillora.com/chisel! | bash > /dev/null 2>&1 \
-  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1
-ARG APT_PACKAGES="\
-  tmux \
-  dropbear \
-  cmake \
-  jq \
-  curl \
-  neovim \
-  fzf \
-  xfonts-utils \
-  libssl-dev \
-  fonts-symbola \
-  pandoc \
-  librsvg2-bin \
-  ncdu \
-  pdftk \
-  poppler-utils \
-  ripgrep \
-  texmaker \
-  texlive-xetex \
-  texlive-fonts-recommended \
-  texlive-fonts-extra \
-  texlive-latex-extra \
-  ttf-mscorefonts-installer \
-  lmodern \
-  xsel \
-  xclip \
-  "
-RUN install-packages ${APT_PACKAGES}
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-WORKDIR "/root"
-RUN \
-  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
-  && python2 --version > /dev/null 2>&1 \
-  && curl \
-    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
-  || true ;
-ARG PYTHON_PACKAGES="\
-  neovim \
-  notedown \
-  pylint \
-  yapf \
-  autoflake \
-  isort \
-  coverage \
-  "
-ENV PIP_USER="false"
-RUN \
-  IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  pyenv --version > /dev/null 2>&1 && ( \
-    $(pyenv which python) -m  pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-    && pyenv rehash ; \
-  ) || python3 -m  pip install --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && python2 -m pip install --no-cache-dir "neovim" \
-  && curl -fSsl https://pre-commit.com/install-local.py | python3 -
-# ────────────────────────────────────────────────────────────────────────────────
-USER gitpod
-ENV PATH="${PATH}:${HOME}/.local/bin"
-WORKDIR "${HOME}"
-RUN \
-  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
-  && python2 --version > /dev/null 2>&1 \
-  && curl \
-    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
-  || true ;
-ENV PATH="${PATH}:${HOME}/bin"
-# RUN \
-  # curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python3) -
-# ────────────────────────────────────────────────────────────────────────────────
-WORKDIR "/tmp"
-ARG NODEJS_PACKAGES="\
-  neovim \
-  remark \
-  remark-cli \
-  remark-stringify \
-  remark-frontmatter \
-  wcwidth \
-  prettier \
-  bash-language-server \
-  dockerfile-language-server-nodejs \
-  standard-readme-spec \
-  "
-# [ NOTE ] neovim could not detect 'neovim' NodeJS package
-# installed through Yarn.
-RUN \
-  IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
-  npm install -g "${NODEJS_PACKAGES[@]}"
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-WORKDIR "${HOME}"
-RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && find "${HOME}" \
-  -not -group "$(id -g gitpod)" \
-  -not -user "$(id -u gitpod)" \
-  -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \
-  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
-# ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
-USER gitpod
-WORKDIR "${HOME}"
-RUN \
-  rm -rf \
-  ~/.SpaceVim \
-  ~/.vim* \
-  ~/.config/*vim* \
-  ~/.cache/*vim* \
-  ~/.cache/neosnippet \
-  ~/.local/share/*vim* \
-  && curl -sLf https://spacevim.org/install.sh | bash \
-  && sed \
-  -i.bak 's/call dein#add/"call dein#add/g' \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && mkdir -p "$HOME/.local/share/nvim/shada" \
-  && nvim --headless \
-  -c "call dein#direct_install('fatih/vim-go')" \
-  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
-  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
-  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
-  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
-  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-  -c "qall" ;
-  # -c "call dein#direct_install('neoclide/coc.nvim', { 'merged': 0, 'rev': 'master', 'build': 'yarn install --frozen-lockfile' })" \
-RUN \
-  mv \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
-  && nvim --headless \
-    -c "call dein#install()" \
-    -c "call dein#update()" \
-    -c "call dein#remote_plugins()" \
-    -c "call dein#recache_runtimepath()" \
-    -c "UpdateRemotePlugins" \
-    -c "qall" ; \
-  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
-# ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
-USER gitpod
-WORKDIR "${HOME}"
-RUN \
-  IFS=' ' read -a coc_extensions <<< "$(nvim --headless -c "call PrintCocExtensions()"  -c "qall" 2>&1)" ; \
-  [ "${#coc_extensions[@]}" -ne 0  ] \
-  && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
-  || true
+  && curl -fsSL https://starship.rs/install.sh | bash -s -- --force > /dev/null 2>&1 \
+  && install-packages \
+    tmux \
+    dropbear \
+    cmake \
+    jq \
+    ripgrep \
+    curl \
+    neovim \
+    fzf \
+    xfonts-utils \
+    libssl-dev \
+    fonts-symbola \
+    xsel \
+    xclip
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 WORKDIR "${HOME}"
@@ -240,44 +110,43 @@ RUN \
   && rm -r /tmp/rust-analyzer
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-WORKDIR "/root"
-ARG CARGO_PACKAGES="\
-  cargo-make \
-  "
-RUN \
-  rustup default stable ; \
-  IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
-  cargo install --locked --all-features --root /usr/local "${packages[@]}"
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PATH="${PATH}:/usr/local/bin"
 WORKDIR "/etc/profile.d"
 RUN \
+  [ -d "${HOME}/.bashrc.d" ] && while read i; do ln -sf "$i" "/etc/profile.d/$(basename $i).sh"; done < <(find ${HOME}/.bashrc.d -type f ) || true ; \
   curl \
   -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
   -o /etc/profile.d/bashrc_fzf.sh \
   && ( \
-  echo 'PIP_USER="false"' ; \
-  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
   echo "export EDITOR=\"${EDITOR}\"" ; \
   echo "export VISUAL=\"${VISUAL}\"" ; \
   echo 'export DOCKER_BUILDKIT="0"' ; \
   echo 'export BUILDKIT_PROGRESS="auto"' ; \
   echo 'export COMPOSE_DOCKER_CLI_BUILD="0"' ; \
-  echo 'npm --version >/dev/null 2>&1 && export PATH="${PATH}:$(npm -g bin)" ;' ; \
-  echo 'yarn --version >/dev/null 2>&1 && export PATH="${PATH}:$(yarn global bin)" ;' ; \
-  echo 'gp --help >/dev/null 2>&1 && eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g")' ; \
+  echo 'export GEM_HOME=/workspace/.rvm' ; \
+  echo 'export GEM_PATH=$GEM_HOME:$GEM_PATH' ; \
+  echo 'export GOROOT="${HOME}/go" ;' ; \
+  echo 'export GOPATH="/workspace/go-packages" ;' ; \
+  echo 'export PYTHONUSERBASE=/workspace/.pip-modules ;' ; \
+  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
+  echo '[ -d ${GEM_HOME} ] && export PATH="${GEM_HOME}/bin:$PATH" ;' ; \
+  echo '[ -d ${GOROOT} ] && export PATH="${GO_ROOT}/bin:$PATH" ;' ; \
+  echo '[ -d ${GOPATH} ] && export PATH="${GOPATH}/bin:$PATH" ;' ; \
+  echo '[ -d ${HOME}/.local/bin ] && export PATH="${HOME}/.local/bin:${PATH}"' ; \
+  echo '[ -d ${HOME}/.cargo/bin ] && export PATH="${HOME}/.cargo/bin:${PATH}";';  \
+  echo '[ -d ${PYTHONUSERBASE} ] && export PATH="${PYTHONUSERBASE}/bin:$PATH" ;' ; \
+  echo '[ -d ${HOME}/.pyenv/bin ] && export PATH="${HOME}/.pyenv/bin:${PATH}";' ; \
+  echo '[ -d ${HOME}/.pyenv/shims ] && export PATH="${HOME}/.pyenv/shims:${PATH}" ;' ; \
+  echo '[ -d ${HOME}/bin ] && export PATH="${HOME}/bin":${PATH}' ; \
+  echo 'npm --version >/dev/null 2>&1 && export PATH="$(npm -g bin):${PATH}" ;' ; \
+  echo 'yarn --version >/dev/null 2>&1 && export PATH="$(yarn global bin):${PATH}" ;' ; \
+  echo 'gp --help >/dev/null 2>&1 && (eval $(gp env | sed -e "s/\(=[[:blank:]]*\)\(.*\)/\1\"\2\" ;/" -e "s/^/export /g") ; source <(gp completion) ;)' ; \
   echo 'starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;' ; \
   echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
   echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
   echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
-  echo "[ -d ${HOME}/go ] && export GOROOT=\"${HOME}/go\";"; \
-  echo "[ -d ${HOME}/go ] && export GOPATH=\"${HOME}/go-packages\";"; \
-  echo "[ -d ${HOME}/go ] && export PATH=\"\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin\";"; \
-  echo "[ -d ${HOME}/.cargo/bin ] && export PATH=\"\${PATH}:${HOME}/.cargo/bin\";"; \
-  echo "[ -d ${HOME}/.pyenv/bin ] && export PATH=\"\${PATH}:${HOME}/.pyenv/bin\";"; \
   ) | tee 00-env.sh > /dev/null \
   && ( \
   echo "alias apt='sudo apt'" ; \
@@ -291,20 +160,120 @@ RUN \
   echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
   echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
   ) | tee 02-func.sh > /dev/null \
-  && [ -r /etc/bash.bashrc ] && echo 'while read i; do source "$i"; done < <(find /etc/profile.d/ -name "*.sh")' >> /etc/bash.bashrc
+  && [ -r /etc/bash.bashrc ] && (\
+    echo 'while read i; do source "$i"; done < <(find /etc/profile.d/ -name "*.sh") ;' ; \
+  ) | tee -a /etc/bash.bashrc
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 WORKDIR "${HOME}"
 RUN \
-  sed -i \
-  -e '/^\s*#/d' \
-  -e '/cargo/d' \
-  -e '/^\s*$/d' \
-  "${HOME}/.profile" \
+  [ -r "${HOME}/.bashrc.d/60-python" ] \
+  && sed -i -e 's/pyenv/${HOME}\/.pyenv\/bin\/pyenv/g'  "${HOME}/.bashrc.d/60-python" \
+  && sed -i \
+    -e '/\$HOME\/\.bashrc\.d/d' \
+    -e '/PIP/d' \
+    -e '/PYTHONUSERBASE/d' \
+    -e '/gp completion/d' \
+    -e '/\.cargo\/env/d' \
+    -e '/rvm/d' \
+    -e '/GEM/d' \
+    "${HOME}/.bashrc" \
   && ( \
-  echo "export EDITOR=\"${EDITOR}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  ) | tee -a "${HOME}/.profile" > /dev/null ;
+  echo "[ -r '\${HOME}/.bashrc' ] && sed -i \\" ; \
+  echo "-e '/\\\$HOME\/\.bashrc\.d/d' \\" ; \
+  echo "-e '/cargo/d' \\" ; \
+  echo "-e '/PIP/d' \\" ; \
+  echo "-e '/PYTHONUSERBASE/d' \\" ; \
+  echo "-e '/gp completion/d' \\" ; \
+  echo "-e '/rvm/d' \\" ; \
+  echo "-e '/GEM/d' \\" ; \
+  echo "'\${HOME}/.bashrc' \\" ; \
+  echo '&& . ${HOME}/.bashrc' ; \
+  ) | tee "${HOME}/.profile" > /dev/null ;
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+RUN \
+  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
+  && python2 --version > /dev/null 2>&1 \
+  && curl \
+    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
+  || true ;
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+ENV PATH="${PATH}:${HOME}/.local/bin"
+WORKDIR "${HOME}"
+RUN \
+  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
+  && python2 --version > /dev/null 2>&1 \
+  && curl \
+    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
+  || true ;
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  python3 -m pip install --no-cache-dir "neovim" \
+  && python2 -m pip install --no-cache-dir "neovim"
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  npm install -g "neovim"
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "${HOME}"
+RUN \
+  curl -sLf https://spacevim.org/install.sh | bash \
+  && find "${HOME}" \
+  -not -group "$(id -g gitpod)" \
+  -not -user "$(id -u gitpod)" \
+  -print \
+  | xargs -I {} -P `nproc` --no-run-if-empty \
+  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
+# ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
+RUN \
+  rm -rf \
+  ~/.SpaceVim \
+  ~/.vim* \
+  ~/.config/*vim* \
+  ~/.cache/*vim* \
+  ~/.cache/neosnippet \
+  ~/.local/share/*vim* \
+  && curl -sLf https://spacevim.org/install.sh | bash \
+  && sed \
+  -i.bak 's/call dein#add/"call dein#add/g' \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && mkdir -p "$HOME/.local/share/nvim/shada" \
+  && nvim --headless \
+  -c "call dein#direct_install('fatih/vim-go')" \
+  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
+  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
+  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
+  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
+  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
+  -c "qall" ;
+RUN \
+  mv \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
+  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
+  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
+  && nvim --headless \
+    -c "call dein#install()" \
+    -c "call dein#update()" \
+    -c "call dein#remote_plugins()" \
+    -c "call dein#recache_runtimepath()" \
+    -c "UpdateRemotePlugins" \
+    -c "qall" ; \
+  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
+# ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
+RUN \
+  IFS=' ' read -a coc_extensions <<< "$(nvim --headless -c "call PrintCocExtensions()"  -c "qall" 2>&1)" ; \
+  [ "${#coc_extensions[@]}" -ne 0  ] \
+  && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
+  || true
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
@@ -316,6 +285,85 @@ RUN \
   && sudo rm /tmp/delta \
   && git clone https://github.com/bigH/git-fuzzy "$HOME/.git-fuzzy" \
   && chmod +x $HOME/.git-fuzzy/bin/*
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+ARG CARGO_PACKAGES="\
+  cargo-make \
+  "
+RUN \
+  rustup default stable ; \
+  IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
+  cargo install --locked --all-features --root /usr/local "${packages[@]}"
+# ────────────────────────────────────────────────────────────────────────────────
+USER gitpod
+WORKDIR "${HOME}"
+ARG PYTHON_PACKAGES="\
+  notedown \
+  pylint \
+  yapf \
+  autoflake \
+  isort \
+  coverage \
+  "
+# ENV PIP_USER="false"
+ENV PATH="${PATH}:${HOME}/bin"
+RUN \
+  IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
+  pyenv --version > /dev/null 2>&1 && ( \
+    $(pyenv which python) -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+    && pyenv rehash ; \
+  ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
+  && ( curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python) - \
+  || curl -fSsl https://pre-commit.com/install-local.py | python3 -)
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+ARG NODEJS_PACKAGES="\
+  remark \
+  remark-cli \
+  remark-stringify \
+  remark-frontmatter \
+  wcwidth \
+  prettier \
+  bash-language-server \
+  dockerfile-language-server-nodejs \
+  standard-readme-spec \
+  "
+# [ NOTE ] neovim could not detect 'neovim' NodeJS package
+# installed through Yarn.
+RUN \
+  IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
+  npm install -g "${NODEJS_PACKAGES[@]}"
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+ARG APT_PACKAGES="\
+  pandoc \
+  librsvg2-bin \
+  ncdu \
+  pdftk \
+  poppler-utils \
+  texmaker \
+  texlive-xetex \
+  texlive-fonts-recommended \
+  texlive-fonts-extra \
+  texlive-latex-extra \
+  ttf-mscorefonts-installer \
+  lmodern \
+  "
+RUN install-packages ${APT_PACKAGES}
+RUN \
+  find "${HOME}" \
+    -not -group "$(id -g gitpod)" \
+    -not -user "$(id -u gitpod)" \
+    -print \
+  | xargs -I {} -P `nproc` --no-run-if-empty \
+  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ; \
+  [ -d /workspace ] && chown "$(id -u gitpod):$(id -g gitpod)" "/workspace" ; \
+  yarn cache clean --all \
+  && npm -g cache clean --force > /dev/null 2>&1 \
+  && rm -rf \
+    /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 COPY --from=yq /workspace/yq /usr/local/bin/yq
 COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
@@ -336,21 +384,6 @@ COPY --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
 COPY --from=clog /workspace/clog /usr/local/bin/clog
 COPY --from=git-governance /workspace/gg /usr/local/bin/gg
 # COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-WORKDIR "/root"
-RUN \
-  find "${HOME}" \
-    -not -group "$(id -g gitpod)" \
-    -not -user "$(id -u gitpod)" \
-    -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \
-  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ; \
-  [ -d /workspace ] && chown "$(id -u gitpod):$(id -g gitpod)" "/workspace" ; \
-  yarn cache clean --all \
-  && npm -g cache clean --force > /dev/null 2>&1 \
-  && rm -rf \
-    /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 WORKDIR /workspace
