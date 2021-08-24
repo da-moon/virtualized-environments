@@ -85,8 +85,7 @@ RUN \
   CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
   && make -j"$(nproc)" install  \
   && rm -r /usr/src/neovim \
-  && apk del --no-cache --purge .neovim-build-deps \
-  && rm -rf /tmp/*
+  && apk del --no-cache --purge .neovim-build-deps
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG CTAGS_BUILD_DEPENDENCIES="\
@@ -113,8 +112,7 @@ RUN  \
   && make -j"$(nproc)" \
   && make -j"$(nproc)" install  \
   && rm -rf /usr/src/ctags \
-  && apk del --no-cache --purge .ctags-build-deps \
-  && rm -rf /tmp/*
+  && apk del --no-cache --purge .ctags-build-deps
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 #   autoconf=2.71-r0 \
@@ -265,7 +263,6 @@ ARG PYTHON_PACKAGES="\
   "
 RUN \
   IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  sudo apk add  ; \
   python3 -m pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
