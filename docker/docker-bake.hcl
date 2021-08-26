@@ -49,9 +49,9 @@ group "default" {
         "tools-yq",
     ]
 }
-# local=true docker buildx bake --builder virtualized-environments rust-alpine
-# local=true arm64=false amd64=true docker buildx bake --builder virtualized-environments rust-alpine
-# local=true arm64=true amd64=false docker buildx bake --builder virtualized-environments rust-alpine
+# LOCAL=true docker buildx bake --builder virtualized-environments rust-alpine
+# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments rust-alpine
+# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments rust-alpine
 target "builder-rust-alpine" {
     context="./builder/rust/alpine"
     dockerfile = "Dockerfile"
@@ -67,9 +67,9 @@ target "builder-rust-alpine" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/rust-builder-alpine:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
-# local=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
-# local=true arm64=false amd64=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
-# local=true arm64=true amd64=false docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+# LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-core-alpine
 target "devcontainer-core-alpine" {
     context="./devcontainer/core/alpine"
     dockerfile = "Dockerfile"
@@ -85,9 +85,9 @@ target "devcontainer-core-alpine" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/base-alpine:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
-# local=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
-# local=true arm64=false amd64=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
-# local=true arm64=true amd64=false docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
+# LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
+# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
+# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
 target "devcontainer-golang-alpine" {
     context="./devcontainer/golang/alpine"
     dockerfile = "Dockerfile"
@@ -103,9 +103,9 @@ target "devcontainer-golang-alpine" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/golang-alpine-sandbox:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
-# local=true docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
-# local=true arm64=false amd64=true docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
-# local=true arm64=true amd64=false docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
+# LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
+# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
+# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-rust-alpine
 target "devcontainer-rust-alpine" {
     context="./devcontainer/rust/base/alpine"
     dockerfile = "Dockerfile"
