@@ -59,6 +59,7 @@ RUN \
     ripgrep \
     curl \
     neovim \
+    tree \
     fzf \
     xfonts-utils \
     libssl-dev \
