@@ -64,6 +64,7 @@ RUN \
     libssl-dev \
     fonts-symbola \
     xsel \
+    xauth \
     xclip
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
