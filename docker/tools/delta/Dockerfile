@@ -10,7 +10,7 @@ RUN \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
   build --stable "git-delta"
 FROM fjolsvin/upx AS compression-layer
-COPY --from=delta-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=delta-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
@@ -20,7 +20,7 @@ USER root
 RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN /workspace/delta --version
 WORKDIR /userspace
 VOLUME /userspace

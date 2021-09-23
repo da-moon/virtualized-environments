@@ -9,17 +9,17 @@ RUN \
   --mount=type=cache,target=/usr/local/cargo/registry \
   build --stable "just"
 FROM fjolsvin/upx AS compression-layer
-COPY --from=just-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=just-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN apk add --no-cache "bash=5.1.8-r0" "fzf=0.27.2-r1"
+RUN apk add --no-cache "bash=5.1.8-r0" "fzf=0.27.2-r2"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN /workspace/just --version
 WORKDIR /userspace
 VOLUME /userspace

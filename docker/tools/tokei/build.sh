@@ -23,7 +23,7 @@ else
   if [[ $(docker buildx version 2>/dev/null) ]]; then
     builder="$(echo "$IMAGE_NAME" | cut -d/ -f2)"
     BUILD+=" buildx build"
-    BUILD+=" --platform linux/amd64,linux/arm64"
+    # BUILD+=" --platform linux/amd64,linux/arm64"
     BUILD+=" --cache-to type=registry,mode=max,ref=${CACHE_NAME}"
     BUILD+=" --push"
     docker buildx use "${builder}" || docker buildx create --use --name "${builder}"

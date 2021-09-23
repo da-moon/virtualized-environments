@@ -1,17 +1,26 @@
 #-*-mode:hcl;indent-tabs-mode:nil;tab-width:2;coding:utf-8-*-
 # vi: ft=hcl tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 
+# ────────────────────────────────────────────────────────────────────────────────
 # [ NOTE ] => clean up buildx builders
 # docker buildx ls | awk '$2 ~ /^docker(-container)*$/{print $1}' | xargs -r -I {} docker buildx rm {}
+# ────────────────────────────────────────────────────────────────────────────────
 # [ NOTE ] create a builder for this file
 # docker buildx create --use --name "virtualized-environments" --driver docker-container
+# ────────────────────────────────────────────────────────────────────────────────
 # [ NOTE ] run build without pushing to dockerhub
 # LOCAL=true docker buildx bake --builder virtualized-environments
-
+# ────────────────────────────────────────────────────────────────────────────────
+# [ NOTE ] build all one by one
+# while read target;do
+# docker buildx bake --builder virtualized-environments $target || echo "$target" >> failed.log
+# done < <(hcl2json docker-bake.hcl  | jq -r '.group.default[0].targets[]')
+# ────────────────────────────────────────────────────────────────────────────────
 variable "LOCAL" {default=false}
 variable "ARM64" {default=true}
 variable "AMD64" {default=true}
 variable "TAG" {default=""}
+# "tools-ripgrep",
 group "default" {
     targets = [
         "builder-rust-alpine",
@@ -34,7 +43,6 @@ group "default" {
         "tools-just",
         "tools-petname",
         "tools-releez",
-        "tools-ripgrep",
         "tools-sad",
         "tools-scoob",
         "tools-sd",
@@ -81,8 +89,8 @@ target "devcontainer-core-alpine" {
         equal(AMD64,true) ?"linux/amd64":"",
         equal(ARM64,true) ?"linux/arm64":"",
     ]
-    cache-from = ["type=registry,ref=fjolsvin/base-alpine:cache"]
-    cache-to   = ["type=registry,mode=max,ref=fjolsvin/base-alpine:cache"]
+    cache-from = [equal(LOCAL,true) ? "type=registry,ref=fjolsvin/base-alpine:cache":""]
+    cache-to   = [equal(LOCAL,true) ? "type=registry,mode=max,ref=fjolsvin/base-alpine:cache" : ""]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
 # LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
@@ -276,8 +284,6 @@ target "tools-fd" {
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
 # LOCAL=true docker buildx bake --builder virtualized-environments tools-git-governance
-# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments tools-git-governance
-# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments tools-git-governance
 target "tools-git-governance" {
     context="./tools/git-governance"
     dockerfile = "Dockerfile"
@@ -287,7 +293,6 @@ target "tools-git-governance" {
     ]
     platforms = [
         equal(AMD64,true) ?"linux/amd64":"",
-        equal(ARM64,true) ?"linux/arm64":"",
     ]
     cache-from = ["type=registry,ref=fjolsvin/git-governance:cache"]
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/git-governance:cache"]
@@ -401,21 +406,7 @@ target "tools-releez" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/releez:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
-# LOCAL=true docker buildx bake --builder virtualized-environments tools-ripgrep
-# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments tools-ripgrep
-# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments tools-ripgrep
-target "tools-ripgrep" {
-    context="./tools/ripgrep"
-    dockerfile = "Dockerfile"
-    tags = [
-        "fjolsvin/ripgrep:latest",
-        notequal("",TAG) ? "fjolsvin/ripgrep:${TAG}": "",
-    ]
-    platforms = ["linux/amd64"]
-    cache-from = ["type=registry,ref=fjolsvin/ripgrep:cache"]
-    cache-to   = ["type=registry,mode=max,ref=fjolsvin/ripgrep:cache"]
-    output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
-}
+
 # LOCAL=true docker buildx bake --builder virtualized-environments tools-sad
 # LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments tools-sad
 # LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments tools-sad
@@ -629,3 +620,19 @@ target "tools-yq" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/yq:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
+
+# # LOCAL=true docker buildx bake --builder virtualized-environments tools-ripgrep
+# # LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments tools-ripgrep
+# # LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments tools-ripgrep
+# target "tools-ripgrep" {
+#     context="./tools/ripgrep"
+#     dockerfile = "Dockerfile"
+#     tags = [
+#         "fjolsvin/ripgrep:latest",
+#         notequal("",TAG) ? "fjolsvin/ripgrep:${TAG}": "",
+#     ]
+#     platforms = ["linux/amd64"]
+#     cache-from = ["type=registry,ref=fjolsvin/ripgrep:cache"]
+#     cache-to   = ["type=registry,mode=max,ref=fjolsvin/ripgrep:cache"]
+#     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
+# }

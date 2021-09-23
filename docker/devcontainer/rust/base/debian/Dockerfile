@@ -251,15 +251,15 @@ RUN \
     cargo install cargo-audit && \
     strip ${CARGO_HOME}/bin/cargo-audit || true &&  \
     upx ${CARGO_HOME}/bin/cargo-audit || true
-COPY --from=mdbook-downloader "/workspace/mdbook" "${CARGO_HOME}/bin/"
-COPY --from=cargo-about-downloader "/workspace/cargo-about" "${CARGO_HOME}/bin/"
-COPY --from=cargo-deny-downloader "/workspace/cargo-deny" "${CARGO_HOME}/bin/"
-COPY --from=cargo-deb-builder "/usr/local/cargo/bin/cargo-deb" "${CARGO_HOME}/bin/"
-COPY --from=cargo-watch-builder "/usr/local/cargo/bin/cargo-watch" "${CARGO_HOME}/bin"
-COPY --from=cargo-cache-builder "/usr/local/cargo/bin/cargo-cache" "${CARGO_HOME}/bin"
-COPY --from=cargo-tree-builder "/usr/local/cargo/bin/cargo-tree" "${CARGO_HOME}/bin/"
-COPY --from=just-builder "/usr/local/cargo/bin/just" "${CARGO_HOME}/bin"
-COPY --from=mdbook-graphviz-builder "/usr/local/cargo/bin/mdbook-graphviz" "${CARGO_HOME}/bin"
+COPY --chmod=0755 --from=mdbook-downloader "/workspace/mdbook" "${CARGO_HOME}/bin/"
+COPY --chmod=0755 --from=cargo-about-downloader "/workspace/cargo-about" "${CARGO_HOME}/bin/"
+COPY --chmod=0755 --from=cargo-deny-downloader "/workspace/cargo-deny" "${CARGO_HOME}/bin/"
+COPY --chmod=0755 --from=cargo-deb-builder "/usr/local/cargo/bin/cargo-deb" "${CARGO_HOME}/bin/"
+COPY --chmod=0755 --from=cargo-watch-builder "/usr/local/cargo/bin/cargo-watch" "${CARGO_HOME}/bin"
+COPY --chmod=0755 --from=cargo-cache-builder "/usr/local/cargo/bin/cargo-cache" "${CARGO_HOME}/bin"
+COPY --chmod=0755 --from=cargo-tree-builder "/usr/local/cargo/bin/cargo-tree" "${CARGO_HOME}/bin/"
+COPY --chmod=0755 --from=just-builder "/usr/local/cargo/bin/just" "${CARGO_HOME}/bin"
+COPY --chmod=0755 --from=mdbook-graphviz-builder "/usr/local/cargo/bin/mdbook-graphviz" "${CARGO_HOME}/bin"
 RUN \
     set -ex && \
     rm -rf "${CARGO_HOME}/registry/" && \

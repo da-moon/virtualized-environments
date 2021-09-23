@@ -71,4 +71,4 @@ RUN set -ex && \
 
 # FROM alpine:latest
 # RUN apk add openssl && apk --no-cache add ca-certificates
-# COPY --from=builder /wrk2/wrk /bin
+# COPY --chmod=0755 --from=builder /wrk2/wrk /bin

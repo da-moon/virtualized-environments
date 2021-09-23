@@ -35,7 +35,7 @@ RUN \
   && apk add --no-cache "${packages[@]}" \
   )
 ARG UPX_DEPS="\
-  curl=7.78.0-r0 \
+  curl=7.79.1-r0 \
   jq=1.6-r1 \
   xz=5.2.5-r0 \
   "

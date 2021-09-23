@@ -78,7 +78,7 @@ RUN set -ex && \
   find /workspace -type f | xargs -I {} -P `nproc` upx {} || true  ; \
   fi
 FROM alpine
-COPY --from=builder /workspace /workspace
+COPY --chmod=0755 --from=builder /workspace /workspace
 RUN set -ex && \
   mv /workspace/* /usr/local/bin/ && \
   rm -rf /workspace

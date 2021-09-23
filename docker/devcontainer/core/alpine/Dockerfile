@@ -51,20 +51,20 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null  \
-  && apk add --no-cache "bash=5.1.8-r0"
+  && apk add --no-cache "bash=5.1.8-r0" "ca-certificates=20191127-r6"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG NEOVIM_BUILD_DEPENDENCIES="\
-  automake=1.16.4-r0 \
+  automake=1.16.4-r1 \
   autoconf=2.71-r0 \
   build-base=0.5-r2 \
-  cmake=3.21.2-r0 \
+  cmake=3.21.3-r0  \
   coreutils=8.32-r2 \
-  curl=7.78.0-r0 \
-  git=2.33.0-r0 \
-  gettext-tiny-dev=0.3.2-r0 \
+  curl=7.79.1-r0 \
+  git=2.33.0-r2 \
+  gettext-tiny-dev=0.3.2-r1 \
   libtool=2.4.6-r7 \
   pkgconf=1.8.0-r0 \
   unzip=6.0-r9 \
@@ -75,24 +75,31 @@ RUN \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --virtual .neovim-build-deps --no-cache "${packages[@]}" \
-  )
+  ); 
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+RUN \
+  git clone https://github.com/neovim/neovim.git "/usr/src/neovim";
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/usr/src/neovim"
 RUN \
-  git clone https://github.com/neovim/neovim.git "/usr/src/neovim" \
-  && make -j"$(nproc)" CMAKE_BUILD_TYPE=RelWithDebInfo  \
-  CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local"  \
-  && make -j"$(nproc)" install  \
-  && rm -r /usr/src/neovim \
-  && apk del --no-cache --purge .neovim-build-deps
+  make -j"$(nproc)" CMAKE_BUILD_TYPE=RelWithDebInfo  \
+  CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_JEMALLOC=FALSE"  \
+  && make -j"$(nproc)" install
+# ────────────────────────────────────────────────────────────────────────────────
+USER root
+WORKDIR "/root"
+RUN \
+  rm -r /usr/src/neovim \
+  && apk del .neovim-build-deps || true
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG CTAGS_BUILD_DEPENDENCIES="\
-  automake=1.16.4-r0 \
+  automake=1.16.4-r1 \
   autoconf=2.71-r0 \
   build-base=0.5-r2 \
-  git=2.32.0-r2 \
+  git=2.33.0-r2 \
   pkgconf=1.8.0-r0 \
   "
 RUN \
@@ -101,7 +108,9 @@ RUN \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --virtual .ctags-build-deps --no-cache "${packages[@]}" \
-  )
+  ) ;
+
+
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/usr/src/ctags"
@@ -112,28 +121,23 @@ RUN  \
   && make -j"$(nproc)" \
   && make -j"$(nproc)" install  \
   && rm -rf /usr/src/ctags \
-  && apk del --no-cache --purge .ctags-build-deps
+  && apk del .ctags-build-deps || true
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-#   autoconf=2.71-r0 \
-#   automake=1.16.4-r0 \
-#   libtool=2.4.6-r7 \
-#   gettext-tiny-dev=0.3.2-r0 \
 ARG BASE_PACKAGES="\
   alpine-sdk=1.0-r1 \
   bash-completion=2.11-r4 \
   binutils=2.35.2-r2 \
   build-base=0.5-r2 \
-  ca-certificates=20191127-r5 \
-  cmake=3.21.1-r0 \
+  cmake=3.21.3-r0  \
   coreutils=8.32-r2 \
-  curl=7.78.0-r0 \
+  curl=7.79.1-r0 \
   doxygen=1.9.1-r1 \
   findutils=4.8.0-r1 \
   fontconfig=2.13.1-r4 \
   gawk=5.1.0-r0 \
-  git=2.32.0-r2 \
-  grep=3.6-r0 \
+  git=2.33.0-r2 \
+  grep=3.7-r0 \
   jq=1.6-r1 \
   less=590-r0 \
   make=4.3-r0 \
@@ -141,16 +145,16 @@ ARG BASE_PACKAGES="\
   ncurses=6.2_p20210109-r0 \
   ncurses-dev=6.2_p20210109-r0 \
   ncurses-static=6.2_p20210109-r0 \
-  openssl=1.1.1k-r1 \
-  openssl-dev=1.1.1k-r1 \
-  perl=5.34.0-r0 \
+  openssl=3.0.0-r2 \
+  openssl-dev=3.0.0-r2 \
+  perl=5.34.0-r1 \
   shadow=4.8.1-r0 \
-  starship=0.56.0-r0 \
-  sudo=1.9.7_p2-r0 \
+  starship=0.57.0-r1 \
+  sudo=1.9.8_p2-r0 \
   tmux=3.2a-r0 \
   tree=1.8.0-r0 \
   tzdata=2021a-r0 \
-  util-linux=2.37.1-r0 \
+  util-linux=2.37.2-r1 \
   wget=1.21.1-r1 \
   unzip=6.0-r9 \
   xclip=0.13-r1 \
@@ -208,20 +212,21 @@ RUN \
 ARG IMAGE_SPECIFIC_PACKAGES="\
   aria2=1.35.0-r2 \
   bzip2=1.0.8-r1 \
-  docker=20.10.8-r0 \
-  docker-compose=1.29.2-r0 \
-  fzf=0.27.2-r1 \
-  fzf-bash-completion=0.27.2-r1 \
-  git-secret=0.3.2-r0 \
+  docker=20.10.8-r1 \
+  docker-compose=1.29.2-r1 \
+  fzf=0.27.2-r2 \
+  fzf-bash-completion=0.27.2-r2 \
+  git-secret=0.4.0-r0 \
   glow=1.3.0-r0 \
-  gnupg=2.2.29-r0 \
+  gnupg=2.2.29-r5 \
   gtest-dev=1.11.0-r0 \
   htop=3.0.5-r2 \
-  libcap=2.52-r0 \
+  libcap=2.58-r0 \
   libffi-dev=3.3-r2 \
   lua5.4=5.4.3-r0 \
-  musl-dev=1.2.2-r5 \
+  musl-dev=1.2.2-r6 \
   nerd-fonts=2.1.0-r6 \
+  rcm=1.3.4-r0 \
   ripgrep=13.0.0-r0 \
   ripgrep-bash-completion=13.0.0-r0 \
   rng-tools-extra=6.12-r0 \
@@ -229,72 +234,31 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
 RUN \
   IFS=' ' read -a packages <<< $IMAGE_SPECIFIC_PACKAGES ; \
   apk add --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --no-cache "${packages[@]}" ) \
-  && usermod -aG docker "${USER}"
+  && usermod -aG docker "${USER}" ;
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG PYTHON_DEPENDENCIES="\
-  python3-dev=3.9.6-r0 \
+  python3-dev=3.9.7-r2 \
+  python2-dev=2.7.18-r2 \
   py3-pip=20.3.4-r1 \
   py3-setuptools=52.0.0-r4 \
+  py2-setuptools=44.0.0-r0 \
   py3-pyzmq=19.0.2-r1 \
   "
 RUN \
   IFS=' ' read -a packages <<< $PYTHON_DEPENDENCIES ; \
-  apk add --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --no-cache "${packages[@]}" \
-  )
+  apk add --no-cache "${packages[@]}" ;
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
-ENV PATH="${PATH}:${HOME}/.local/bin"
-ARG PYTHON_PACKAGES="\
-  notedown \
-  pre-commit \
-  neovim \
-  pylint \
-  yapf \
-  autoflake \
-  isort \
-  coverage \
-  "
-RUN \
-  IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  python3 -m pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG NODEJS_DEPENDENCIES="\
-  nodejs=14.17.4-r0 \
-  npm=7.20.5-r0 \
+  npm=14.17.6-r0 \
   yarn=1.22.11-r0 \
 "
 RUN \
   IFS=' ' read -a packages <<< $NODEJS_DEPENDENCIES ; \
-  apk add --no-cache "${packages[@]}" \
-  || ( \
-  sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
-  && apk add --no-cache "${packages[@]}" \
-  )
-ARG NODEJS_PACKAGES="\
-  neovim \
-  remark \
-  remark-cli \
-  remark-stringify \
-  remark-frontmatter \
-  wcwidth \
-  prettier \
-  bash-language-server \
-  dockerfile-language-server-nodejs \
-  standard-readme-spec \
-  "
-# [ NOTE ] neovim could not detect 'neovim' NodeJS package
-# installed through Yarn.
-RUN \
-  IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
-  /usr/bin/npm install -g "${NODEJS_PACKAGES[@]}"
+  apk add --no-cache "${packages[@]}" ;
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 RUN \
@@ -304,56 +268,27 @@ RUN \
   -print0 \
   | xargs -0 -r -I {} -P "$(nproc)" \
   chown --no-dereference "$(id -u $USER):$(id -g $USER)" {}
-# ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
-USER "${USER}"
-RUN \
-  rm -rf \
-  ~/.SpaceVim \
-  ~/.vim* \
-  ~/.config/*vim* \
-  ~/.cache/*vim* \
-  ~/.cache/neosnippet \
-  ~/.local/share/*vim* \
-  && curl -sLf https://spacevim.org/install.sh | bash \
-  && sed \
-  -i.bak 's/call dein#add/"call dein#add/g' \
-  "${HOME}/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && mkdir -p "${HOME}/.local/share/nvim/shada" \
-  && nvim --headless \
-  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
-  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
-  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
-  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
-  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-  -c "qall"
-RUN \
-  mv \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
-  && nvim --headless \
-    -c "call dein#install()" \
-    -c "call dein#update()" \
-    -c "call dein#remote_plugins()" \
-    -c "call dein#recache_runtimepath()" \
-    -c "UpdateRemotePlugins" \
-    -c "qall" ; \
-  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
-# ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
-USER "${USER}"
-RUN \
-  IFS=' ' read -a coc_extensions <<< "$(nvim --headless -c "call PrintCocExtensions()"  -c "qall" 2>&1)" ; \
-  [ "${#coc_extensions[@]}" -ne 0  ] \
-  && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
-  || true
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
-COPY --from=delta /opt/delta /tmp/delta
+ENV EDITOR="nvim"
+ENV VISUAL="nvim"
+ENV PATH="${PATH}:/usr/local/bin"
+ENV PATH="${PATH}:${HOME}/.local/bin"
+RUN \
+  git clone "https://github.com/da-moon/.dotfiles.git" "${HOME}/.dotfiles" \
+  && rcup -f
+# ────────────────────────────────────────────────────────────────────────────────
+USER "${USER}"
+ENV PATH="${PATH}:${HOME}/.local/bin"
+RUN \
+  git clone "https://github.com/da-moon/SpaceVim.d.git" "${HOME}/.SpaceVim.d" \
+  && curl -fSsl "https://raw.githubusercontent.com/da-moon/SpaceVim.d/master/spacevim-installer.sh" | bash
+# ────────────────────────────────────────────────────────────────────────────────
+USER "${USER}"
 ENV PATH="${PATH}:${HOME}/.git-fuzzy/bin/"
 RUN \
   git clone https://github.com/bigH/git-fuzzy "${HOME}/.git-fuzzy" \
-  && chmod a+x ${HOME}/.git-fuzzy/bin/* \
-  && cat /tmp/delta >> "${HOME}/.gitconfig"
+  && chmod a+x ${HOME}/.git-fuzzy/bin/* 
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
 RUN \
@@ -364,72 +299,38 @@ RUN \
   /tmp/* \
   /usr/src
 # ─── PREBUILD BINARIES ──────────────────────────────────────────────────────────
-COPY --from=yq /workspace/yq /usr/local/bin/yq
-COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
-COPY --from=just /workspace/just /usr/local/bin/just
-COPY --from=convco /workspace/convco /usr/local/bin/convco
-COPY --from=fd /workspace/fd /usr/local/bin/fd
-COPY --from=sd /workspace/sd /usr/local/bin/sd
-COPY --from=bat /workspace/bat /usr/local/bin/bat
-COPY --from=exa /workspace/exa /usr/local/bin/exa
-COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
-COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
-COPY --from=sad /workspace/sad /usr/local/bin/sad
-COPY --from=releez /workspace/releez /usr/local/bin/releez
-COPY --from=skim /workspace/sk /usr/local/bin/sk
-COPY --from=delta /workspace/delta /usr/local/bin/delta
-COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
-COPY --from=clog /workspace/clog /usr/local/bin/clog
+COPY --chmod=0755 --from=yq /workspace/yq /usr/local/bin/yq
+COPY --chmod=0755 --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
+COPY --chmod=0755 --from=just /workspace/just /usr/local/bin/just
+COPY --chmod=0755 --from=convco /workspace/convco /usr/local/bin/convco
+COPY --chmod=0755 --from=fd /workspace/fd /usr/local/bin/fd
+COPY --chmod=0755 --from=sd /workspace/sd /usr/local/bin/sd
+COPY --chmod=0755 --from=bat /workspace/bat /usr/local/bin/bat
+COPY --chmod=0755 --from=exa /workspace/exa /usr/local/bin/exa
+COPY --chmod=0755 --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
+COPY --chmod=0755 --from=tokei /workspace/tokei /usr/local/bin/tokei
+COPY --chmod=0755 --from=sad /workspace/sad /usr/local/bin/sad
+COPY --chmod=0755 --from=releez /workspace/releez /usr/local/bin/releez
+COPY --chmod=0755 --from=skim /workspace/sk /usr/local/bin/sk
+COPY --chmod=0755 --from=delta /workspace/delta /usr/local/bin/delta
+COPY --chmod=0755 --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --chmod=0755 --from=clog /workspace/clog /usr/local/bin/clog
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-ENV EDITOR="nvim"
-ENV VISUAL="nvim"
-ENV PATH="${PATH}:/usr/local/bin"
-WORKDIR "/etc/profile.d"
-RUN \
-  curl \
-  -fsSl https://raw.githubusercontent.com/3hhh/fzfuncs/master/bashrc_fzf \
-  -o /etc/profile.d/bashrc_fzf.sh \
-  && ( \
-  echo 'export PATH="${PATH}:/usr/local/bin"' ; \
-  echo "export EDITOR=\"${EDITOR}\"" ; \
-  echo "export VISUAL=\"${VISUAL}\"" ; \
-  echo 'npm --version >/dev/null 2>&1 && export PATH="${PATH}:$(npm -g bin)" ;' ; \
-  echo 'yarn --version >/dev/null 2>&1 && export PATH="${PATH}:$(yarn global bin)" ;' ; \
-  echo 'starship --version >/dev/null 2>&1 && eval "$(starship init bash)" ;' ; \
-  echo 'just --version >/dev/null 2>&1 && eval "$(just --completions bash)" ;' ; \
-  echo 'rustup --version >/dev/null 2>&1 && eval "$(rustup completions bash rustup)" && eval "$(rustup completions bash cargo)";' ; \
-  echo 'curl --version >/dev/null 2>&1 && source <(curl -sSL git.io/forgit) ;' ; \
-  ) | tee 00-env.sh > /dev/null \
-  && ( \
-  echo "alias apk='sudo apk'" ; \
-  echo "alias g='git'" ; \
-  echo 'exa --version >/dev/null 2>&1 && alias la="exa -A";alias ll="exa -alhF";alias ls="exa";' ; \
-  echo 'bat --version >/dev/null 2>&1 && alias cat="bat -pp";' ; \
-  echo 'just --version >/dev/null 2>&1 && alias j="just";' ; \
-  echo "alias nvim='nvim --headless -c \"call dein#recache_runtimepath()\" -c \"qall\" && nvim'" ; \
-  ) | tee 01-alias.sh > /dev/null \
-  && ( \
-  echo '(rg -h >/dev/null 2>&1 && bat -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fp { rg --files $1 | sk --preview="bat {} --color=always --style=grid,numbers" ; }' ; \
-  echo '(rg -h >/dev/null 2>&1 && sk -h >/dev/null 2>&1 ) && function fs { sk -i -c "rg {} --color=always $1" --ansi ; }' ; \
-  ) | tee 02-func.sh > /dev/null
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-ARG WORKDIR="/workspace"
-ENV WORKDIR "${WORKDIR}"
-WORKDIR "${WORKDIR}"
 RUN \
   find "${HOME}" \
-    -not -group "$(id -g ${USER})" \
-    -not -user "$(id -u ${USER})" \
-    -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \
-  chown --no-dereference "$(id -u ${USER}):$(id -g ${USER})" {} \
-  && chown "$(id -u ${USER}):$(id -g ${USER})" "${WORKDIR}" -R \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} \
   && yarn cache clean --all \
   && npm -g cache clean --force > /dev/null 2>&1 \
   && rm -rf \
     /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
+ARG WORKDIR="/workspace"
+ENV WORKDIR "${WORKDIR}"
+WORKDIR "${WORKDIR}"
 ENTRYPOINT [ "/bin/bash" ]

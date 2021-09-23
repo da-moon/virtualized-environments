@@ -11,9 +11,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG BASE_PACKAGES="\
   build-base=0.5-r2 \
   ca-certificates=20191127-r5 \
-  cmake=3.20.3-r0 \
+  cmake=3.20.3-r0  \
   coreutils=8.32-r2 \
-  curl=7.78.0-r0 \
+  curl=7.79.1-r0 \
   git=2.32.0-r0 \
   findutils=4.8.0-r1 \
   make=4.3-r0 \
@@ -308,36 +308,36 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 FROM fjolsvin/upx AS compression-layer
 WORKDIR /workspace/bin
-COPY --from=go-tools-builder /go/bin /workspace/bin
-COPY --from=go-outline-builder /go/bin /workspace/bin
-COPY --from=reftools-builder /go/bin /workspace/bin
-COPY --from=gopkgs-builder /go/bin /workspace/bin
-COPY --from=gocmt-builder /go/bin /workspace/bin
-COPY --from=go-compiles-builder /go/bin /workspace/bin
-COPY --from=nocomment-builder /go/bin /workspace/bin
-COPY --from=discover-builder /go/bin /workspace/bin
-COPY --from=gounit-builder /go/bin /workspace/bin
-COPY --from=mockery-builder /go/bin /workspace/bin
-COPY --from=gorc-builder /go/bin /workspace/bin
-COPY --from=motion-builder /go/bin /workspace/bin
-COPY --from=errcheck-builder /go/bin /workspace/bin
-COPY --from=iferr-builder /go/bin /workspace/bin
-COPY --from=golint-builder /go/bin /workspace/bin
-COPY --from=gotags-builder /go/bin /workspace/bin
-COPY --from=impl-builder /go/bin /workspace/bin
-COPY --from=gomodifytags-builder /go/bin /workspace/bin
-COPY --from=asmfmt-builder /go/bin /workspace/bin
-COPY --from=revive-builder /go/bin /workspace/bin
-COPY --from=gofumpt-builder /go/bin /workspace/bin
-COPY --from=honnef-builder /go/bin /workspace/bin
-COPY --from=go-releaser-downloader /go/bin /workspace/bin
-COPY --from=golang-ci-lint-downloader /go/bin /workspace/bin
-COPY --from=mage-builder /go/bin /workspace/bin
-COPY --from=gopls-builder /go/bin /workspace/bin
-COPY --from=delve-builder /go/bin /workspace/bin
-COPY --from=gomodifytags-builder /go/bin /workspace/bin
-COPY --from=gotests-builder /go/bin /workspace/bin
-COPY --from=goplay-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=go-tools-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=go-outline-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=reftools-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gopkgs-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gocmt-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=go-compiles-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=nocomment-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=discover-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gounit-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=mockery-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gorc-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=motion-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=errcheck-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=iferr-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=golint-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gotags-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=impl-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gomodifytags-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=asmfmt-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=revive-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gofumpt-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=honnef-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=go-releaser-downloader /go/bin /workspace/bin
+COPY --chmod=0755 --from=golang-ci-lint-downloader /go/bin /workspace/bin
+COPY --chmod=0755 --from=mage-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gopls-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=delve-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gomodifytags-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=gotests-builder /go/bin /workspace/bin
+COPY --chmod=0755 --from=goplay-builder /go/bin /workspace/bin
 WORKDIR /workspace
 RUN \
   compress ;
@@ -402,7 +402,7 @@ RUN \
   && go env -w "CGO_ENABLED=0" \
   && go env -w "CGO_LDFLAGS=-s -w -extldflags '-static'"
 # ────────────────────────────────────────────────────────────────────────────────
-COPY --from=compression-layer /workspace /usr/local/bin
+COPY --chmod=0755 --from=compression-layer /workspace /usr/local/bin
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
 RUN \

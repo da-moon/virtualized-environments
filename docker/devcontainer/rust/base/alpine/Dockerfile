@@ -6,8 +6,8 @@ FROM fjolsvin/base-alpine:latest
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG BASE_PACKAGES="\
-  gcc=10.3.1_git20210625-r0 \
-  openssl-libs-static=1.1.1k-r1 \
+  gcc=10.3.1_git20210921-r1 \
+  openssl-libs-static=3.0.0-r2 \
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
@@ -59,7 +59,7 @@ RUN \
   && chown "$(id -u ${USER}):$(id -g ${USER})" "${CARGO_HOME}" -R
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
-ENV RUSTFLAGS="-C target-cpu=native"
+# ENV RUSTFLAGS="-C target-cpu=native"
 ENV OPENSSL_STATIC=yes
 ENV OPENSSL_LIB_DIR="/usr/lib"
 ENV OPENSSL_INCLUDE_DIR="/usr/include"
@@ -72,18 +72,34 @@ RUN \
   && rustup component add rust-src rustfmt rls clippy
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-WORKDIR "/root"
-# cargo-make : fails to build on aarch64
-ARG CARGO_PACKAGES="\
-  cargo-watch \
-  "
 RUN \
-  rustup default stable ; \
-  IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
-  cargo install --locked --all-features --root /usr/local "${packages[@]}"
+  find "${HOME}" \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} \
+  && find "${RUSTUP_HOME}" \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} \
+  && find "${CARGO_HOME}" \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} \
+  && [ ! -z "${WORKDIR+x}" ] && [ ! -z "${WORKDIR}" ] && find "${WORKDIR}" \
+  -not -group "$(id -g $USER)" \
+  -not -user "$(id -u $USER)" \
+  -print0 \
+  | xargs -0 -r -I {} -P "$(nproc)" \
+  chown --no-dereference "$(id -u $USER):$(id -g $USER)" {} \
+  && rm -rf \
+    /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
 USER "${USER}"
-ARG WORKDIR="/workspace"
-ENV WORKDIR "${WORKDIR}"
 WORKDIR "${WORKDIR}"
 ENTRYPOINT [ "/bin/bash" ]

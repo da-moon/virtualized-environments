@@ -17,7 +17,7 @@ RUN \
   && GO111MODULE=on go get -v mvdan.cc/sh/v3/cmd/shfmt \
   && mv "$(go env GOPATH)/bin/shfmt" /workspace/
 FROM fjolsvin/upx AS compression-layer
-COPY --from=shfmt-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=shfmt-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
@@ -26,7 +26,7 @@ USER root
 RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN /workspace/shfmt --version
 WORKDIR /userspace
 VOLUME /userspace

@@ -13,20 +13,20 @@ RUN apk add --no-cache "bash=5.1.8-r0"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 ARG BASE_PACKAGES="\
-  bat=0.18.2-r0 \
+  bat=0.18.3-r0 \
   build-base=0.5-r2 \
-  ca-certificates=20191127-r5 \
-  cmake=3.21.1-r0 \
+  ca-certificates=20191127-r6 \
+  cmake=3.21.3-r0  \
   coreutils=8.32-r2 \
-  curl=7.78.0-r0 \
+  curl=7.79.1-r0 \
   findutils=4.8.0-r1 \
-  gcc=10.3.1_git20210625-r0 \
-  git=2.33.0-r0 \
+  gcc=10.3.1_git20210625-r1 \
+  git=2.33.0-r2 \
   make=4.3-r0 \
-  musl-dev=1.2.2-r5 \
-  ncurses-static=6.2_p20210814-r0 \
-  openssl-dev=1.1.1k-r1 \
-  openssl-libs-static=1.1.1k-r1 \
+  musl-dev=1.2.2-r6 \
+  ncurses-static=6.2_p20210911-r0 \
+  openssl-dev=3.0.0-r2 \
+  openssl-libs-static=3.0.0-r2 \
   perl=5.34.0-r1 \
   "
 RUN \
@@ -40,7 +40,7 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/main" ; \
   echo "http://dl-cdn.alpinelinux.org/alpine/v3.13/community" ; \
   ) | tee /etc/apk/repositories > /dev/null  \
-  apk add --no-cache "${packages[@]}" \
+  && apk add --no-cache "${packages[@]}" \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --no-cache "${packages[@]}" \
@@ -252,7 +252,7 @@ EOT
 # ────────────────────────────────────────────────────────────────────────────────
 RUN \
   chmod +x /usr/local/bin/* ;
-ENV RUSTFLAGS="-C target-cpu=native"
+# ENV RUSTFLAGS="-C target-cpu=native"
 ENV OPENSSL_STATIC=yes
 ENV OPENSSL_LIB_DIR="/usr/lib"
 ENV OPENSSL_INCLUDE_DIR="/usr/include"

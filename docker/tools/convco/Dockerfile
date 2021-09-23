@@ -12,20 +12,20 @@ RUN \
   --mount=type=cache,target=/root/.cargo \
   --mount=type=cache,target=/usr/local/cargo/registry \
   [ "$(apk --print-arch)" == "aarch64" ] && export CFLAGS="-mno-outline-atomics" || true ; \
-  build --git "https://github.com/convco/convco.git=v0.3.6"
+  build --git "https://github.com/convco/convco.git"
 FROM fjolsvin/upx AS compression-layer
-COPY --from=convco-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=convco-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN /workspace/convco --version
 WORKDIR /userspace
 VOLUME /userspace

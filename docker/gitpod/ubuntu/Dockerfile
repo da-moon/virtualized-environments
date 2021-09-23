@@ -115,6 +115,7 @@ USER root
 ENV EDITOR="nvim"
 ENV VISUAL="nvim"
 ENV PATH="${PATH}:/usr/local/bin"
+ENV PYTHONUSERBASE="/workspace/.pip-modules"
 WORKDIR "/etc/profile.d"
 RUN \
   [ -d "${HOME}/.bashrc.d" ] && while read i; do ln -sf "$i" "/etc/profile.d/$(basename $i).sh"; done < <(find ${HOME}/.bashrc.d -type f ) || true ; \
@@ -131,7 +132,7 @@ RUN \
   echo 'export GEM_PATH=$GEM_HOME:$GEM_PATH' ; \
   echo 'export GOROOT="${HOME}/go" ;' ; \
   echo 'export GOPATH="/workspace/go-packages" ;' ; \
-  echo 'export PYTHONUSERBASE=/workspace/.pip-modules ;' ; \
+  echo "export PYTHONUSERBASE='${PYTHONUSERBASE}' ;" ; \
   echo 'export PATH="${PATH}:/usr/local/bin"' ; \
   echo '[ -d ${GEM_HOME} ] && export PATH="${GEM_HOME}/bin:$PATH" ;' ; \
   echo '[ -d ${GOROOT} ] && export PATH="${GO_ROOT}/bin:$PATH" ;' ; \
@@ -194,92 +195,24 @@ RUN \
   ) | tee "${HOME}/.profile" > /dev/null ;
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-WORKDIR "/root"
+WORKDIR "/workspace"
 RUN \
-  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
-  && python2 --version > /dev/null 2>&1 \
-  && curl \
-    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
-  || true ;
-# ────────────────────────────────────────────────────────────────────────────────
-USER gitpod
-ENV PATH="${PATH}:${HOME}/.local/bin"
-WORKDIR "${HOME}"
-RUN \
-  curl -fsSl https://bootstrap.pypa.io/get-pip.py | python3 \
-  && python2 --version > /dev/null 2>&1 \
-  && curl \
-    -fsSl https://bootstrap.pypa.io/pip/$(python2 --version 2>&1 | gawk 'BEGIN{FS=OFS="."}{gsub("[^[:digit:].]*","");print $1,$2}')/get-pip.py | python2 \
-  || true ;
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-RUN \
-  python3 -m pip install --no-cache-dir "neovim" \
-  && python2 -m pip install --no-cache-dir "neovim"
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-RUN \
-  npm install -g "neovim"
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-WORKDIR "${HOME}"
-RUN \
-  curl -sLf https://spacevim.org/install.sh | bash \
-  && find "${HOME}" \
+  find "${HOME}" \
   -not -group "$(id -g gitpod)" \
   -not -user "$(id -u gitpod)" \
   -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \
-  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ;
+  | xargs -I {} -P $(nproc) --no-run-if-empty \
+  chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} \
+  &&  chown "$(id -u gitpod):$(id -g gitpod)" "/workspace" -R
 # ─── SPACEVIM INSTALLATION ──────────────────────────────────────────────────────
 USER gitpod
-WORKDIR "${HOME}"
 RUN \
-  rm -rf \
-  ~/.SpaceVim \
-  ~/.vim* \
-  ~/.config/*vim* \
-  ~/.cache/*vim* \
-  ~/.cache/neosnippet \
-  ~/.local/share/*vim* \
-  && curl -sLf https://spacevim.org/install.sh | bash \
-  && sed \
-  -i.bak 's/call dein#add/"call dein#add/g' \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && mkdir -p "$HOME/.local/share/nvim/shada" \
-  && nvim --headless \
-  -c "call dein#direct_install('fatih/vim-go')" \
-  -c "call dein#direct_install('deoplete-plugins/deoplete-go', { 'build': 'make' })" \
-  -c "call dein#direct_install('Shougo/vimproc.vim', { 'build': 'make' })" \
-  -c "call dein#direct_install('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],'build': 'yarn --cwd app --frozen-lockfile install' })" \
-  -c "call dein#direct_install('lymslive/vimloo', { 'merged': '0' })" \
-  -c "call dein#direct_install('lymslive/vnote', { 'depends': 'vimloo' })" \
-  -c "qall" ;
-RUN \
-  mv \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim.bak" \
-  "$HOME/.SpaceVim/autoload/SpaceVim/plugins.vim" \
-  && git clone https://github.com/da-moon/SpaceVim.d.git "${HOME}/.SpaceVim.d" \
-  && nvim --headless \
-    -c "call dein#install()" \
-    -c "call dein#update()" \
-    -c "call dein#remote_plugins()" \
-    -c "call dein#recache_runtimepath()" \
-    -c "UpdateRemotePlugins" \
-    -c "qall" ; \
-  [ -d "${HOME}/.SpaceVim/bundle/vimproc.vim" ] && make -C ~/.SpaceVim/bundle/vimproc.vim ;
-# ─── INSTALL COC EXTENSIONS ─────────────────────────────────────────────────────
-USER gitpod
-WORKDIR "${HOME}"
-RUN \
-  IFS=' ' read -a coc_extensions <<< "$(nvim --headless -c "call PrintCocExtensions()"  -c "qall" 2>&1)" ; \
-  [ "${#coc_extensions[@]}" -ne 0  ] \
-  && (for ext in "${coc_extensions[@]}"; do nvim --headless -c "CocInstall ${ext}" -c "qall"  ; done) \
-  || true
+  git clone "https://github.com/da-moon/SpaceVim.d.git" "${HOME}/.SpaceVim.d" \
+  && curl -fSsl "https://raw.githubusercontent.com/da-moon/SpaceVim.d/master/spacevim-installer.sh" | bash
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
-COPY --from=fjolsvin/delta:latest /workspace /usr/local/bin
-COPY --from=fjolsvin/delta:latest /opt/delta /tmp/delta
+COPY --chmod=0755 --from=fjolsvin/delta:latest /workspace /usr/local/bin
+COPY --chmod=0755 --from=fjolsvin/delta:latest /opt/delta /tmp/delta
 WORKDIR "${HOME}"
 ENV PATH="$PATH:$HOME/.git-fuzzy/bin/"
 RUN \
@@ -298,45 +231,6 @@ RUN \
   IFS=' ' read -a packages <<< "${CARGO_PACKAGES}" ; \
   cargo install --locked --all-features --root /usr/local "${packages[@]}"
 # ────────────────────────────────────────────────────────────────────────────────
-USER gitpod
-WORKDIR "${HOME}"
-ARG PYTHON_PACKAGES="\
-  notedown \
-  pylint \
-  yapf \
-  autoflake \
-  isort \
-  coverage \
-  "
-# ENV PIP_USER="false"
-ENV PATH="${PATH}:${HOME}/bin"
-RUN \
-  IFS=' ' read -a PYTHON_PACKAGES <<< "$PYTHON_PACKAGES" ; \
-  pyenv --version > /dev/null 2>&1 && ( \
-    $(pyenv which python) -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-    && pyenv rehash ; \
-  ) || python3 -m  pip install --user --no-cache-dir "${PYTHON_PACKAGES[@]}" \
-  && ( curl -fSsl https://pre-commit.com/install-local.py | $(pyenv which python) - \
-  || curl -fSsl https://pre-commit.com/install-local.py | python3 -)
-# ────────────────────────────────────────────────────────────────────────────────
-USER root
-ARG NODEJS_PACKAGES="\
-  remark \
-  remark-cli \
-  remark-stringify \
-  remark-frontmatter \
-  wcwidth \
-  prettier \
-  bash-language-server \
-  dockerfile-language-server-nodejs \
-  standard-readme-spec \
-  "
-# [ NOTE ] neovim could not detect 'neovim' NodeJS package
-# installed through Yarn.
-RUN \
-  IFS=' ' read -a NODEJS_PACKAGES <<< "$NODEJS_PACKAGES" ; \
-  npm install -g "${NODEJS_PACKAGES[@]}"
-# ────────────────────────────────────────────────────────────────────────────────
 USER root
 WORKDIR "/root"
 ARG APT_PACKAGES="\
@@ -353,13 +247,13 @@ ARG APT_PACKAGES="\
   ttf-mscorefonts-installer \
   lmodern \
   "
-RUN install-packages ${APT_PACKAGES}
+# RUN install-packages ${APT_PACKAGES}
 RUN \
   find "${HOME}" \
     -not -group "$(id -g gitpod)" \
     -not -user "$(id -u gitpod)" \
     -print \
-  | xargs -I {} -P `nproc` --no-run-if-empty \
+  | xargs -I {} -P $(nproc) --no-run-if-empty \
   chown --no-dereference "$(id -u gitpod):$(id -g gitpod)" {} ; \
   [ -d /workspace ] && chown "$(id -u gitpod):$(id -g gitpod)" "/workspace" ; \
   yarn cache clean --all \
@@ -367,25 +261,25 @@ RUN \
   && rm -rf \
     /tmp/*
 # ────────────────────────────────────────────────────────────────────────────────
-COPY --from=yq /workspace/yq /usr/local/bin/yq
-COPY --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
-COPY --from=just /workspace/just /usr/local/bin/just
-COPY --from=convco /workspace/convco /usr/local/bin/convco
-COPY --from=fd /workspace/fd /usr/local/bin/fd
-COPY --from=sd /workspace/sd /usr/local/bin/sd
-COPY --from=bat /workspace/bat /usr/local/bin/bat
-COPY --from=exa /workspace/exa /usr/local/bin/exa
-COPY --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
-COPY --from=tokei /workspace/tokei /usr/local/bin/tokei
-COPY --from=sad /workspace/sad /usr/local/bin/sad
-COPY --from=releez /workspace/releez /usr/local/bin/releez
-COPY --from=skim /workspace/sk /usr/local/bin/sk
-COPY --from=delta /workspace/delta /usr/local/bin/delta
-COPY --from=cellar /workspace/cellar /usr/local/bin/cellar
-COPY --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
-COPY --from=clog /workspace/clog /usr/local/bin/clog
-COPY --from=git-governance /workspace/gg /usr/local/bin/gg
-# COPY --from=fjolsvin/scoob:latest /workspace /usr/local/bin
+COPY --chmod=0755 --from=yq /workspace/yq /usr/local/bin/yq
+COPY --chmod=0755 --from=jsonfmt /workspace/jsonfmt /usr/local/bin/jsonfmt
+COPY --chmod=0755 --from=just /workspace/just /usr/local/bin/just
+COPY --chmod=0755 --from=convco /workspace/convco /usr/local/bin/convco
+COPY --chmod=0755 --from=fd /workspace/fd /usr/local/bin/fd
+COPY --chmod=0755 --from=sd /workspace/sd /usr/local/bin/sd
+COPY --chmod=0755 --from=bat /workspace/bat /usr/local/bin/bat
+COPY --chmod=0755 --from=exa /workspace/exa /usr/local/bin/exa
+COPY --chmod=0755 --from=shfmt /workspace/shfmt /usr/local/bin/shfmt
+COPY --chmod=0755 --from=tokei /workspace/tokei /usr/local/bin/tokei
+COPY --chmod=0755 --from=sad /workspace/sad /usr/local/bin/sad
+COPY --chmod=0755 --from=releez /workspace/releez /usr/local/bin/releez
+COPY --chmod=0755 --from=skim /workspace/sk /usr/local/bin/sk
+COPY --chmod=0755 --from=delta /workspace/delta /usr/local/bin/delta
+COPY --chmod=0755 --from=cellar /workspace/cellar /usr/local/bin/cellar
+COPY --chmod=0755 --from=ttdl /workspace/ttdl /usr/local/bin/ttdl
+COPY --chmod=0755 --from=clog /workspace/clog /usr/local/bin/clog
+COPY --chmod=0755 --from=git-governance /workspace/gg /usr/local/bin/gg
+# COPY --chmod=0755 --from=fjolsvin/scoob:latest /workspace /usr/local/bin
 # ────────────────────────────────────────────────────────────────────────────────
 USER gitpod
 WORKDIR /workspace

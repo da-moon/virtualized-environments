@@ -10,16 +10,16 @@ RUN \
   --mount=type=cache,target=/usr/local/cargo/registry \
   build --stable skim
 FROM fjolsvin/upx AS compression-layer
-COPY --from=skim-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=skim-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
-RUN apk add --no-cache "bash=5.1.8-r0" "curl=7.78.0-r0"
+RUN apk add --no-cache "bash=5.1.8-r0" "curl=7.79.1-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN \
   /workspace/sk --version \
   && mkdir -p /etc/bash_completion.d \

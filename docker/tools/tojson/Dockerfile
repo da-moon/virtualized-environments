@@ -10,7 +10,7 @@ RUN \
   --mount=type=cache,target=/usr/local/cargo/registry \
   build --stable tojson
 FROM fjolsvin/upx AS compression-layer
-COPY --from=tojson-builder "/workspace" "/workspace"
+COPY --chmod=0755 --from=tojson-builder "/workspace" "/workspace"
 RUN \
   compress ;
 FROM alpine:edge
@@ -19,7 +19,7 @@ USER root
 RUN apk add --no-cache "bash=5.1.8-r0"
 # ────────────────────────────────────────────────────────────────────────────────
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-COPY --from=compression-layer "/workspace" "/workspace"
+COPY --chmod=0755 --from=compression-layer "/workspace" "/workspace"
 RUN /workspace/tojson --version
 WORKDIR /userspace
 VOLUME /userspace
