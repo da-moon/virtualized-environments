@@ -13,21 +13,21 @@ RUN apk add --no-cache "bash=5.1.8-r0"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 ARG BASE_PACKAGES="\
-  bat=0.18.3-r0 \
-  build-base=0.5-r2 \
+  bat~=0.18 \
+  build-base~=0.5 \
   ca-certificates=20191127-r6 \
-  cmake=3.21.3-r0  \
-  coreutils=8.32-r2 \
-  curl=7.79.1-r0 \
-  findutils=4.8.0-r1 \
-  gcc=10.3.1_git20210625-r1 \
-  git=2.33.0-r2 \
-  make=4.3-r0 \
-  musl-dev=1.2.2-r6 \
-  ncurses-static=6.2_p20210911-r0 \
-  openssl-dev=3.0.0-r2 \
-  openssl-libs-static=3.0.0-r2 \
-  perl=5.34.0-r1 \
+  cmake~=3.21 \
+  coreutils~=8.32 \
+  curl~=7.79 \
+  findutils~=4.8 \
+  gcc~=10.3 \
+  git~=2.33 \
+  make~=4.3 \
+  musl-dev~=1.2 \
+  ncurses-static~=6.2 \
+  openssl-dev~=3.0 \
+  openssl-libs-static~=3.0 \
+  perl~=5.34 \
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \

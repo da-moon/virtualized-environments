@@ -10,7 +10,7 @@ group "default" {
     ]
 }
 # [ NOTE ] create a builder for this file
-# docker buildx create --use --name "builder-rust-alpine" --driver docker-container
+// # docker buildx create --use --name "builder-rust-alpine" --driver docker-container
 
 # LOCAL=true docker buildx bake --builder builder-rust-alpine rust-alpine
 # LOCAL=true ARM64=false AMD64=true docker buildx bake --builder builder-rust-alpine rust-alpine

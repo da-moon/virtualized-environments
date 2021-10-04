@@ -6,8 +6,8 @@ FROM fjolsvin/base-alpine:latest
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG BASE_PACKAGES="\
-  gcc=10.3.1_git20210921-r1 \
-  openssl-libs-static=3.0.0-r2 \
+  gcc~=10.3 \
+  openssl-libs-static~=3.0 \
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \

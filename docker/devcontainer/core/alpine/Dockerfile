@@ -57,17 +57,17 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG NEOVIM_BUILD_DEPENDENCIES="\
-  automake=1.16.4-r1 \
-  autoconf=2.71-r0 \
-  build-base=0.5-r2 \
-  cmake=3.21.3-r0  \
-  coreutils=8.32-r2 \
-  curl=7.79.1-r0 \
-  git=2.33.0-r2 \
-  gettext-tiny-dev=0.3.2-r1 \
-  libtool=2.4.6-r7 \
-  pkgconf=1.8.0-r0 \
-  unzip=6.0-r9 \
+  automake~=1.16 \
+  autoconf~=2.71 \
+  build-base~=0.5 \
+  cmake~=3.21 \
+  coreutils~=8.32 \
+  curl~=7.79 \
+  git~=2.33 \
+  gettext-tiny-dev~=0.3 \
+  libtool~=2.4 \
+  pkgconf~=1.8 \
+  unzip~=6.0 \
   "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
@@ -96,11 +96,11 @@ RUN \
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG CTAGS_BUILD_DEPENDENCIES="\
-  automake=1.16.4-r1 \
-  autoconf=2.71-r0 \
-  build-base=0.5-r2 \
-  git=2.33.0-r2 \
-  pkgconf=1.8.0-r0 \
+  automake~=1.16 \
+  autoconf~=2.71 \
+  build-base~=0.5 \
+  git~=2.33 \
+  pkgconf~=1.8 \
   "
 RUN \
   IFS=' ' read -a packages <<< $NEOVIM_BUILD_DEPENDENCIES ; \
@@ -125,40 +125,40 @@ RUN  \
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG BASE_PACKAGES="\
-  alpine-sdk=1.0-r1 \
-  bash-completion=2.11-r4 \
-  binutils=2.35.2-r2 \
-  build-base=0.5-r2 \
-  cmake=3.21.3-r0  \
-  coreutils=8.32-r2 \
-  curl=7.79.1-r0 \
-  doxygen=1.9.1-r1 \
-  findutils=4.8.0-r1 \
-  fontconfig=2.13.1-r4 \
-  gawk=5.1.0-r0 \
-  git=2.33.0-r2 \
-  grep=3.7-r0 \
-  jq=1.6-r1 \
+  alpine-sdk~=1.0 \
+  bash-completion~=2.11 \
+  binutils~=2.35 \
+  build-base~=0.5 \
+  cmake~=3.21 \
+  coreutils~=8.32 \
+  curl~=7.79 \
+  doxygen~=1.9 \
+  findutils~=4.8 \
+  fontconfig~=2.13 \
+  gawk~=5.1 \
+  git~=2.33 \
+  grep~=3.7 \
+  jq~=1.6 \
   less=590-r0 \
-  make=4.3-r0 \
-  mkfontscale=1.2.1-r1 \
-  ncurses=6.2_p20210109-r0 \
-  ncurses-dev=6.2_p20210109-r0 \
-  ncurses-static=6.2_p20210109-r0 \
-  openssl=3.0.0-r2 \
-  openssl-dev=3.0.0-r2 \
-  perl=5.34.0-r1 \
-  shadow=4.8.1-r0 \
-  starship=0.57.0-r1 \
-  sudo=1.9.8_p2-r0 \
-  tmux=3.2a-r0 \
-  tree=1.8.0-r0 \
-  tzdata=2021a-r0 \
-  util-linux=2.37.2-r1 \
-  wget=1.21.1-r1 \
-  unzip=6.0-r9 \
-  xclip=0.13-r1 \
-  zlib-dev=1.2.11-r3 \
+  make~=4.3 \
+  mkfontscale~=1.2 \
+  ncurses~=6.2 \
+  ncurses-dev~=6.2 \
+  ncurses-static~=6.2 \
+  openssl~=3.0 \
+  openssl-dev~=3.0 \
+  perl~=5.34 \
+  shadow~=4.8 \
+  starship~=0.57 \
+  sudo~=1.9 \
+  tmux~=3.2 \
+  tree~=1.8 \
+  tzdata!=2021c-r0 \
+  util-linux~=2.37 \
+  wget~=1.21 \
+  unzip~=6.0 \
+  xclip~=0.13 \
+  zlib-dev~=1.2 \
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
@@ -212,24 +212,24 @@ RUN \
 ARG IMAGE_SPECIFIC_PACKAGES="\
   aria2=1.35.0-r2 \
   bzip2=1.0.8-r1 \
-  docker=20.10.8-r1 \
-  docker-compose=1.29.2-r1 \
-  fzf=0.27.2-r2 \
-  fzf-bash-completion=0.27.2-r2 \
-  git-secret=0.4.0-r0 \
-  glow=1.3.0-r0 \
-  gnupg=2.2.29-r5 \
-  gtest-dev=1.11.0-r0 \
-  htop=3.0.5-r2 \
-  libcap=2.58-r0 \
-  libffi-dev=3.3-r2 \
+  docker~=20.10 \
+  docker-compose~=1.29 \
+  fzf~=0.27 \
+  fzf-bash-completion~=0.27 \
+  git-secret~=0.4 \
+  glow~=1.3 \
+  gnupg~=2.2 \
+  gtest-dev~=1.11 \
+  htop~=3.0 \
+  libcap~=2.58 \
+  libffi-dev~=3.3 \
   lua5.4=5.4.3-r0 \
-  musl-dev=1.2.2-r6 \
-  nerd-fonts=2.1.0-r6 \
-  rcm=1.3.4-r0 \
-  ripgrep=13.0.0-r0 \
-  ripgrep-bash-completion=13.0.0-r0 \
-  rng-tools-extra=6.12-r0 \
+  musl-dev~=1.2 \
+  nerd-fonts~=2.1 \
+  rcm~=1.3 \
+  ripgrep~=13.0 \
+  ripgrep-bash-completion~=13.0 \
+  rng-tools-extra~=6.12 \
   "
 RUN \
   IFS=' ' read -a packages <<< $IMAGE_SPECIFIC_PACKAGES ; \
@@ -253,8 +253,8 @@ USER "${USER}"
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 ARG NODEJS_DEPENDENCIES="\
-  npm=14.17.6-r0 \
-  yarn=1.22.11-r0 \
+  npm~=14.17 \
+  yarn~=1.22 \
 "
 RUN \
   IFS=' ' read -a packages <<< $NODEJS_DEPENDENCIES ; \

@@ -13,10 +13,10 @@ RUN apk add --no-cache "bash=5.1.8-r0"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 ARG BASE_PACKAGES="\
-  coreutils=8.32-r2 \
-  findutils=4.8.0-r1 \
-  binutils=2.35.2-r2 \
-  file=5.40-r1 \
+  coreutils~=8.32 \
+  findutils~=4.8 \
+  binutils~=2.35 \
+  file~=5.40 \
   "
 RUN \
   IFS=' ' read -a packages <<< $BASE_PACKAGES ; \
@@ -35,9 +35,9 @@ RUN \
   && apk add --no-cache "${packages[@]}" \
   )
 ARG UPX_DEPS="\
-  curl=7.79.1-r0 \
-  jq=1.6-r1 \
-  xz=5.2.5-r0 \
+  curl~=7.79 \
+  jq~=1.6 \
+  xz~=5.2 \
   "
 RUN \
   IFS=' ' read -a packages <<< $UPX_DEPS ; \

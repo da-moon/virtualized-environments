@@ -9,16 +9,16 @@ RUN apk add --no-cache "bash=5.1.4-r0"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # ────────────────────────────────────────────────────────────────────────────────
 ARG BASE_PACKAGES="\
-  build-base=0.5-r2 \
+  build-base~=0.5 \
   ca-certificates=20191127-r5 \
-  cmake=3.20.3-r0  \
-  coreutils=8.32-r2 \
-  curl=7.79.1-r0 \
-  git=2.32.0-r0 \
-  findutils=4.8.0-r1 \
-  make=4.3-r0 \
-  util-linux=2.37-r0 \
-  wget=1.21.1-r1 \
+  cmake~=3.20 \
+  coreutils~=8.32 \
+  curl~=7.79 \
+  git~=2.32 \
+  findutils~=4.8 \
+  make~=4.3 \
+  util-linux~=2.37 \
+  wget~=1.21 \
   "
 RUN  \
   IFS=' ' read -a BASE_PACKAGES <<< $BASE_PACKAGES ; \
