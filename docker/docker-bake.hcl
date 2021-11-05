@@ -22,9 +22,9 @@ variable "AMD64" {default=true}
 variable "TAG" {default=""}
 # "tools-ripgrep",
 group "default" {
+#"devcontainer-core-alpine",
     targets = [
         "builder-rust-alpine",
-        "devcontainer-core-alpine",
         "devcontainer-golang-alpine",
         "devcontainer-rust-alpine",
         "gitpod-ubuntu",
@@ -75,24 +75,31 @@ target "builder-rust-alpine" {
     cache-to   = ["type=registry,mode=max,ref=fjolsvin/rust-builder-alpine:cache"]
     output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
 }
-# LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
-# LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
-# LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-core-alpine
-target "devcontainer-core-alpine" {
-    context="./devcontainer/core/alpine"
-    dockerfile = "Dockerfile"
-    tags = [
-        "fjolsvin/base-alpine:latest",
-        notequal("",TAG) ? "fjolsvin/base-alpine:${TAG}": "",
-    ]
-    platforms = [
-        equal(AMD64,true) ?"linux/amd64":"",
-        equal(ARM64,true) ?"linux/arm64":"",
-    ]
-    cache-from = [equal(LOCAL,true) ? "type=registry,ref=fjolsvin/base-alpine:cache":""]
-    cache-to   = [equal(LOCAL,true) ? "type=registry,mode=max,ref=fjolsvin/base-alpine:cache" : ""]
-    output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
-}
+# ────────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+## LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+## LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+## LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-core-alpine
+#target "devcontainer-core-alpine" {
+#    context="./devcontainer/core/alpine"
+#    dockerfile = "Dockerfile"
+#    tags = [
+#        "fjolsvin/base-alpine:latest",
+#        notequal("",TAG) ? "fjolsvin/base-alpine:${TAG}": "",
+#    ]
+#    platforms = [
+#        equal(AMD64,true) ?"linux/amd64":"",
+#        equal(ARM64,true) ?"linux/arm64":"",
+#    ]
+#    cache-from = [equal(LOCAL,true) ? "type=registry,ref=fjolsvin/base-alpine:cache":""]
+#    cache-to   = [equal(LOCAL,true) ? "type=registry,mode=max,ref=fjolsvin/base-alpine:cache" : ""]
+#    output     = [equal(LOCAL,true) ? "type=docker" : "type=registry"]
+#}
+# ────────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+
 # LOCAL=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
 # LOCAL=true ARM64=false AMD64=true docker buildx bake --builder virtualized-environments devcontainer-golang-alpine
 # LOCAL=true ARM64=true AMD64=false docker buildx bake --builder virtualized-environments devcontainer-golang-alpine

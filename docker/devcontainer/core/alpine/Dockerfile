@@ -75,7 +75,7 @@ RUN \
   || ( \
   sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories \
   && apk add --virtual .neovim-build-deps --no-cache "${packages[@]}" \
-  ); 
+  );
 # ────────────────────────────────────────────────────────────────────────────────
 USER root
 RUN \
@@ -153,7 +153,7 @@ ARG BASE_PACKAGES="\
   sudo~=1.9 \
   tmux~=3.2 \
   tree~=1.8 \
-  tzdata!=2021c-r0 \
+  tzdata~=2021c-r0 \
   util-linux~=2.37 \
   wget~=1.21 \
   unzip~=6.0 \
@@ -221,7 +221,7 @@ ARG IMAGE_SPECIFIC_PACKAGES="\
   gnupg~=2.2 \
   gtest-dev~=1.11 \
   htop~=3.0 \
-  libcap~=2.58 \
+  libcap~=2.59 \
   libffi-dev~=3.3 \
   lua5.4=5.4.3-r0 \
   musl-dev~=1.2 \
@@ -288,7 +288,7 @@ USER "${USER}"
 ENV PATH="${PATH}:${HOME}/.git-fuzzy/bin/"
 RUN \
   git clone https://github.com/bigH/git-fuzzy "${HOME}/.git-fuzzy" \
-  && chmod a+x ${HOME}/.git-fuzzy/bin/* 
+  && chmod a+x ${HOME}/.git-fuzzy/bin/*
 # ─── CLEAN UP ───────────────────────────────────────────────────────────────────
 USER root
 RUN \
