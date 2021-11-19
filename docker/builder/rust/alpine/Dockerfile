@@ -15,13 +15,13 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG BASE_PACKAGES="\
   bat~=0.18 \
   build-base~=0.5 \
-  ca-certificates=20191127-r6 \
+  ca-certificates=20191127-r7 \
   cmake~=3.21 \
   coreutils~=8.32 \
   curl~=7.79 \
   findutils~=4.8 \
   gcc~=10.3 \
-  git~=2.33 \
+  git~=2 \
   make~=4.3 \
   musl-dev~=1.2 \
   ncurses-static~=6.2 \
